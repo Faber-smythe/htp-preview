@@ -1,6 +1,8 @@
 <template>
 	<div class="container">
-		<h1 class="title">{{ site }}</h1>
+		<section class="header-site-title">
+			<h1 class="title title-font">{{ site }}</h1>
+		</section>
 		<Immersive :site="site"></Immersive>
 	</div>
 </template>
@@ -21,3 +23,8 @@ export default {
 	mounted() {},
 }
 </script>
+<style scoped>
+.header-site-title {
+	margin: 1em;
+}
+</style>

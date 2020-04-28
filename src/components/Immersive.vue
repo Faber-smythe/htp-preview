@@ -1,10 +1,18 @@
 <template>
 	<div class="parent">
+		<div class="container">
+			<h2 class="subtitle">{{ immersiveScene.name }}</h2>
+		</div>
 		<div class="scene" ref="scene3D"></div>
 
-		<section>
-			<div class="columns is-mobile">
-				<div class="column is-half is-offset-one-quarter">
+		<!-- Custom tooltip -->
+		<div class="custom-tooltip" ref="tooltip" id="tooltip">
+			<span class="tooltiptext">{{ focusedContent }}</span>
+		</div>
+
+		<div class="container player-footer">
+			<div class="columns is-mobile is-vcentered">
+				<div class="column is-size-4 is-offset-4">
 					<b-field>
 						<b-slider
 							type="is-primary"
@@ -19,8 +27,15 @@
 						></b-slider>
 					</b-field>
 				</div>
+				<div class="column is-one-quarter">
+					<div class="field">
+						<b-switch :value="false" v-model="isMute" @input="toggleMute">
+							Mute
+						</b-switch>
+					</div>
+				</div>
 			</div>
-		</section>
+		</div>
 	</div>
 </template>
 
@@ -28,6 +43,7 @@
 import * as THREE from 'three'
 import Bluebird from 'bluebird'
 import { HotspotUtil } from '../utils/HotspotUtil'
+import { SoundUtil } from '../utils/SoundUtil'
 
 export default {
 	name: 'Immersive',
@@ -64,6 +80,7 @@ export default {
 			manager: null,
 			draggingValue: 0,
 			loadedTextures: [],
+			hotspots: [],
 			immersiveDescription: {
 				eras: [
 					{
@@ -77,12 +94,18 @@ export default {
 				],
 			},
 			meshes: [],
+			selectedMesh: null,
+			previousMeshId: '',
 			immersiveScene: null,
 			hotspotUtil: new HotspotUtil(),
+			soundUtil: null,
+			isMute: false,
+			focusedHotspot: {},
+			tooltip: null,
 		}
 	},
 	mounted() {
-		this.immersiveScene = require('../data/sites/france.amboise.chateau/ConfigurationFiles_immgrandesalle.json')
+		this.immersiveScene = require(`../data/sites/${this.site}/ConfigurationFiles_immgrandesalle.json`)
 		console.log('this.immersiveScene', this.immersiveScene)
 		setTimeout(() => {
 			this.init()
@@ -90,6 +113,7 @@ export default {
 	},
 	beforeDestroy() {
 		if (this.scene) {
+			console.log('beforeDestroy')
 			this.scene.children.forEach((child) => {
 				child.remove()
 			})
@@ -97,18 +121,33 @@ export default {
 			if (this.material) this.material.dispose()
 			if (this.texture) this.texture.dispose()
 		}
+
+		this.soundUtil.unloadSounds()
 	},
 	computed: {
 		isOverBound() {
 			return this.draggingValue == 1500 || this.draggingValue == 1700
 		},
+		focusedContent() {
+			if (this.focusedHotspot && this.focusedHotspot.contentList && this.focusedHotspot.contentList.length > 0) {
+				//return this.focusedHotspot.contentList[0].value
+				return 'Ces meubles d’apparat, appelés dressoirs, présentent des pièces de vaisselles de grand prix montrant la richesse de leur propriétaire. Les nombreuses chandelles font briller la vaisselle d’or et l’argent.'
+			} else {
+				return ''
+			}
+		}
 	},
 	methods: {
 		init() {
 			this.el = this.$refs['scene3D']
+			this.tooltip = this.$refs['tooltip']
+
+			this.textureLoader.setCrossOrigin('anonymous')
+			this.soundUtil = new SoundUtil()
 
 			this.initScene()
 			this.loadAssets()
+			this.initAmbient()
 			this.animate()
 			window.addEventListener('resize', this.onWindowResize, false)
 		},
@@ -124,7 +163,6 @@ export default {
 			)
 
 			this.renderer = new THREE.WebGLRenderer()
-			console.log('window.devicePixelRatio', window.devicePixelRatio)
 			this.renderer.setPixelRatio(2)
 			this.renderer.setSize(this.el.clientWidth, this.el.clientHeight)
 
@@ -136,6 +174,29 @@ export default {
 			this.el.addEventListener('mousedown', this.onDocumentMouseDown, false)
 			this.el.addEventListener('touchstart', this.onDocumentMouseDown, false)
 			this.el.addEventListener('wheel', this.onDocumentMouseWheel, false)
+			this.el.addEventListener('mousemove', this.onMouseOver, false)
+			this.el.addEventListener('touchstart', this.onMouseOver, false)
+		},
+		initAmbient() {
+			let soundFiles = this.immersiveScene.layers.filter((layer) => {
+				return (
+					layer.ambianceSound &&
+					layer.ambianceSound.fileName &&
+					layer.ambianceSound.fileName != ''
+				)
+			})
+			soundFiles = soundFiles.map((soundFile) => {
+				return `/assets/immersives/${this.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`
+			})
+
+			this.soundUtil
+				.init(soundFiles)
+				.then(() => {
+					this.soundUtil.playSoundAtIndex(0)
+				})
+				.catch((error) => {
+					console.error('Error when playing sound:', error)
+				})
 		},
 		animate() {
 			requestAnimationFrame(this.animate)
@@ -153,22 +214,24 @@ export default {
 			this.renderer.render(this.scene, this.camera)
 		},
 		loadAssets() {
-			this.geometry = new THREE.SphereGeometry(800, 60, 40)
+			this.geometry = new THREE.SphereGeometry(900, 60, 40)
 			this.geometry.scale(-1, 1, 1)
 
 			this.hotspotTexture = this.textureLoader.load(`/assets/textures/info.png`)
 
-			Bluebird.each(this.immersiveDescription.eras, (era) => {
+			Bluebird.each(this.immersiveScene.layers, (layer) => {
 				return new Promise((resolve, reject) => {
 					this.textureLoader.load(
-						`/assets/immersives/${this.site}/${era.file}`,
+						`/assets/immersives/${this.site}/${layer.uniqueID}.png`,
 						(texture) => {
 							let material = new THREE.MeshBasicMaterial({
 								map: texture,
 								transparent: true,
+								depthWrite: false,
 							})
 							let mesh = new THREE.Mesh(this.geometry, material)
-							era['uuid'] = mesh.uuid
+							mesh.uuid = layer.uniqueID
+							//layer['uuid'] = mesh.uuid
 							this.meshes.push(mesh)
 							this.scene.add(mesh)
 							resolve(true)
@@ -183,7 +246,10 @@ export default {
 				.then(() => {
 					this.meshes[0].material.opacity = 1
 					this.meshes[1].material.opacity = 0
+					this.selectedMesh = this.meshes[0]
+					this.previousMeshId = this.selectedMesh.uuid
 					this.displayHotspots()
+					this.updateHotspotsOpacity()
 				})
 				.catch((error) => {
 					console.error('Error when loading texture:', error)
@@ -281,25 +347,117 @@ export default {
 		pinchEnd(event) {
 			console.log('pinchEnd', event)
 		},
+		onMouseOver(event) {
+			event.preventDefault()
+
+			let domRect = this.el.getBoundingClientRect()
+
+			let onMouverOverEventX = event.clientX
+					? event.clientX
+					: event.touches[0].clientX
+
+			let onMouverOverEventY = event.clientY
+					? event.clientY
+					: event.touches[0].clientY
+
+			let mouse = new THREE.Vector2(
+				((onMouverOverEventX - domRect.x) / this.el.clientWidth) * 2 - 1,
+				-((onMouverOverEventY - domRect.y) / this.el.clientHeight) * 2 + 1
+			)
+
+
+			this.rayCaster.setFromCamera(mouse, this.camera)
+
+			this.toggleTooltip('hide')
+
+			//On focus behaviour
+			let intersects = this.rayCaster.intersectObjects(this.scene.children)
+			intersects.forEach((intersect) => {
+				let intersected = intersect.object
+				if (intersected.type === 'Sprite' && intersected.material.opacity === 1) {
+					
+					this.focusedHotspot = this.immersiveScene.hotspots.find((hotspot) => {
+						return hotspot.uniqueID == intersected.uuid
+					})
+
+					if (this.focusedHotspot.type == 'TextHotspot') {
+						this.toggleTooltip('show')
+						let tooltipRect = this.tooltip.getBoundingClientRect()
+						this.tooltip.style.top = `${onMouverOverEventY - tooltipRect.height}px`
+						this.tooltip.style.left = `${onMouverOverEventX - domRect.x - 150}px`
+					}
+				}
+			})
+
+			return false
+		},
 		onSliderDragging() {
 			let opacity = (this.draggingValue - 1500) / (1700 - 1500)
 			//this.material.opacity = opacity
 			this.meshes[0].material.opacity = 1 - opacity
 			this.meshes[1].material.opacity = 0 + opacity
+
+			this.selectedMesh = opacity > 0.5 ? this.meshes[1] : this.meshes[0]
+
+			if (this.previousMeshId !== this.selectedMesh.uuid) {
+				this.updateHotspotsOpacity()
+				this.previousMeshId = this.selectedMesh.uuid
+				this.soundUtil.playSoundAtIndex(opacity > 0.5 ? 1 : 0)
+			}
 		},
 		displayHotspots() {
 			this.immersiveScene.hotspots.forEach((hotspot) => {
 				let point = this.hotspotUtil.generate3DPosition(hotspot, 790)
 				let spriteMaterial = new THREE.SpriteMaterial({
 					map: this.hotspotTexture,
+					transparent: true,
 					opacity: 1,
-					transparent: true
 				})
 				let sprite = new THREE.Sprite(spriteMaterial)
 				sprite.scale.set(30, 30, 1)
 				sprite.position.copy(point.clone())
+				sprite.uuid = hotspot.uniqueID
+				this.hotspots.push(sprite)
 				this.scene.add(sprite)
 			})
+		},
+		updateHotspotsOpacity() {
+			this.hotspots.forEach((hotspot) => {
+				let sprite = this.scene.children.find((child) => {
+					return child.uuid == hotspot.uuid
+				})
+				if (sprite) {
+					let sceneHotspot = this.immersiveScene.hotspots.find(
+						(immersiveHotspot) => {
+							return immersiveHotspot.uniqueID == sprite.uuid
+						}
+					)
+					sprite.material.opacity = this.isHotspotDisplayedInLayer(sceneHotspot)
+						? 1
+						: 0
+				}
+			})
+		},
+		isHotspotDisplayedInLayer(hotspot) {
+			if (hotspot.layers && hotspot.layers.length > 0) {
+				let foundLayer = hotspot.layers.find((layer) => {
+					return layer == this.selectedMesh.uuid
+				})
+				if (foundLayer) {
+					return true
+				} else {
+					return false
+				}
+			} else {
+				return true
+			}
+		},
+		toggleMute() {
+			this.soundUtil.mute(this.isMute)
+		},
+		toggleTooltip(command) {
+			this.tooltip.style.display = command === 'show' ? 'block' : 'none'
+			this.showTooltip = command === 'show'
 		},
 	},
 }
@@ -310,7 +468,7 @@ export default {
 .scene {
 	width: 100%;
 	height: 100%;
-	margin-bottom: 3em;
+	margin-bottom: 1em;
 }
 .parent {
 	width: 100%;
@@ -318,5 +476,33 @@ export default {
 }
 .min-height {
 	height: 100%;
+}
+.player-footer {
+	position: sticky;
+	bottom: 0;
+	background-color: white;
+}
+.custom-tooltip {
+	position: absolute;
+	width: 300px;
+	padding: 5px;
+	z-index: 5;
+	left: 50px;
+	border-radius: 3px;
+	font-size: 12px;
+	background-color: black;
+	color: white;
+	display: none;
+}
+
+.custom-tooltip .tooltiptext::after {
+  content: " ";
+  position: absolute;
+  top: 100%; /* At the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
 }
 </style>
