@@ -2,7 +2,7 @@
 import { Howl, Howler } from 'howler'
 import Bluebird from 'bluebird'
 
-export class SoundUtil {
+export class SoundManager {
 	constructor() {
 		window.AudioContext = window.AudioContext || window.webkitAudioContext
 		this.context = new AudioContext()
@@ -25,17 +25,6 @@ export class SoundUtil {
 					reject(error)
 				})
 		})
-
-		/*return new Promise((resolve, reject) => {
-			this.bufferLoader = new BufferLoader(this.context, soundFiles)
-			this.bufferLoader.load().then((bufferList) => {
-                console.log('Buffer list', bufferList)
-                this.finishLoading(bufferList)
-                resolve(true)
-			}).catch((error) => {
-                reject(error)
-            })
-		})*/
 	}
 
 	finishLoading(bufferList) {
@@ -53,7 +42,8 @@ export class SoundUtil {
 	loadSound(soundFile) {
 		return new Promise((resolve) => {
 			let sound = new Howl({
-				src: [soundFile],
+				src: [soundFile.url],
+				volume: soundFile.volume,
 				loop: true,
 				onload: () => {
 					resolve(sound)

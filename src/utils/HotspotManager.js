@@ -1,7 +1,11 @@
 import * as THREE from 'three'
 
-export class HotspotUtil {
-	constructor() {}
+export class HotspotManager {
+
+	constructor() {
+		this.textures = {}
+		this.textureLoader = new THREE.TextureLoader()
+	}
 
 	// eslint-disable-next-line no-unused-vars
 	generate3DPosition(hotspot, sphereRadius) {
@@ -18,7 +22,15 @@ export class HotspotUtil {
 		return cartesianCoordinates
 	}
 
+	// eslint-disable-next-line no-unused-vars
 	planarToPolarCoordinates(x, y, sphereRadius) {
+		/**
+		 * // Longitude
+            x = Mathf.Rad2Deg * (X / sphereRadius),
+
+            // Latitude
+            y = Mathf.Rad2Deg * (2 * Mathf.Atan(Mathf.Exp(Y / sphereRadius)) - Mathf.PI / 2)
+		 */
 		let longitude = THREE.MathUtils.radToDeg(x / sphereRadius)
 		//Mathf.Rad2Deg * (2 * Mathf.Atan(Mathf.Exp(Y / sphereRadius)) - Mathf.PI / 2)
 		let latitude = THREE.MathUtils.radToDeg(
@@ -38,5 +50,17 @@ export class HotspotUtil {
 
 	radiansToDegrees(radians) {
 		return radians * (180 / Math.PI)
+	}
+
+
+
+	loadHotspotTextures() {
+		this.textureLoader.load('/assets/textures/hotspots/White/Content/Off.png', (texture => {
+			this.textures['TextHotspot'] = texture
+		}))
+
+		this.textureLoader.load('/assets/textures/hotspots/Move/Off/White.png', (texture => {
+			this.textures['CloseUpHotspot'] = texture
+		}))
 	}
 }

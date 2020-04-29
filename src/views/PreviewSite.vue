@@ -1,10 +1,12 @@
 <template>
-	<div class="container">
+	<!--<div class="container">
 		<section class="header-site-title">
 			<h1 class="title title-font">{{ site }}</h1>
 		</section>
-		<Immersive :site="site"></Immersive>
-	</div>
+		
+	</div>-->
+
+	<Immersive :site="site"></Immersive>
 </template>
 
 <script>

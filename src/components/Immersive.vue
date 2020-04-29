@@ -1,21 +1,25 @@
 <template>
 	<div class="parent">
-		<div class="container">
-			<h2 class="subtitle">{{ immersiveScene.name }}</h2>
-		</div>
 		<div class="scene" ref="scene3D"></div>
+
+		<div v-if="immersiveScene">
+			<h2 class="subtitle title-font header-immersive">
+				{{ immersiveScene.name }}
+			</h2>
+		</div>
 
 		<!-- Custom tooltip -->
 		<div class="custom-tooltip" ref="tooltip" id="tooltip">
 			<span class="tooltiptext">{{ focusedContent }}</span>
 		</div>
 
-		<div class="container player-footer">
+		<div class="player-footer">
 			<div class="columns is-mobile is-vcentered">
 				<div class="column is-size-4 is-offset-4">
 					<b-field>
 						<b-slider
-							type="is-primary"
+							type="is-white"
+							tooltip-type="is-white"
 							:min="immersiveDescription.eras[0].date"
 							:max="immersiveDescription.eras[1].date"
 							:value="immersiveDescription.eras[0].date"
@@ -36,14 +40,20 @@
 				</div>
 			</div>
 		</div>
+		<b-modal :active.sync="isModalCloseUpVisible">
+			<p class="image" v-if="closeUpImage">
+				<span>{{ focusedContent }}</span>
+				<img :src="closeUpImage" />
+			</p>
+		</b-modal>
 	</div>
 </template>
 
 <script>
 import * as THREE from 'three'
 import Bluebird from 'bluebird'
-import { HotspotUtil } from '../utils/HotspotUtil'
-import { SoundUtil } from '../utils/SoundUtil'
+import { HotspotManager } from '../utils/HotspotManager'
+import { SoundManager } from '../utils/SoundManager'
 
 export default {
 	name: 'Immersive',
@@ -67,6 +77,7 @@ export default {
 			renderer: null,
 			camera: null,
 			scene: null,
+			hotspotScene: null,
 			rayCaster: null,
 			mesh: null,
 			hotspotTexture: null,
@@ -97,23 +108,32 @@ export default {
 			selectedMesh: null,
 			previousMeshId: '',
 			immersiveScene: null,
-			hotspotUtil: new HotspotUtil(),
-			soundUtil: null,
+			hotspotManager: new HotspotManager(),
+			soundManager: null,
 			isMute: false,
 			focusedHotspot: {},
 			tooltip: null,
+			closeUpImage: '',
+			isModalCloseUpVisible: false,
 		}
 	},
 	mounted() {
 		this.immersiveScene = require(`../data/sites/${this.site}/ConfigurationFiles_immgrandesalle.json`)
-		console.log('this.immersiveScene', this.immersiveScene)
+		//Loading only text hotspot and close ups
+		this.immersiveScene.hotspots = this.immersiveScene.hotspots.filter(
+			(hotspot) => {
+				return (
+					hotspot.type === 'TextHotspot' || hotspot.type === 'CloseUpHotspot'
+				)
+			}
+		)
 		setTimeout(() => {
 			this.init()
 		})
 	},
 	beforeDestroy() {
+		console.log('beforeDestroy')
 		if (this.scene) {
-			console.log('beforeDestroy')
 			this.scene.children.forEach((child) => {
 				child.remove()
 			})
@@ -121,21 +141,27 @@ export default {
 			if (this.material) this.material.dispose()
 			if (this.texture) this.texture.dispose()
 		}
-
-		this.soundUtil.unloadSounds()
+		this.soundManager.unloadSounds()
 	},
 	computed: {
 		isOverBound() {
 			return this.draggingValue == 1500 || this.draggingValue == 1700
 		},
 		focusedContent() {
-			if (this.focusedHotspot && this.focusedHotspot.contentList && this.focusedHotspot.contentList.length > 0) {
-				//return this.focusedHotspot.contentList[0].value
-				return 'Ces meubles d’apparat, appelés dressoirs, présentent des pièces de vaisselles de grand prix montrant la richesse de leur propriétaire. Les nombreuses chandelles font briller la vaisselle d’or et l’argent.'
+			if (
+				this.focusedHotspot &&
+				this.focusedHotspot.contentList &&
+				this.focusedHotspot.contentList.length > 0
+			) {
+				let key = this.focusedHotspot.contentList[0].value
+					.replace('${', '')
+					.replace('}', '')
+
+				return this.$t(key)
 			} else {
 				return ''
 			}
-		}
+		},
 	},
 	methods: {
 		init() {
@@ -143,7 +169,7 @@ export default {
 			this.tooltip = this.$refs['tooltip']
 
 			this.textureLoader.setCrossOrigin('anonymous')
-			this.soundUtil = new SoundUtil()
+			this.soundManager = new SoundManager()
 
 			this.initScene()
 			this.loadAssets()
@@ -153,29 +179,30 @@ export default {
 		},
 		initScene() {
 			this.scene = new THREE.Scene()
+			this.hotspotScene = new THREE.Scene()
 			this.rayCaster = new THREE.Raycaster()
 
 			this.camera = new THREE.PerspectiveCamera(
 				this.fov,
 				this.el.clientWidth / this.el.clientHeight,
 				1,
-				1000
+				2158
 			)
 
 			this.renderer = new THREE.WebGLRenderer()
-			this.renderer.setPixelRatio(2)
+			this.renderer.setPixelRatio(window.devicePixelRatio)
+			this.renderer.sortObjects = false
 			this.renderer.setSize(this.el.clientWidth, this.el.clientHeight)
 
 			this.el.appendChild(this.renderer.domElement)
 
-			//Add event listeners
-
-			//Add events listener
+			//Add events listeners
 			this.el.addEventListener('mousedown', this.onDocumentMouseDown, false)
 			this.el.addEventListener('touchstart', this.onDocumentMouseDown, false)
 			this.el.addEventListener('wheel', this.onDocumentMouseWheel, false)
 			this.el.addEventListener('mousemove', this.onMouseOver, false)
 			this.el.addEventListener('touchstart', this.onMouseOver, false)
+			this.el.addEventListener('click', this.onMouseOver, false)
 		},
 		initAmbient() {
 			let soundFiles = this.immersiveScene.layers.filter((layer) => {
@@ -186,13 +213,16 @@ export default {
 				)
 			})
 			soundFiles = soundFiles.map((soundFile) => {
-				return `/assets/immersives/${this.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`
+				return {
+					url: `/assets/immersives/${this.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`,
+					volume: soundFile.ambianceSound.volume
+				}
 			})
 
-			this.soundUtil
+			this.soundManager
 				.init(soundFiles)
 				.then(() => {
-					this.soundUtil.playSoundAtIndex(0)
+					this.soundManager.playSoundAtIndex(0)
 				})
 				.catch((error) => {
 					console.error('Error when playing sound:', error)
@@ -211,15 +241,28 @@ export default {
 
 			this.camera.lookAt(this.scene.position)
 
+			//this.renderer.render(this.hotspotScene, this.camera)
+			//this.renderer.clearDepth()
 			this.renderer.render(this.scene, this.camera)
+			//this.renderer.render(this.hotspotScene, this.camera)
+		},
+		createHotpotScene() {
+			let material = new THREE.MeshBasicMaterial({
+				transparent: true,
+				depthWrite: false,
+				opacity: 0,
+				color: 0xffff00,
+			})
+			let mesh = new THREE.Mesh(this.geometry, material)
+			this.meshes.push(mesh)
+			this.hotspotScene.add(mesh)
 		},
 		loadAssets() {
-			this.geometry = new THREE.SphereGeometry(900, 60, 40)
+			this.geometry = new THREE.SphereGeometry(2058, 60, 40)
 			this.geometry.scale(-1, 1, 1)
+			this.hotspotManager.loadHotspotTextures()
 
-			this.hotspotTexture = this.textureLoader.load(`/assets/textures/info.png`)
-
-			Bluebird.each(this.immersiveScene.layers, (layer) => {
+			Bluebird.each(this.immersiveScene.layers, (layer, index) => {
 				return new Promise((resolve, reject) => {
 					this.textureLoader.load(
 						`/assets/immersives/${this.site}/${layer.uniqueID}.png`,
@@ -231,6 +274,7 @@ export default {
 							})
 							let mesh = new THREE.Mesh(this.geometry, material)
 							mesh.uuid = layer.uniqueID
+							mesh.renderOrder = index
 							//layer['uuid'] = mesh.uuid
 							this.meshes.push(mesh)
 							this.scene.add(mesh)
@@ -248,6 +292,7 @@ export default {
 					this.meshes[1].material.opacity = 0
 					this.selectedMesh = this.meshes[0]
 					this.previousMeshId = this.selectedMesh.uuid
+					//this.createHotpotScene()
 					this.displayHotspots()
 					this.updateHotspotsOpacity()
 				})
@@ -353,38 +398,57 @@ export default {
 			let domRect = this.el.getBoundingClientRect()
 
 			let onMouverOverEventX = event.clientX
-					? event.clientX
-					: event.touches[0].clientX
+				? event.clientX
+				: event.touches[0].clientX
 
 			let onMouverOverEventY = event.clientY
-					? event.clientY
-					: event.touches[0].clientY
+				? event.clientY
+				: event.touches[0].clientY
 
 			let mouse = new THREE.Vector2(
 				((onMouverOverEventX - domRect.x) / this.el.clientWidth) * 2 - 1,
 				-((onMouverOverEventY - domRect.y) / this.el.clientHeight) * 2 + 1
 			)
 
-
 			this.rayCaster.setFromCamera(mouse, this.camera)
 
 			this.toggleTooltip('hide')
+			this.tooltip.style.opacity = 0
 
 			//On focus behaviour
 			let intersects = this.rayCaster.intersectObjects(this.scene.children)
 			intersects.forEach((intersect) => {
 				let intersected = intersect.object
-				if (intersected.type === 'Sprite' && intersected.material.opacity === 1) {
-					
+				if (
+					intersected.type === 'Sprite' &&
+					intersected.material.opacity === 1
+				) {
 					this.focusedHotspot = this.immersiveScene.hotspots.find((hotspot) => {
 						return hotspot.uniqueID == intersected.uuid
 					})
 
 					if (this.focusedHotspot.type == 'TextHotspot') {
-						this.toggleTooltip('show')
-						let tooltipRect = this.tooltip.getBoundingClientRect()
-						this.tooltip.style.top = `${onMouverOverEventY - tooltipRect.height}px`
-						this.tooltip.style.left = `${onMouverOverEventX - domRect.x - 150}px`
+						setTimeout(() => {
+							this.toggleTooltip('show')
+							let tooltipRect = this.tooltip.getBoundingClientRect()
+							this.tooltip.style.top = `${onMouverOverEventY -
+								tooltipRect.height -
+								20}px`
+							this.tooltip.style.left = `${onMouverOverEventX -
+								domRect.x -
+								150}px`
+							this.tooltip.style.opacity = 1
+						}, 5)
+						
+					} else if (this.focusedHotspot.type == 'CloseUpHotspot') {
+						if (
+							(this.focusedHotspot.contentList.length == 1 &&
+								event.type == 'click') ||
+							event.type == 'touchstart'
+						) {
+							this.closeUpImage = `/assets/immersives/${this.site}/closeups/${this.focusedHotspot.contentList[0].value}.jpg`
+							this.isModalCloseUpVisible = true
+						}
 					}
 				}
 			})
@@ -402,21 +466,22 @@ export default {
 			if (this.previousMeshId !== this.selectedMesh.uuid) {
 				this.updateHotspotsOpacity()
 				this.previousMeshId = this.selectedMesh.uuid
-				this.soundUtil.playSoundAtIndex(opacity > 0.5 ? 1 : 0)
+				this.soundManager.playSoundAtIndex(opacity > 0.5 ? 1 : 0)
 			}
 		},
 		displayHotspots() {
-			this.immersiveScene.hotspots.forEach((hotspot) => {
-				let point = this.hotspotUtil.generate3DPosition(hotspot, 790)
+			this.immersiveScene.hotspots.forEach((hotspot, index) => {
+				let point = this.hotspotManager.generate3DPosition(hotspot, 2047)
 				let spriteMaterial = new THREE.SpriteMaterial({
-					map: this.hotspotTexture,
+					map: this.hotspotManager.textures[hotspot.type],
 					transparent: true,
 					opacity: 1,
 				})
 				let sprite = new THREE.Sprite(spriteMaterial)
-				sprite.scale.set(30, 30, 1)
+				sprite.scale.set(200, 200, 1)
 				sprite.position.copy(point.clone())
 				sprite.uuid = hotspot.uniqueID
+				sprite.renderOrder = this.meshes.length + index
 				this.hotspots.push(sprite)
 				this.scene.add(sprite)
 			})
@@ -453,7 +518,7 @@ export default {
 			}
 		},
 		toggleMute() {
-			this.soundUtil.mute(this.isMute)
+			this.soundManager.mute(this.isMute)
 		},
 		toggleTooltip(command) {
 			this.tooltip.style.display = command === 'show' ? 'block' : 'none'
@@ -465,22 +530,37 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+/*.scene {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: auto;
+}*/
+
 .scene {
-	width: 100%;
-	height: 100%;
-	margin-bottom: 1em;
+	width: 100% !important;
+	height: 100% !important;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: -1;
 }
+
 .parent {
 	width: 100%;
-	height: 80vh;
-}
-.min-height {
 	height: 100%;
 }
 .player-footer {
-	position: sticky;
+	position: fixed;
 	bottom: 0;
-	background-color: white;
+	left: 0;
+	right: 0;
+	padding: 1em;
+	background-color: black;
+	opacity: 0.8;
+	color: white;
 }
 .custom-tooltip {
 	position: absolute;
@@ -495,14 +575,34 @@ export default {
 	display: none;
 }
 
+.header {
+	color: white;
+	opacity: 1;
+}
+
+.header-immersive {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	background: black;
+	opacity: 0.8;
+	color: white;
+	padding: 1em;
+}
+
 .custom-tooltip .tooltiptext::after {
-  content: " ";
-  position: absolute;
-  top: 100%; /* At the bottom of the tooltip */
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: black transparent transparent transparent;
+	content: ' ';
+	position: absolute;
+	top: 100%; /* At the bottom of the tooltip */
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: black transparent transparent transparent;
+}
+
+.b-slider.is-custom .b-slider-fill {
+	background:lightslategrey!important
 }
 </style>
