@@ -2,9 +2,17 @@
 	<div class="parent">
 		<div class="scene" ref="scene3D"></div>
 
-		<div v-if="immersiveScene">
-			<h2 class="subtitle title-font header-immersive">
-				{{ immersiveScene.name }}
+		<div v-if="immersiveScene" class="header-immersive has-text-centered">
+			<h2 class="title-font header-title">
+				<router-link to="/"
+					><b-icon
+						pack="fas"
+						icon="long-arrow-alt-left"
+						type="is-white"
+						style="margin-right: 0.8em; margin-top: 0.1em;"
+					></b-icon
+				></router-link>
+				<span>&nbsp;&nbsp;&nbsp;{{ immersiveTitle }}</span>
 			</h2>
 		</div>
 
@@ -15,19 +23,27 @@
 
 		<div class="player-footer">
 			<div class="columns is-mobile is-vcentered">
-				<div class="column is-size-4 is-offset-4">
+				<div
+					class="column is-size-4 is-offset-4"
+					v-if="
+						immersiveScene &&
+							immersiveScene.layers &&
+							immersiveScene.layers.length > 0
+					"
+				>
 					<b-field>
 						<b-slider
 							type="is-white"
 							tooltip-type="is-white"
-							:min="immersiveDescription.eras[0].date"
-							:max="immersiveDescription.eras[1].date"
-							:value="immersiveDescription.eras[0].date"
+							:min="0"
+							:max="100"
+							:value="0"
 							:bigger-slider-focus="true"
 							:tooltip="isOverBound"
 							v-model="draggingValue"
+							:custom-formatter="onTooltipFormat"
 							@dragging="onSliderDragging"
-							@change="onSliderDragging"
+							@input="onSliderDragging"
 						></b-slider>
 					</b-field>
 				</div>
@@ -51,31 +67,36 @@
 
 <script>
 import * as THREE from 'three'
+import TWEEN from '@tweenjs/tween.js'
 import Bluebird from 'bluebird'
 import { HotspotManager } from '../utils/HotspotManager'
 import { SoundManager } from '../utils/SoundManager'
+import { ImmersiveManager } from '../utils/ImmersiveManager'
+// eslint-disable-next-line no-unused-vars
+import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls'
 
 export default {
 	name: 'Immersive',
 	props: {
 		site: String,
+		immersiveFileName: String,
 	},
 	data() {
 		return {
-			onPointerDownPointerX: 0,
-			onPointerDownPointerY: 0,
-			lat: 0,
-			lon: 0,
-			fov: 60,
-			onPointerDownLon: 0,
-			onPointerDownLat: 0,
-			phi: 0,
-			theta: 0,
 			width: window.innerWidth,
 			height: window.innerHeight,
 			ratio: window.innerWidth / window.innerHeight,
+			onMouseDownMouseX: 0,
+			onMouseDownMouseY: 0,
+			lon: 0,
+			lat: 0,
+			onMouseDownLon: 0,
+			onMouseDownLat: 0,
+			phi: 0,
+			theta: 0,
 			renderer: null,
 			camera: null,
+			controls: null,
 			scene: null,
 			hotspotScene: null,
 			rayCaster: null,
@@ -86,39 +107,37 @@ export default {
 			el: null,
 			textureLoader: new THREE.TextureLoader(),
 			isUserInteracting: false,
+			isTweening: false,
 			isMenuVisible: false,
 			scaling: false,
 			manager: null,
 			draggingValue: 0,
 			loadedTextures: [],
 			hotspots: [],
-			immersiveDescription: {
-				eras: [
-					{
-						date: 1500,
-						file: 'grande-salle-audience_equi.jpg',
-					},
-					{
-						date: 1700,
-						file: 'grande-salle-banquet_equi.jpg',
-					},
-				],
-			},
 			meshes: [],
 			selectedMesh: null,
 			previousMeshId: '',
 			immersiveScene: null,
 			hotspotManager: new HotspotManager(),
+			immersiveManager: new ImmersiveManager(),
 			soundManager: null,
 			isMute: false,
 			focusedHotspot: {},
 			tooltip: null,
 			closeUpImage: '',
 			isModalCloseUpVisible: false,
+			loadingComponent: null,
 		}
 	},
 	mounted() {
-		this.immersiveScene = require(`../data/sites/${this.site}/ConfigurationFiles_immgrandesalle.json`)
+		this.immersiveScene = JSON.parse(
+			JSON.stringify(
+				require(`../data/sites/${this.site}/${this.immersiveFileName}`)
+			)
+		)
+		if (!this.immersiveScene.layers) {
+			this.immersiveManager.processOldImmersive(this.immersiveScene)
+		}
 		//Loading only text hotspot and close ups
 		this.immersiveScene.hotspots = this.immersiveScene.hotspots.filter(
 			(hotspot) => {
@@ -145,7 +164,7 @@ export default {
 	},
 	computed: {
 		isOverBound() {
-			return this.draggingValue == 1500 || this.draggingValue == 1700
+			return this.draggingValue == 0 || this.draggingValue == 100
 		},
 		focusedContent() {
 			if (
@@ -161,6 +180,14 @@ export default {
 			} else {
 				return ''
 			}
+		},
+		immersiveTitle() {
+			let index = this.draggingValue > 50 ? 1 : 0
+			return this.$t(
+				this.immersiveScene.layers[index].cartelDescription.title
+					.replace('${', '')
+					.replace('}', '')
+			)
 		},
 	},
 	methods: {
@@ -186,8 +213,10 @@ export default {
 				this.fov,
 				this.el.clientWidth / this.el.clientHeight,
 				1,
-				2158
+				4000
 			)
+			this.camera.position.set(0, 0, 0)
+			this.camera.target = new THREE.Vector3(0, 0, 0)
 
 			this.renderer = new THREE.WebGLRenderer()
 			this.renderer.setPixelRatio(window.devicePixelRatio)
@@ -196,13 +225,39 @@ export default {
 
 			this.el.appendChild(this.renderer.domElement)
 
+			new TWEEN.Tween( this.camera.target).to({position: this.camera.target}, 2000)
+				.easing( TWEEN.Easing.Exponential.InOut )
+				.start();
+
+			/*this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+			this.controls.enableDamping = true
+			this.controls.enableZoom = true
+			this.controls.rotateSpeed = -0.5*/
+
+			console.log('world projection', this.camera.getWorldDirection())
+
+			var axesHelper = new THREE.AxesHelper(5)
+			this.scene.add(axesHelper)
+
 			//Add events listeners
-			this.el.addEventListener('mousedown', this.onDocumentMouseDown, false)
-			this.el.addEventListener('touchstart', this.onDocumentMouseDown, false)
-			this.el.addEventListener('wheel', this.onDocumentMouseWheel, false)
+			this.el.addEventListener('mousedown', this.onPointerStart, false)
+			this.el.addEventListener('mousemove', this.onPointerMove, false)
+			this.el.addEventListener('mouseup', this.onPointerUp, false)
+
+			this.el.addEventListener('touchstart', this.onPointerStart, false)
+			this.el.addEventListener('touchmove', this.onPointerMove, false)
+			this.el.addEventListener('touchend', this.onPointerUp, false)
+
+			//this.el.addEventListener('mousedown', this.onDocumentMouseDown, false)
 			this.el.addEventListener('mousemove', this.onMouseOver, false)
+			this.el.addEventListener('click', this.onClick, false)
 			this.el.addEventListener('touchstart', this.onMouseOver, false)
-			this.el.addEventListener('click', this.onMouseOver, false)
+
+			//this.el.addEventListener('touchstart', this.onDocumentMouseDown, false)
+
+			this.el.addEventListener('wheel', this.onDocumentMouseWheel, false)
+
+			//this.el.addEventListener('touchstart', this.onMouseOver, false)
 		},
 		initAmbient() {
 			let soundFiles = this.immersiveScene.layers.filter((layer) => {
@@ -215,7 +270,7 @@ export default {
 			soundFiles = soundFiles.map((soundFile) => {
 				return {
 					url: `/assets/immersives/${this.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`,
-					volume: soundFile.ambianceSound.volume
+					volume: soundFile.ambianceSound.volume,
 				}
 			})
 
@@ -231,20 +286,23 @@ export default {
 		animate() {
 			requestAnimationFrame(this.animate)
 
-			this.lat = Math.max(-90, Math.min(90, this.lat))
+			/*if (!this.isUserInteracting) {
+				this.lon += 0.1
+			}*/
+
+			this.lat = Math.max(-85, Math.min(85, this.lat))
 			this.phi = THREE.MathUtils.degToRad(90 - this.lat)
 			this.theta = THREE.MathUtils.degToRad(this.lon)
 
-			this.camera.position.x = 100 * Math.sin(this.phi) * Math.cos(this.theta)
-			this.camera.position.y = 100 * Math.cos(this.phi)
-			this.camera.position.z = 100 * Math.sin(this.phi) * Math.sin(this.theta)
+			this.camera.target.x = 2048 * Math.sin(this.phi) * Math.cos(this.theta)
+			this.camera.target.y = 2048 * Math.cos(this.phi)
+			this.camera.target.z = 2048 * Math.sin(this.phi) * Math.sin(this.theta)
 
-			this.camera.lookAt(this.scene.position)
-
-			//this.renderer.render(this.hotspotScene, this.camera)
-			//this.renderer.clearDepth()
+			this.camera.lookAt(this.camera.target)
+			
+			//this.controls.update()
+			TWEEN.update();
 			this.renderer.render(this.scene, this.camera)
-			//this.renderer.render(this.hotspotScene, this.camera)
 		},
 		createHotpotScene() {
 			let material = new THREE.MeshBasicMaterial({
@@ -258,12 +316,14 @@ export default {
 			this.hotspotScene.add(mesh)
 		},
 		loadAssets() {
-			this.geometry = new THREE.SphereGeometry(2058, 60, 40)
+			this.displayLoading(true)
+			this.geometry = new THREE.SphereGeometry(2048, 60, 40)
 			this.geometry.scale(-1, 1, 1)
 			this.hotspotManager.loadHotspotTextures()
 
 			Bluebird.each(this.immersiveScene.layers, (layer, index) => {
 				return new Promise((resolve, reject) => {
+					console.log('Load layer', layer)
 					this.textureLoader.load(
 						`/assets/immersives/${this.site}/${layer.uniqueID}.png`,
 						(texture) => {
@@ -271,6 +331,7 @@ export default {
 								map: texture,
 								transparent: true,
 								depthWrite: false,
+								side: THREE.DoubleSide,
 							})
 							let mesh = new THREE.Mesh(this.geometry, material)
 							mesh.uuid = layer.uniqueID
@@ -278,6 +339,7 @@ export default {
 							//layer['uuid'] = mesh.uuid
 							this.meshes.push(mesh)
 							this.scene.add(mesh)
+							mesh.position.set(0, 0, 0)
 							resolve(true)
 						},
 						() => {},
@@ -295,119 +357,99 @@ export default {
 					//this.createHotpotScene()
 					this.displayHotspots()
 					this.updateHotspotsOpacity()
+					this.displayLoading(false)
 				})
 				.catch((error) => {
 					console.error('Error when loading texture:', error)
+					this.displayLoading(false)
 				})
+		},
+		displayLoading(isLoading) {
+			if (isLoading) {
+				this.loadingComponent = this.$buefy.loading.open({
+					container: this.el,
+				})
+			} else {
+				this.loadingComponent.close()
+			}
 		},
 		onWindowResize() {
 			this.camera.aspect = this.el.clientWidth / this.el.clientHeight
 			this.camera.updateProjectionMatrix()
 			this.renderer.setSize(this.el.clientWidth, this.el.clientHeight)
 		},
-		onDocumentMouseWheel(event) {
-			this.fov = this.camera.fov + event.deltaY * 0.05
-			this.camera.fov = THREE.MathUtils.clamp(this.fov, 20, 60)
-			this.camera.updateProjectionMatrix()
+		onPointerStart(event) {
+			this.isUserInteracting = true
+
+			let clientX = event.clientX || event.touches[0].clientX
+			let clientY = event.clientY || event.touches[0].clientY
+
+			this.onMouseDownMouseX = clientX
+			this.onMouseDownMouseY = clientY
+
+			this.onMouseDownLon = this.lon
+			this.onMouseDownLat = this.lat
 		},
-		onDocumentMouseDown(event) {
-			event.preventDefault()
+		onPointerMove(event) {
+			if (this.isUserInteracting) {
+				let clientX = event.clientX || event.touches[0].clientX
+				let clientY = event.clientY || event.touches[0].clientY
 
-			if (!this.isMenuVisible) {
-				this.onPointerDownPointerX = event.clientX
-					? event.clientX
-					: event.touches[0].clientX
-				this.onPointerDownPointerY = event.clientY
-					? event.clientY
-					: event.touches[0].clientY
-				this.onPointerDownLon = this.lon
-				this.onPointerDownLat = this.lat
-
-				this.isUserInteracting = true
-
-				this.el.addEventListener('mousemove', this.onDocumentMouseMove, false)
-				this.el.addEventListener('mouseup', this.onDocumentMouseUp, false)
-
-				if (event.touches && event.touches.length == 1) {
-					this.el.addEventListener('touchmove', this.onDocumentMouseMove, false)
-					this.el.addEventListener('touchend', this.onDocumentMouseUp, false)
-				} else if (event.touches && event.touches.length == 2) {
-					this.scaling = true
-					this.pinchStart(event)
-				}
-			} else {
-				this.isUserInteracting = false
-				this.el.removeEventListener(
-					'mousemove',
-					this.onDocumentMouseMove,
-					false
-				)
-				this.el.removeEventListener(
-					'touchmove',
-					this.onDocumentMouseMove,
-					false
-				)
-				this.el.removeEventListener('mouseup', this.onDocumentMouseUp, false)
-				this.el.removeEventListener('touchend', this.onDocumentMouseUp, false)
+				this.lon =
+					(this.onMouseDownMouseX - clientX) * 0.3 + this.onMouseDownLon
+				this.lat =
+					(clientY - this.onMouseDownMouseY) * 0.2 + this.onMouseDownLat
+				
+				this.toggleTooltip('hide')
 			}
 		},
-		onDocumentMouseUp(event) {
+		onPointerUp() {
 			this.isUserInteracting = false
-			this.el.removeEventListener('mousemove', this.onDocumentMouseMove, false)
-			this.el.removeEventListener('mouseup', this.onDocumentMouseUp, false)
-			this.el.removeEventListener('touchstart', this.onDocumentMouseMove, false)
-			this.el.removeEventListener('touchend', this.onDocumentMouseUp, false)
-			if (this.scaling) {
-				this.pinchEnd(event)
-				this.scaling = false
-			}
 		},
-		onDocumentMouseMove(event) {
-			if (!this.isMenuVisible) {
-				if (!this.scaling) {
-					let eventX = event.clientX ? event.clientX : event.touches[0].clientX
-					let eventY = event.clientY ? event.clientY : event.touches[0].clientY
-					this.lon =
-						(eventX - this.onPointerDownPointerX) * -0.175 +
-						this.onPointerDownLon
-
-					this.lat =
-						(eventY - this.onPointerDownPointerY) * -0.175 +
-						this.onPointerDownLat
-				} else {
-					this.pinchMove(event)
-				}
-			}
+		onDocumentMouseWheel(event) {
+			console.log('onDocumentMouseWheel', event)
+			this.setCameraZoom(event.deltaY)
 		},
 		pinchStart(event) {
 			console.log('pinchstart', event)
+			let dx = event.touches[0].pageX - event.touches[1].pageX
+			let dy = event.touches[0].pageY - event.touches[1].pageY
+			this.touchDistanceEnd = this.touchDistanceStart = Math.sqrt(
+				dx * dx + dy * dy
+			)
+			console.log('Pinch started', this.touchDistanceEnd)
 		},
 		pinchMove(event) {
-			let dist = Math.hypot(
-				event.touches[0].pageX - event.touches[1].pageX,
-				event.touches[0].pageY - event.touches[1].pageY
-			)
-			console.log('pinchmove', dist)
+			let dx = event.touches[0].pageX - event.touches[1].pageX
+			let dy = event.touches[0].pageY - event.touches[1].pageY
+			this.touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy)
+			console.log('pinchmove', this.touchZoomDistanceEnd)
+			let factor = this.touchDistanceStart / this.touchDistanceEnd
+			this.touchZoomDistanceStart = this.touchZoomDistanceEnd
+			this.setCameraZoom(factor)
 		},
 		pinchEnd(event) {
 			console.log('pinchEnd', event)
+			this.touchDistanceEnd = this.touchDistanceStart = 0
+			this.scaling = false
+		},
+		setCameraZoom(zoom) {
+			this.fov = this.camera.fov + zoom * 0.05
+			console.log('this.fov', this.fov, THREE.MathUtils.clamp(this.fov, 20, 60))
+			this.camera.fov = THREE.MathUtils.clamp(this.fov, 20, 60)
+			this.camera.updateProjectionMatrix()
 		},
 		onMouseOver(event) {
 			event.preventDefault()
 
 			let domRect = this.el.getBoundingClientRect()
 
-			let onMouverOverEventX = event.clientX
-				? event.clientX
-				: event.touches[0].clientX
-
-			let onMouverOverEventY = event.clientY
-				? event.clientY
-				: event.touches[0].clientY
+			let clientX = event.clientX || event.touches[0].clientX
+			let clientY = event.clientY || event.touches[0].clientY
 
 			let mouse = new THREE.Vector2(
-				((onMouverOverEventX - domRect.x) / this.el.clientWidth) * 2 - 1,
-				-((onMouverOverEventY - domRect.y) / this.el.clientHeight) * 2 + 1
+				((clientX - domRect.x) / this.el.clientWidth) * 2 - 1,
+				-((clientY - domRect.y) / this.el.clientHeight) * 2 + 1
 			)
 
 			this.rayCaster.setFromCamera(mouse, this.camera)
@@ -431,16 +473,49 @@ export default {
 						setTimeout(() => {
 							this.toggleTooltip('show')
 							let tooltipRect = this.tooltip.getBoundingClientRect()
-							this.tooltip.style.top = `${onMouverOverEventY -
+							this.tooltip.style.top = `${clientY -
 								tooltipRect.height -
 								20}px`
-							this.tooltip.style.left = `${onMouverOverEventX -
-								domRect.x -
-								150}px`
+							this.tooltip.style.left = `${clientX - domRect.x - 150}px`
 							this.tooltip.style.opacity = 1
-						}, 5)
-						
-					} else if (this.focusedHotspot.type == 'CloseUpHotspot') {
+
+							console.log('position', this.tooltip.style.left, this.tooltip.style.top )
+						}, 100)
+					}
+				}
+			})
+
+			return false
+		},
+		onClick(event) {
+			event.preventDefault()
+
+			let domRect = this.el.getBoundingClientRect()
+
+			let clientX = event.clientX || event.touches[0].clientX
+			let clientY = event.clientY || event.touches[0].clientY
+
+			let mouse = new THREE.Vector2(
+				((clientX - domRect.x) / this.el.clientWidth) * 2 - 1,
+				-((clientY - domRect.y) / this.el.clientHeight) * 2 + 1
+			)
+
+			this.rayCaster.setFromCamera(mouse, this.camera)
+
+			this.toggleTooltip('hide')
+			this.tooltip.style.opacity = 0
+
+			let intersects = this.rayCaster.intersectObjects(this.scene.children)
+			intersects.forEach((intersect) => {
+				let intersected = intersect.object
+				if (
+					intersected.type === 'Sprite' &&
+					intersected.material.opacity === 1
+				) {
+					this.focusedHotspot = this.immersiveScene.hotspots.find((hotspot) => {
+						return hotspot.uniqueID == intersected.uuid
+					})
+					if (this.focusedHotspot.type == 'CloseUpHotspot') {
 						if (
 							(this.focusedHotspot.contentList.length == 1 &&
 								event.type == 'click') ||
@@ -449,14 +524,25 @@ export default {
 							this.closeUpImage = `/assets/immersives/${this.site}/closeups/${this.focusedHotspot.contentList[0].value}.jpg`
 							this.isModalCloseUpVisible = true
 						}
+					} else if (
+						this.focusedHotspot.type == 'TextHotspot' &&
+						event.touches &&
+						event.touches.length == 1
+					) {
+						setTimeout(() => {
+							this.toggleTooltip('show')
+							let tooltipRect = this.tooltip.getBoundingClientRect()
+							this.tooltip.style.top = `${clientX - tooltipRect.height - 20}px`
+							this.tooltip.style.left = `${clientY - domRect.x - 150}px`
+							this.tooltip.style.opacity = 1
+							console.log('Position', this.tooltip.style.top, this.tooltip.style.left)
+						}, 5)
 					}
 				}
 			})
-
-			return false
 		},
 		onSliderDragging() {
-			let opacity = (this.draggingValue - 1500) / (1700 - 1500)
+			let opacity = this.draggingValue / 100
 			//this.material.opacity = opacity
 			this.meshes[0].material.opacity = 1 - opacity
 			this.meshes[1].material.opacity = 0 + opacity
@@ -469,9 +555,17 @@ export default {
 				this.soundManager.playSoundAtIndex(opacity > 0.5 ? 1 : 0)
 			}
 		},
+		onTooltipFormat(value) {
+			let index = value > 50 ? 1 : 0
+			return this.$t(
+				this.immersiveScene.layers[index].localizedTimestampTitle
+					.replace('${', '')
+					.replace('}', '')
+			)
+		},
 		displayHotspots() {
 			this.immersiveScene.hotspots.forEach((hotspot, index) => {
-				let point = this.hotspotManager.generate3DPosition(hotspot, 2047)
+				let point = this.hotspotManager.generate3DPosition(hotspot, 2048)
 				let spriteMaterial = new THREE.SpriteMaterial({
 					map: this.hotspotManager.textures[hotspot.type],
 					transparent: true,
@@ -530,15 +624,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-/*.scene {
-	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	overflow: auto;
-}*/
-
 .scene {
 	width: 100% !important;
 	height: 100% !important;
@@ -552,6 +637,7 @@ export default {
 	width: 100%;
 	height: 100%;
 }
+
 .player-footer {
 	position: fixed;
 	bottom: 0;
@@ -575,11 +661,6 @@ export default {
 	display: none;
 }
 
-.header {
-	color: white;
-	opacity: 1;
-}
-
 .header-immersive {
 	position: fixed;
 	top: 0;
@@ -587,8 +668,18 @@ export default {
 	right: 0;
 	background: black;
 	opacity: 0.8;
-	color: white;
 	padding: 1em;
+	color: white;
+	text-align: center;
+	font-size: 1.25rem;
+	font-weight: 400;
+	line-height: 1.25;
+}
+
+.header-title {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .custom-tooltip .tooltiptext::after {
@@ -603,6 +694,6 @@ export default {
 }
 
 .b-slider.is-custom .b-slider-fill {
-	background:lightslategrey!important
+	background: lightslategrey !important;
 }
 </style>

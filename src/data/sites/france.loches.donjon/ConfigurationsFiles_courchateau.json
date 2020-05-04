@@ -1,0 +1,532 @@
+﻿{
+    "name": "CourChateau",
+    "template": "CubeMapVisite",
+    "cartelDescriptions": [
+        {
+            "title": "${CubemapTitle_Imm_CourChateau}",
+            "description": "${CubemapDesc_Imm_CourChateau}"
+        },
+        {
+            "title": "${PlaceTitle_Map_CourChateau}",
+            "description": "${CubemapDesc_VA_CourChateau}"
+        }
+    ],
+    "requiredAssetBundles": [
+        "courchateau",
+        "relics-closeups"
+    ],
+    "cubemapMaterial": "courchateau",
+    "camera": {
+        "type": "Gyro",
+        "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "sensitivity": 10.0,
+        "zoomMin": 20.0,
+        "zoomMax": 55.0,
+        "topClampValue": 0.0,
+        "bottomClampValue": 0.0,
+        "leftClampValue": 0.0,
+        "rightClampValue": 0.0,
+        "xAxisLocked": false,
+        "yAxisLocked": false,
+        "zAxisLocked": false,
+        "autoRotate": false,
+        "autoRotationSpeed": 0.0,
+        "autoRotationTriggerTime": 0.0
+    },
+    "hotspots": [
+        {
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "${HotspotCubemap_Imm_CourChateau_CuisinePleinAir}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -1497.968505859375,
+                "y": 1012.2811279296875
+            }
+        },
+        {
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "${HotspotCubemap_Imm_CourChateau_TourDefense}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -2783.932861328125,
+                "y": -419.4180908203125
+            }
+        },
+        {
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "${HotspotCubemap_Imm_CourChateau_FenilBlesses}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -4070.59814453125,
+                "y": 171.41998291015626
+            }
+        },
+        {
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "${HotspotCubemap_Imm_CourChateau_CourtineXIIeme}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 4228.9033203125,
+                "y": -701.3529052734375
+            }
+        },
+        {
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "${HotspotCubemap_Imm_CourChateau_HourdsDonjon}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 5578.6806640625,
+                "y": -1726.0296630859375
+            }
+        },
+        {
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "${HotspotCubemap_Imm_CourChateau_Etabli}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 223.02304077148438,
+                "y": 1069.3482666015625
+            }
+        },
+        {
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "${HotspotCubemap_Imm_CourChateau_AccesPrinicipal}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 3070.161376953125,
+                "y": 233.8577880859375
+            }
+        },
+        {
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "${HotspotCubemap_Imm_CourChateau_Forge}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 3735.5078125,
+                "y": 192.07382202148438
+            }
+        },
+        {
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "${HotspotCubemap_Imm_CourChateau_GirardAthee}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 2026.222900390625,
+                "y": 992.71728515625
+            }
+        },
+        {
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "LargeFlames"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 6035.8359375,
+                "y": 411.7392578125
+            }
+        },
+        {
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "TinyFlamesTower"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -2731.95703125,
+                "y": -708.5256958007813
+            }
+        },
+        {
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "FireEmbers3"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -715.5868530273438,
+                "y": 1195.7646484375
+            }
+        },
+        {
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "FireEmbers1"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 3588.97314453125,
+                "y": 979.47509765625
+            }
+        },
+        {
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "FireEmbers2"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 1973.6962890625,
+                "y": 716.581298828125
+            }
+        },
+        {
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "FireEmbers4"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -4283.439453125,
+                "y": 743.4758911132813
+            }
+        },
+        {
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "wallMask"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 5853.658203125,
+                "y": -641.72607421875
+            }
+        },
+        {
+            "type": "SpatialSoundHotspot",
+            "zoomLevelDisplayMin": 0.10000000149011612,
+            "zoomLevelDisplayMax": 0.5,
+            "content": [
+                "Sfx_TaylorStone"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -28.557384490966798,
+                "y": 1053.5577392578125
+            }
+        },
+        {
+            "type": "SpatialSoundHotspot",
+            "zoomLevelDisplayMin": 0.699999988079071,
+            "zoomLevelDisplayMax": 0.699999988079071,
+            "content": [
+                "Amb_Siege"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -48.508453369140628,
+                "y": 2900.600341796875
+            }
+        },
+        {
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "Projectile"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 6196.109375,
+                "y": -1774.9249267578125
+            }
+        },
+        {
+            "type": "SpatialSoundHotspot",
+            "zoomLevelDisplayMin": 0.699999988079071,
+            "zoomLevelDisplayMax": 0.699999988079071,
+            "content": [
+                "Amb_Loches_3D"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                1.0
+            ],
+            "color": "",
+            "position": {
+                "x": 702.849609375,
+                "y": 2833.603515625
+            }
+        },
+        {
+            "type": "SpatialSoundHotspot",
+            "zoomLevelDisplayMin": 0.0,
+            "zoomLevelDisplayMax": 0.3499999940395355,
+            "content": [
+                "SFX_Hey",
+                "8"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -1660.8363037109375,
+                "y": -718.5287475585938
+            }
+        },
+        {
+            "type": "SpatialSoundHotspot",
+            "zoomLevelDisplayMin": 0.0,
+            "zoomLevelDisplayMax": 0.4000000059604645,
+            "content": [
+                "SFX_Winch_ALT1"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -2545.569091796875,
+                "y": -45.07621765136719
+            }
+        },
+        {
+            "type": "SpatialSoundHotspot",
+            "zoomLevelDisplayMin": 0.0,
+            "zoomLevelDisplayMax": 0.3499999940395355,
+            "content": [
+                "SFX_Wounded_ALT",
+                "10"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -3562.349853515625,
+                "y": 351.0723876953125
+            }
+        },
+        {
+            "type": "SpatialSoundHotspot",
+            "zoomLevelDisplayMin": 0.10000000149011612,
+            "zoomLevelDisplayMax": 0.3499999940395355,
+            "content": [
+                "SFX_Horse",
+                "7"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -3852.8583984375,
+                "y": 1050.9349365234375
+            }
+        },
+        {
+            "type": "SpatialSoundHotspot",
+            "zoomLevelDisplayMin": 0.10000000149011612,
+            "zoomLevelDisplayMax": 0.4000000059604645,
+            "content": [
+                "SFX_Blacksmith",
+                "5.5"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": 3528.71044921875,
+                "y": 126.58821105957031
+            }
+        },
+        {
+            "type": "Model3DHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [
+                "Crossbow3DObject",
+                "${IOTitle_Arbalete}"
+            ],
+            "requiredAssetBundle": "",
+            "displayIndexes": [
+                0.0
+            ],
+            "color": "",
+            "position": {
+                "x": -432.05975341796877,
+                "y": -800.57373046875
+            }
+        }
+    ],
+    "widgets": [
+        {
+            "type": "CameraZoom",
+            "position": {
+                "x": -100.0,
+                "y": 660.0
+            },
+            "content": []
+        },
+        {
+            "type": "HorizontalSkyboxBlender",
+            "position": {
+                "x": 0.0,
+                "y": 112.5
+            },
+            "content": [
+                "${TimelineLabel_Past_CourChateau}",
+                "${TimelineLabel_Present_CourChateau}"
+            ]
+        },
+        {
+            "type": "CameraPinchToZoom",
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "content": []
+        }
+    ],
+    "closeUps": [],
+    "ambianceSound": "",
+    "ambianceVolume": 0.0,
+    "lockBeaconDetection": false,
+    "defaultSceneNavigation": {
+        "sceneName": "",
+        "sceneTemplate": "",
+        "sceneType": ""
+    }
+}

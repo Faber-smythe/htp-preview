@@ -6,11 +6,12 @@
 		
 	</div>-->
 
-	<Immersive :site="site"></Immersive>
+	<Immersive :site="site" :immersiveFileName="immersiveFileName" v-if="immersiveFileName"></Immersive>
 </template>
 
 <script>
 import Immersive from '@/components/Immersive.vue'
+import sites from '../data/sites.json'
 
 export default {
 	name: 'PreviewSite',
@@ -20,9 +21,21 @@ export default {
 	data() {
 		return {
 			site: this.$route.params.site,
+			immersiveID: this.$route.params.immersive,
+			immersiveFileName: null
 		}
 	},
-	mounted() {},
+	mounted() {
+		let selectedSite = sites.find(s => {
+			return s.site == this.site
+		})
+
+		let foundImmersive = selectedSite.immersives.find(immersive => {
+			return immersive.id == this.immersiveID
+		})
+
+		this.immersiveFileName = foundImmersive.file
+	},
 }
 </script>
 <style scoped>

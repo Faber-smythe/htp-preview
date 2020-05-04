@@ -21,6 +21,13 @@
         "lngLat": [
             0.9848193,
             47.4135606
+        ],
+        "immersives": [
+            {
+                "id": "IMMGrandeSalle",
+                "name": "CubemapTitle_Imm_GrandeSalleAudience",
+                "file": "ConfigurationFiles_immgrandesalle.json"
+            }
         ]
     },
     {
@@ -29,6 +36,13 @@
         "lngLat": [
             0.9943971,
             47.1249142
+        ],
+        "immersives": [
+            {
+                "id": "CourChateau",
+                "name": "CubemapTitle_Imm_CourChateau",
+                "file": "ConfigurationsFiles_courchateau.json"
+            }
         ]
     },
     {

@@ -12,7 +12,7 @@ const routes = [
 		component: Home,
 	},
 	{
-		path: '/preview/:site',
+		path: '/preview/:site/immersive/:immersive',
 		name: 'PreviewSite',
 		component: PreviewSite,
 	},

@@ -14,12 +14,13 @@
 	font-family: Roboto, Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
+	/*text-align: center;*/
 	color: #2c3e50;
 }
 
 .title-font {
 	font-family: Poppins, Helvetica, Arial, sans-serif;
+	opacity: 1.0!important;
 }
 
 #nav {
