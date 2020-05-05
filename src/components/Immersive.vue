@@ -23,15 +23,22 @@
 
 		<div class="player-footer">
 			<div class="columns is-mobile is-vcentered">
+				<span style="font-size:0.8em; position:absolute; top:3em; left:33%;">{{
+					sliderTooltipsLabel[0]
+				}}</span>
+				<span style="font-size:0.8em; position:absolute; top:3em; right:33%">{{
+					sliderTooltipsLabel[1]
+				}}</span>
+
 				<div
-					class="column is-size-4 is-offset-4"
+					class="column is-one-third is-offset-one-third"
 					v-if="
 						immersiveScene &&
 							immersiveScene.layers &&
 							immersiveScene.layers.length > 0
 					"
 				>
-					<b-field>
+					<b-field style="margin-left: 0.5em; margin-right: 0.5em;">
 						<b-slider
 							type="is-white"
 							tooltip-type="is-white"
@@ -39,41 +46,60 @@
 							:max="100"
 							:value="0"
 							:bigger-slider-focus="true"
-							:tooltip="isOverBound"
+							:tooltip="false"
 							v-model="draggingValue"
 							:custom-formatter="onTooltipFormat"
 							@dragging="onSliderDragging"
 							@input="onSliderDragging"
+							orient="vertical"
 						></b-slider>
 					</b-field>
 				</div>
-				<div class="column is-one-quarter">
+				<div class="column is-2">
 					<div class="field">
 						<b-switch :value="false" v-model="isMute" @input="toggleMute">
 							Mute
 						</b-switch>
 					</div>
 				</div>
+
+				<v-popover offset="16">
+					<!-- This will be the popover target (for the events and position) -->
+					<button class="tooltip-target b3">Click me</button>
+
+					<!-- This will be the content of the popover -->
+					<template slot="popover">
+						<div class="range-container">
+							<input class="range" type="range" />
+						</div>
+					</template>
+				</v-popover>
 			</div>
 		</div>
 		<b-modal :active.sync="isModalCloseUpVisible">
 			<p class="image" v-if="closeUpImage">
 				<span>{{ focusedContent }}</span>
-				<img :src="closeUpImage" />
+				<img :src="closeUpImage" :alt="focusedContent" />
 			</p>
 		</b-modal>
+		<img id="closeUpImg" style="display:none;" />
 	</div>
 </template>
 
 <script>
+import Vue from 'vue'
 import * as THREE from 'three'
-import TWEEN from '@tweenjs/tween.js'
 import Bluebird from 'bluebird'
 import { HotspotManager } from '../utils/HotspotManager'
 import { SoundManager } from '../utils/SoundManager'
 import { ImmersiveManager } from '../utils/ImmersiveManager'
-// eslint-disable-next-line no-unused-vars
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls'
+
+import VTooltip from 'v-tooltip'
+
+Vue.use(VTooltip)
+
+const SPHERE_RADIUS = 2048
 
 export default {
 	name: 'Immersive',
@@ -83,12 +109,13 @@ export default {
 	},
 	data() {
 		return {
+			isEnabled: false,
 			width: window.innerWidth,
 			height: window.innerHeight,
 			ratio: window.innerWidth / window.innerHeight,
 			onMouseDownMouseX: 0,
 			onMouseDownMouseY: 0,
-			lon: 0,
+			lon: -90,
 			lat: 0,
 			onMouseDownLon: 0,
 			onMouseDownLat: 0,
@@ -96,6 +123,7 @@ export default {
 			theta: 0,
 			renderer: null,
 			camera: null,
+			fov: 60,
 			controls: null,
 			scene: null,
 			hotspotScene: null,
@@ -127,6 +155,8 @@ export default {
 			closeUpImage: '',
 			isModalCloseUpVisible: false,
 			loadingComponent: null,
+			imageCloseUps: {},
+			sliderTooltipsLabel: ['', ''],
 		}
 	},
 	mounted() {
@@ -142,23 +172,38 @@ export default {
 		this.immersiveScene.hotspots = this.immersiveScene.hotspots.filter(
 			(hotspot) => {
 				return (
-					hotspot.type === 'TextHotspot' || hotspot.type === 'CloseUpHotspot'
+					hotspot.type === 'TextHotspot' ||
+					(hotspot.type === 'CloseUpHotspot' && hotspot.contentList.length == 1)
 				)
 			}
 		)
-		setTimeout(() => {
-			this.init()
+
+		//Load slider tooltips label
+		this.sliderTooltipsLabel = this.immersiveScene.layers.map((layer) => {
+			return this.$t(
+				layer.localizedTimestampTitle.replace('${', '').replace('}', '')
+			)
 		})
+
+		this.init()
 	},
 	beforeDestroy() {
-		console.log('beforeDestroy')
 		if (this.scene) {
+			this.scene.children.forEach((child) => {
+				if (child.geometry && child.material) {
+					child.geometry.dispose()
+					child.material.dispose()
+				}
+			})
+
 			this.scene.children.forEach((child) => {
 				child.remove()
 			})
-			if (this.geometry) this.geometry.dispose()
-			if (this.material) this.material.dispose()
-			if (this.texture) this.texture.dispose()
+
+			this.scene.dispose()
+			this.renderer.renderLists.dispose()
+
+			if (this.controls) this.controls.dispose()
 		}
 		this.soundManager.unloadSounds()
 	},
@@ -201,6 +246,7 @@ export default {
 			this.initScene()
 			this.loadAssets()
 			this.initAmbient()
+			this.loadCloseUps()
 			this.animate()
 			window.addEventListener('resize', this.onWindowResize, false)
 		},
@@ -215,8 +261,7 @@ export default {
 				1,
 				4000
 			)
-			this.camera.position.set(0, 0, 0)
-			this.camera.target = new THREE.Vector3(0, 0, 0)
+			this.camera.position.set(0, 0, 10)
 
 			this.renderer = new THREE.WebGLRenderer()
 			this.renderer.setPixelRatio(window.devicePixelRatio)
@@ -225,33 +270,27 @@ export default {
 
 			this.el.appendChild(this.renderer.domElement)
 
-			new TWEEN.Tween( this.camera.target).to({position: this.camera.target}, 2000)
-				.easing( TWEEN.Easing.Exponential.InOut )
-				.start();
-
-			/*this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+			this.controls = new OrbitControls(this.camera, this.renderer.domElement)
 			this.controls.enableDamping = true
-			this.controls.enableZoom = true
-			this.controls.rotateSpeed = -0.5*/
+			this.controls.enableZoom = false
+			this.controls.rotateSpeed = -0.5
 
-			console.log('world projection', this.camera.getWorldDirection())
-
-			var axesHelper = new THREE.AxesHelper(5)
-			this.scene.add(axesHelper)
+			//var axesHelper = new THREE.AxesHelper(5)
+			//this.scene.add(axesHelper)
 
 			//Add events listeners
-			this.el.addEventListener('mousedown', this.onPointerStart, false)
-			this.el.addEventListener('mousemove', this.onPointerMove, false)
-			this.el.addEventListener('mouseup', this.onPointerUp, false)
+			//this.el.addEventListener('mousedown', this.onPointerStart, false)
+			//this.el.addEventListener('mousemove', this.onPointerMove, false)
+			//this.el.addEventListener('mouseup', this.onPointerUp, false)
 
-			this.el.addEventListener('touchstart', this.onPointerStart, false)
-			this.el.addEventListener('touchmove', this.onPointerMove, false)
-			this.el.addEventListener('touchend', this.onPointerUp, false)
+			//this.el.addEventListener('touchstart', this.onPointerStart, false)
+			//this.el.addEventListener('touchmove', this.onPointerMove, false)
+			//this.el.addEventListener('touchend', this.onPointerUp, false)
 
 			//this.el.addEventListener('mousedown', this.onDocumentMouseDown, false)
 			this.el.addEventListener('mousemove', this.onMouseOver, false)
 			this.el.addEventListener('click', this.onClick, false)
-			this.el.addEventListener('touchstart', this.onMouseOver, false)
+			this.el.addEventListener('touchstart', this.onClick, false)
 
 			//this.el.addEventListener('touchstart', this.onDocumentMouseDown, false)
 
@@ -283,6 +322,24 @@ export default {
 					console.error('Error when playing sound:', error)
 				})
 		},
+		loadCloseUps() {
+			let closeUps = this.immersiveScene.hotspots.filter((hotspot) => {
+				return (
+					hotspot.type === 'CloseUpHotspot' && hotspot.contentList.length === 1
+				)
+			})
+
+			let image = document.getElementById('closeUpImg')
+
+			closeUps.forEach((closeUp) => {
+				let url = `/assets/immersives/${this.site}/closeups/${closeUp.contentList[0].value}.jpg`
+				let closeUpImage = new Image()
+				closeUpImage.onload = () => {
+					image.src = this.src
+				}
+				closeUpImage.src = url
+			})
+		},
 		animate() {
 			requestAnimationFrame(this.animate)
 
@@ -290,18 +347,21 @@ export default {
 				this.lon += 0.1
 			}*/
 
-			this.lat = Math.max(-85, Math.min(85, this.lat))
+			/*this.lat = Math.max(-85, Math.min(85, this.lat))
 			this.phi = THREE.MathUtils.degToRad(90 - this.lat)
 			this.theta = THREE.MathUtils.degToRad(this.lon)
 
-			this.camera.target.x = 2048 * Math.sin(this.phi) * Math.cos(this.theta)
-			this.camera.target.y = 2048 * Math.cos(this.phi)
-			this.camera.target.z = 2048 * Math.sin(this.phi) * Math.sin(this.theta)
+			let target = new THREE.Vector3(
+				2048 * Math.sin(this.phi) * Math.cos(this.theta),
+				2048 * Math.cos(this.phi),
+				2048 * Math.sin(this.phi) * Math.sin(this.theta)
+			)
 
+			this.camera.target = target
 			this.camera.lookAt(this.camera.target)
-			
-			//this.controls.update()
-			TWEEN.update();
+			this.camera.updateProjectionMatrix()*/
+
+			this.controls.update()
 			this.renderer.render(this.scene, this.camera)
 		},
 		createHotpotScene() {
@@ -317,26 +377,24 @@ export default {
 		},
 		loadAssets() {
 			this.displayLoading(true)
-			this.geometry = new THREE.SphereGeometry(2048, 60, 40)
+			this.geometry = new THREE.SphereGeometry(SPHERE_RADIUS + 20, 60, 40)
 			this.geometry.scale(-1, 1, 1)
 			this.hotspotManager.loadHotspotTextures()
 
 			Bluebird.each(this.immersiveScene.layers, (layer, index) => {
 				return new Promise((resolve, reject) => {
-					console.log('Load layer', layer)
 					this.textureLoader.load(
 						`/assets/immersives/${this.site}/${layer.uniqueID}.png`,
 						(texture) => {
 							let material = new THREE.MeshBasicMaterial({
 								map: texture,
 								transparent: true,
-								depthWrite: false,
 								side: THREE.DoubleSide,
+								depthWrite: true,
 							})
 							let mesh = new THREE.Mesh(this.geometry, material)
 							mesh.uuid = layer.uniqueID
 							mesh.renderOrder = index
-							//layer['uuid'] = mesh.uuid
 							this.meshes.push(mesh)
 							this.scene.add(mesh)
 							mesh.position.set(0, 0, 0)
@@ -354,7 +412,6 @@ export default {
 					this.meshes[1].material.opacity = 0
 					this.selectedMesh = this.meshes[0]
 					this.previousMeshId = this.selectedMesh.uuid
-					//this.createHotpotScene()
 					this.displayHotspots()
 					this.updateHotspotsOpacity()
 					this.displayLoading(false)
@@ -379,6 +436,7 @@ export default {
 			this.renderer.setSize(this.el.clientWidth, this.el.clientHeight)
 		},
 		onPointerStart(event) {
+			event.preventDefault()
 			this.isUserInteracting = true
 
 			let clientX = event.clientX || event.touches[0].clientX
@@ -391,23 +449,21 @@ export default {
 			this.onMouseDownLat = this.lat
 		},
 		onPointerMove(event) {
+			event.preventDefault()
 			if (this.isUserInteracting) {
 				let clientX = event.clientX || event.touches[0].clientX
 				let clientY = event.clientY || event.touches[0].clientY
 
 				this.lon =
-					(this.onMouseDownMouseX - clientX) * 0.3 + this.onMouseDownLon
+					(this.onMouseDownMouseX - clientX) * 0.2 + this.onMouseDownLon
 				this.lat =
 					(clientY - this.onMouseDownMouseY) * 0.2 + this.onMouseDownLat
-				
-				this.toggleTooltip('hide')
 			}
 		},
 		onPointerUp() {
 			this.isUserInteracting = false
 		},
 		onDocumentMouseWheel(event) {
-			console.log('onDocumentMouseWheel', event)
 			this.setCameraZoom(event.deltaY)
 		},
 		pinchStart(event) {
@@ -434,8 +490,8 @@ export default {
 			this.scaling = false
 		},
 		setCameraZoom(zoom) {
+			this.toggleTooltip('hide')
 			this.fov = this.camera.fov + zoom * 0.05
-			console.log('this.fov', this.fov, THREE.MathUtils.clamp(this.fov, 20, 60))
 			this.camera.fov = THREE.MathUtils.clamp(this.fov, 20, 60)
 			this.camera.updateProjectionMatrix()
 		},
@@ -473,15 +529,13 @@ export default {
 						setTimeout(() => {
 							this.toggleTooltip('show')
 							let tooltipRect = this.tooltip.getBoundingClientRect()
-							this.tooltip.style.top = `${clientY -
-								tooltipRect.height -
-								20}px`
+							this.tooltip.style.top = `${clientY - tooltipRect.height - 20}px`
 							this.tooltip.style.left = `${clientX - domRect.x - 150}px`
 							this.tooltip.style.opacity = 1
-
-							console.log('position', this.tooltip.style.left, this.tooltip.style.top )
 						}, 100)
 					}
+				} else if (intersected.type === 'Mesh') {
+					//console.log('POSITION XYZ', intersect.point)
 				}
 			})
 
@@ -532,10 +586,17 @@ export default {
 						setTimeout(() => {
 							this.toggleTooltip('show')
 							let tooltipRect = this.tooltip.getBoundingClientRect()
-							this.tooltip.style.top = `${clientX - tooltipRect.height - 20}px`
-							this.tooltip.style.left = `${clientY - domRect.x - 150}px`
+
+							let top = clientY - tooltipRect.height - 20
+							let left = clientX - domRect.x - 150
+							this.tooltip.style.top = `${top}px`
+							this.tooltip.style.left = `${left}px`
 							this.tooltip.style.opacity = 1
-							console.log('Position', this.tooltip.style.top, this.tooltip.style.left)
+							console.log(
+								'Position',
+								this.tooltip.style.top,
+								this.tooltip.style.left
+							)
 						}, 5)
 					}
 				}
@@ -550,6 +611,7 @@ export default {
 			this.selectedMesh = opacity > 0.5 ? this.meshes[1] : this.meshes[0]
 
 			if (this.previousMeshId !== this.selectedMesh.uuid) {
+				this.toggleTooltip('hide')
 				this.updateHotspotsOpacity()
 				this.previousMeshId = this.selectedMesh.uuid
 				this.soundManager.playSoundAtIndex(opacity > 0.5 ? 1 : 0)
@@ -557,22 +619,22 @@ export default {
 		},
 		onTooltipFormat(value) {
 			let index = value > 50 ? 1 : 0
-			return this.$t(
-				this.immersiveScene.layers[index].localizedTimestampTitle
-					.replace('${', '')
-					.replace('}', '')
-			)
+			return this.sliderTooltipsLabel[index]
 		},
 		displayHotspots() {
 			this.immersiveScene.hotspots.forEach((hotspot, index) => {
-				let point = this.hotspotManager.generate3DPosition(hotspot, 2048)
+				let point = this.hotspotManager.generate3DPosition(
+					hotspot,
+					SPHERE_RADIUS - 1
+				)
 				let spriteMaterial = new THREE.SpriteMaterial({
 					map: this.hotspotManager.textures[hotspot.type],
-					transparent: true,
 					opacity: 1,
+					transparent: true,
+					depthWrite: true,
 				})
 				let sprite = new THREE.Sprite(spriteMaterial)
-				sprite.scale.set(200, 200, 1)
+				sprite.scale.set(100, 100, 1)
 				sprite.position.copy(point.clone())
 				sprite.uuid = hotspot.uniqueID
 				sprite.renderOrder = this.meshes.length + index
@@ -693,7 +755,30 @@ export default {
 	border-color: black transparent transparent transparent;
 }
 
-.b-slider.is-custom .b-slider-fill {
-	background: lightslategrey !important;
+.tooltip.popover .popover-inner {
+	background: #f9f9f9;
+	color: black;
+	padding: 24px;
+	border-radius: 5px;
+	box-shadow: 0 5px 30px rgba(0, 0, 0, 0.1);
+}
+.tooltip.popover .popover-arrow {
+	border-color: #f9f9f9;
+}
+
+.range-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  height: 200px;
+  
+  background: #a3e5c1;
+}
+
+.range {
+  width: 100px;
+
+  transform: rotate(-90deg);
 }
 </style>

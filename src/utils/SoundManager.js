@@ -27,18 +27,6 @@ export class SoundManager {
 		})
 	}
 
-	finishLoading(bufferList) {
-		this.sources = []
-
-		bufferList.forEach((buffer) => {
-			let source = this.context.createBufferSource()
-			source.loop = true
-			source.buffer = buffer
-			source.connect(this.context.destination)
-			this.sources.push(source)
-		})
-	}
-
 	loadSound(soundFile) {
 		return new Promise((resolve) => {
 			let sound = new Howl({
@@ -69,7 +57,9 @@ export class SoundManager {
 
 	unloadSounds() {
 		this.sounds.forEach((sound) => {
-			sound.stop()
+			if (sound.playing) {
+				sound.stop()
+			}
 			sound.unload()
 		})
 	}

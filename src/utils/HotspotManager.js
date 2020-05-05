@@ -26,11 +26,11 @@ export class HotspotManager {
 		)
 
 		//Ca ca fonctionne a peu près
-		/*cartesianCoordinates = this.sphericalTo3DCoordinates(
+		cartesianCoordinates = this.sphericalTo3DCoordinates(
 			polarCoordinates.x,
 			polarCoordinates.y,
 			sphereRadius
-		)*/
+		)
 		return cartesianCoordinates
 	}
 
@@ -42,14 +42,20 @@ export class HotspotManager {
 		return new THREE.Vector2(longitude, latitude)
 	}
 
+	/**
+	 *
+	 * @param {*} latitude
+	 * @param {*} longitude
+	 * @param {*} sphereRadius
+	 */
 	sphericalTo3DCoordinates(latitude, longitude, sphereRadius) {
 		latitude *= DEG2RAD
 		longitude *= DEG2RAD
 
 		let coordinates = new THREE.Vector3(
-			-sphereRadius * Math.cos(latitude) * Math.cos(longitude),
+			- sphereRadius * Math.cos(latitude) * Math.cos(longitude),
 			sphereRadius * Math.cos(latitude) * Math.sin(longitude),
-			-sphereRadius * Math.sin(latitude)
+			- sphereRadius * Math.sin(latitude)
 		)
 
 		return coordinates
@@ -57,23 +63,28 @@ export class HotspotManager {
 
 	// eslint-disable-next-line no-unused-vars
 	polarToCartesian(longitude, latitude, sphereRadius) {
+		//A mon avis je comprends rien à ce qu'il se passe copy pasta violent !
 		let origin = new THREE.Vector3(0, 0, sphereRadius)
-		let rotation = new THREE.Euler(latitude, longitude, 0)
-		let point = origin.applyEuler(rotation)
+		//let rotation = new THREE.Euler(latitude, longitude, 0)
+		let rotation = new THREE.Quaternion().setFromEuler(
+			new THREE.Euler(latitude, longitude, 0, 'XZY')
+		)
+		rotation.x *= -1
+		let point = origin.applyQuaternion(rotation)
 
 		return point
 	}
 
 	loadHotspotTextures() {
 		this.textureLoader.load(
-			'/assets/textures/hotspots/White/Content/Off.png',
+			'/assets/textures/hotspots/White/Content/Off-2.png',
 			(texture) => {
 				this.textures['TextHotspot'] = texture
 			}
 		)
 
 		this.textureLoader.load(
-			'/assets/textures/hotspots/Move/Off/White.png',
+			'/assets/textures/hotspots/Move/Off/White-2.png',
 			(texture) => {
 				this.textures['CloseUpHotspot'] = texture
 			}
