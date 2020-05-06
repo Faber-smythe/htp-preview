@@ -8,6 +8,7 @@ export class SoundManager {
 		this.context = new AudioContext()
 		this.soundIndex = 0
 		this.muted = false
+		this.volume = 0.4
 	}
 
 	init(soundFiles) {
@@ -46,6 +47,7 @@ export class SoundManager {
 			this.sounds[this.soundIndex].stop()
 		}
 		this.soundIndex = index
+		this.sounds[this.soundIndex].volume(this.volume)
 		this.sounds[this.soundIndex].mute(this.muted)
 		this.sounds[this.soundIndex].play()
 	}
@@ -53,6 +55,11 @@ export class SoundManager {
 	mute(muted) {
 		this.muted = muted
 		this.sounds[this.soundIndex].mute(this.muted)
+	}
+
+	setVolume(volume) {
+		this.volume = volume
+		this.sounds[this.soundIndex].volume(this.volume)
 	}
 
 	unloadSounds() {

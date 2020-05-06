@@ -1,19 +1,68 @@
 <template>
 	<div class="container">
 		<section class="section header-section">
-			<h1 class="title title-font">HistoPad preview</h1>
+			<h1 class="title title-font">
+				<img class="logo" src="/img/logos/logo_histopad.png" alt="HistoPad" />
+			</h1>
 			<h3>
 				Bienvenue sur la page de preview des applications HistoPad. Veuillez
 				sélectionner un monument ci-dessous :
 			</h3>
 		</section>
-		<div class="map">
-			<div
-				id="mapglContainer"
-				style="
+		<b-tabs
+			v-model="activeTab"
+			position="is-centered"
+			class="block"
+			@change="onTabChange"
+		>
+			<b-tab-item label="Experiences" icon="cube">
+				<b-carousel
+					:indicator-inside="false"
+					v-if="immersives.length > 0"
+					:has-drag="true"
+				>
+					<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
+						<span class="image">
+							<div
+								class="hero-body has-text-centered"
+								:style="
+									`background-image: url(/img/immersives/${immersive.name}.jpg); height: 60vh; width:100%; background-size:cover;`
+								"
+							>
+								<h3 class="subtitle title-font">{{ immersive.site }}</h3>
+								<h1 class="title title-font">
+									<a
+										:href="
+											`/preview/${immersive.site}/immersive/${immersive.id}`
+										"
+										>{{ $t(immersive.name) }}</a
+									>
+								</h1>
+							</div>
+						</span>
+					</b-carousel-item>
+					<template slot="indicators" slot-scope="props">
+						<span class="al image">
+							<img
+								:src="`/img/immersives/${immersives[props.i].name}-thumb.jpg`"
+								:title="props.i"
+							/>
+						</span>
+					</template>
+				</b-carousel>
+			</b-tab-item>
+
+			<b-tab-item label="Carte" icon="map-marked-alt">
+				<div class="map">
+					<div
+						id="mapglContainer"
+						style="
 		height: 70vh;"
-			></div>
-		</div>
+					></div>
+				</div>
+			</b-tab-item>
+		</b-tabs>
+
 		<footer class="footer">
 			<div class="content has-text-centered">
 				<p>
@@ -71,14 +120,43 @@ export default {
 			popups: null,
 			isImmersivesSelectionActive: false,
 			selectedSite: null,
+			activeTab: 0,
+			mapLoaded: false,
+			immersives: [],
 		}
 	},
 	mounted() {
-		this.loadMap().then(() => {
-			this.addGeoJSONData()
-		})
+		this.initCarousel()
+		if (this.activeTab == 1) {
+			this.initMap()
+		}
 	},
 	methods: {
+		initCarousel() {
+			let siteWithImmersives = sites.filter((site) => {
+				return site.immersives && site.immersives.length > 0
+			})
+
+			this.immersives = []
+			siteWithImmersives.forEach((swi) => {
+				this.immersives = this.immersives.concat(
+					swi.immersives.map((immersive) => {
+						immersive.site = swi.site
+						return immersive
+					})
+				)
+			})
+
+			console.log('Immersives', this.immersives)
+		},
+		initMap() {
+			setTimeout(() => {
+				this.loadMap().then(() => {
+					this.mapLoaded = true
+					this.addGeoJSONData()
+				})
+			}, 200)
+		},
 		loadMap() {
 			return new Promise((resolve) => {
 				this.map = new mapboxgl.Map({
@@ -141,7 +219,6 @@ export default {
 				})
 
 				that.map.on('click', 'places', (e) => {
-					console.log('Click on', e.features[0].properties)
 					let siteID = e.features[0].properties.id
 
 					let site = sites.find((s) => {
@@ -174,6 +251,14 @@ export default {
 				this.popups.push(popup)
 			})
 		},
+		onTabChange() {
+			if (!this.mapLoaded) {
+				this.initMap()
+			}
+		},
+		getImgUrl(value) {
+			return `https://picsum.photos/id/43${value}/1230/500`
+		},
 	},
 }
 </script>
@@ -185,6 +270,31 @@ export default {
 .map {
 	width: 100%;
 	height: 100%;
-	margin-bottom: 3em;
+}
+.logo {
+	max-width: 25%;
+	height: auto;
+}
+
+.carousel .subtitle {
+	color: white;
+}
+
+a {
+	color: white;
+}
+
+a:hover {
+	color: gainsboro;
+}
+
+.footer a,
+.modal a {
+	color: black;
+}
+
+.footer a:hover,
+.modal a:hover {
+	color: lightslategrey;
 }
 </style>

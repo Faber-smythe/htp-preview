@@ -23,12 +23,14 @@
 
 		<div class="player-footer">
 			<div class="columns is-mobile is-vcentered">
-				<span style="font-size:0.8em; position:absolute; top:3em; left:33%;">{{
-					sliderTooltipsLabel[0]
-				}}</span>
-				<span style="font-size:0.8em; position:absolute; top:3em; right:33%">{{
-					sliderTooltipsLabel[1]
-				}}</span>
+				<span
+					style="font-size:0.8em; position:absolute; bottom: 0.4em; left:33%;"
+					>{{ sliderTooltipsLabel[0] }}</span
+				>
+				<span
+					style="font-size:0.8em; position:absolute; bottom: 0.4em; right:33%"
+					>{{ sliderTooltipsLabel[1] }}</span
+				>
 
 				<div
 					class="column is-one-third is-offset-one-third"
@@ -39,7 +41,17 @@
 					"
 				>
 					<b-field style="margin-left: 0.5em; margin-right: 0.5em;">
-						<b-slider
+						<input
+							type="range"
+							min="0"
+							max="100"
+							value="0"
+							class="custom-slider"
+							style="width: 100%"
+							@input="onSliderDragging"
+							v-model="draggingValue"
+						/>
+						<!--<b-slider
 							type="is-white"
 							tooltip-type="is-white"
 							:min="0"
@@ -51,36 +63,69 @@
 							:custom-formatter="onTooltipFormat"
 							@dragging="onSliderDragging"
 							@input="onSliderDragging"
-							orient="vertical"
-						></b-slider>
+						></b-slider>-->
 					</b-field>
 				</div>
-				<div class="column is-2">
+				<!--<div class="column is-2">
 					<div class="field">
 						<b-switch :value="false" v-model="isMute" @input="toggleMute">
 							Mute
 						</b-switch>
 					</div>
+				</div>-->
+
+				<div class="column is-offset-1 is-2">
+					<v-popover offset="16">
+						<!-- This will be the popover target (for the events and position) -->
+						<b-button
+							class="tooltip-target b3 is-black is-large"
+							icon-left="volume-up"
+						>
+						</b-button>
+
+						<!-- This will be the content of the popover -->
+						<template slot="popover">
+							<div class="slider-container">
+								<input
+									type="range"
+									min="0"
+									max="100"
+									value="40"
+									class="slider"
+									id="soundRange"
+									orient="vertical"
+									@input="onVolumeChange"
+									v-model="soundVolume"
+								/>
+								<b-icon
+									pack="fas"
+									icon="volume-up"
+									type="is-white"
+									style="position:fixed; top: 0.5em;; left: 2.3em;"
+								></b-icon>
+								<b-icon
+									pack="fas"
+									icon="volume-down"
+									type="is-white"
+									style="position:fixed; bottom: 0.5em; left:2.3em;"
+								></b-icon>
+							</div>
+						</template>
+					</v-popover>
 				</div>
-
-				<v-popover offset="16">
-					<!-- This will be the popover target (for the events and position) -->
-					<button class="tooltip-target b3">Click me</button>
-
-					<!-- This will be the content of the popover -->
-					<template slot="popover">
-						<div class="range-container">
-							<input class="range" type="range" />
-						</div>
-					</template>
-				</v-popover>
 			</div>
 		</div>
 		<b-modal :active.sync="isModalCloseUpVisible">
-			<p class="image" v-if="closeUpImage">
-				<span>{{ focusedContent }}</span>
-				<img :src="closeUpImage" :alt="focusedContent" />
-			</p>
+			<!--<p class="image" v-if="closeUpImage">
+				<img :src="closeUpImage" :alt="focusedContent" style="height: 100%; width: 100%; object-fit: contain"/>
+			</p>-->
+			<div style="height: 100%; width:100%">
+				<img
+					:src="closeUpImage"
+					:alt="focusedContent"
+					style="max-width: 100%; max-height: 100%; margin-left: auto; margin-right: auto; display: block;"
+				/>
+			</div>
 		</b-modal>
 		<img id="closeUpImg" style="display:none;" />
 	</div>
@@ -126,16 +171,12 @@ export default {
 			fov: 60,
 			controls: null,
 			scene: null,
-			hotspotScene: null,
 			rayCaster: null,
-			mesh: null,
-			hotspotTexture: null,
 			geometry: null,
 			material: null,
 			el: null,
 			textureLoader: new THREE.TextureLoader(),
 			isUserInteracting: false,
-			isTweening: false,
 			isMenuVisible: false,
 			scaling: false,
 			manager: null,
@@ -155,8 +196,9 @@ export default {
 			closeUpImage: '',
 			isModalCloseUpVisible: false,
 			loadingComponent: null,
-			imageCloseUps: {},
+			closeUpImages: [],
 			sliderTooltipsLabel: ['', ''],
+			soundVolume: 40,
 		}
 	},
 	mounted() {
@@ -252,7 +294,6 @@ export default {
 		},
 		initScene() {
 			this.scene = new THREE.Scene()
-			this.hotspotScene = new THREE.Scene()
 			this.rayCaster = new THREE.Raycaster()
 
 			this.camera = new THREE.PerspectiveCamera(
@@ -271,7 +312,7 @@ export default {
 			this.el.appendChild(this.renderer.domElement)
 
 			this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-			this.controls.enableDamping = true
+			//this.controls.enableDamping = true
 			this.controls.enableZoom = false
 			this.controls.rotateSpeed = -0.5
 
@@ -331,6 +372,8 @@ export default {
 
 			let image = document.getElementById('closeUpImg')
 
+			this.closeUpImages = []
+
 			closeUps.forEach((closeUp) => {
 				let url = `/assets/immersives/${this.site}/closeups/${closeUp.contentList[0].value}.jpg`
 				let closeUpImage = new Image()
@@ -352,9 +395,9 @@ export default {
 			this.theta = THREE.MathUtils.degToRad(this.lon)
 
 			let target = new THREE.Vector3(
-				2048 * Math.sin(this.phi) * Math.cos(this.theta),
-				2048 * Math.cos(this.phi),
-				2048 * Math.sin(this.phi) * Math.sin(this.theta)
+				SPHERE_RADIUS * Math.sin(this.phi) * Math.cos(this.theta),
+				SPHERE_RADIUS * Math.cos(this.phi),
+				SPHERE_RADIUS * Math.sin(this.phi) * Math.sin(this.theta)
 			)
 
 			this.camera.target = target
@@ -364,20 +407,9 @@ export default {
 			this.controls.update()
 			this.renderer.render(this.scene, this.camera)
 		},
-		createHotpotScene() {
-			let material = new THREE.MeshBasicMaterial({
-				transparent: true,
-				depthWrite: false,
-				opacity: 0,
-				color: 0xffff00,
-			})
-			let mesh = new THREE.Mesh(this.geometry, material)
-			this.meshes.push(mesh)
-			this.hotspotScene.add(mesh)
-		},
 		loadAssets() {
 			this.displayLoading(true)
-			this.geometry = new THREE.SphereGeometry(SPHERE_RADIUS + 20, 60, 40)
+			this.geometry = new THREE.SphereGeometry(SPHERE_RADIUS + 20, 60, 60)
 			this.geometry.scale(-1, 1, 1)
 			this.hotspotManager.loadHotspotTextures()
 
@@ -389,8 +421,9 @@ export default {
 							let material = new THREE.MeshBasicMaterial({
 								map: texture,
 								transparent: true,
-								side: THREE.DoubleSide,
+								side: THREE.FrontSide,
 								depthWrite: true,
+								blending: THREE.NormalBlending,
 							})
 							let mesh = new THREE.Mesh(this.geometry, material)
 							mesh.uuid = layer.uniqueID
@@ -414,6 +447,7 @@ export default {
 					this.previousMeshId = this.selectedMesh.uuid
 					this.displayHotspots()
 					this.updateHotspotsOpacity()
+					this.renderer.compile(this.scene, this.camera)
 					this.displayLoading(false)
 				})
 				.catch((error) => {
@@ -604,7 +638,6 @@ export default {
 		},
 		onSliderDragging() {
 			let opacity = this.draggingValue / 100
-			//this.material.opacity = opacity
 			this.meshes[0].material.opacity = 1 - opacity
 			this.meshes[1].material.opacity = 0 + opacity
 
@@ -676,6 +709,9 @@ export default {
 		toggleMute() {
 			this.soundManager.mute(this.isMute)
 		},
+		onVolumeChange() {
+			this.soundManager.setVolume(this.soundVolume / 100)
+		},
 		toggleTooltip(command) {
 			this.tooltip.style.display = command === 'show' ? 'block' : 'none'
 			this.showTooltip = command === 'show'
@@ -705,7 +741,7 @@ export default {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	padding: 1em;
+	padding: 0.2em;
 	background-color: black;
 	opacity: 0.8;
 	color: white;
@@ -730,7 +766,7 @@ export default {
 	right: 0;
 	background: black;
 	opacity: 0.8;
-	padding: 1em;
+	padding: 0.7em;
 	color: white;
 	text-align: center;
 	font-size: 1.25rem;
@@ -766,19 +802,134 @@ export default {
 	border-color: #f9f9f9;
 }
 
-.range-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  height: 200px;
-  
-  background: #a3e5c1;
+.slider-container {
+	display: flex;
+	height: auto;
+	width: 75px;
+	background: black;
+	border-radius: 3px;
+	opacity: 0.9;
+	padding: 1em;
 }
 
-.range {
-  width: 100px;
+input[type='range'][orient='vertical'] {
+	writing-mode: bt-lr; /* IE */
+	-webkit-appearance: slider-vertical; /* WebKit */
+	width: 8px;
+	height: 100px;
+}
 
-  transform: rotate(-90deg);
+input[type='range'].custom-slider {
+	-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+	width: 100%; /* Specific width is required for Firefox. */
+	background: transparent; /* Otherwise white in Chrome */
+}
+
+input[type='range'].custom-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+}
+
+input[type='range'].custom-slider:focus {
+	outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+}
+
+input[type='range'].custom-slider::-ms-track {
+	width: 100%;
+	cursor: pointer;
+
+	/* Hides the slider so custom styles can be added */
+	background: transparent;
+	border-color: transparent;
+	color: transparent;
+}
+
+input[type='range'].custom-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	border: 1px solid #000000;
+	height: 26px;
+	width: 10px;
+	border-radius: 3px;
+	background: #ffffff;
+	cursor: pointer;
+	margin-top: -10px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+}
+
+/* All the same stuff for Firefox */
+input[type='range'].custom-slider::-moz-range-thumb {
+	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+	border: 1px solid #000000;
+	height: 26px;
+	width: 10px;
+	border-radius: 3px;
+	background: #ffffff;
+	cursor: pointer;
+}
+
+/* All the same stuff for IE */
+input[type='range'].custom-slider::-ms-thumb {
+	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+	border: 1px solid #000000;
+	height: 26px;
+	width: 10px;
+	border-radius: 3px;
+	background: #ffffff;
+	cursor: pointer;
+}
+
+input[type='range'].custom-slider::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 5.4px;
+	cursor: pointer;
+	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+	background: white;
+	border-radius: 1.3px;
+	margin: 5px;
+	border: 0.2px solid #010101;
+}
+
+input[type='range'].custom-slider:focus::-webkit-slider-runnable-track {
+	background: white;
+}
+
+input[type='range'].custom-slider::-moz-range-track {
+	width: 100%;
+	height: 5.4px;
+	cursor: pointer;
+	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+	background: white;
+	margin: 5px;
+	border-radius: 1.3px;
+	border: 0.2px solid #010101;
+}
+
+input[type='range'].custom-slider::-ms-track {
+	width: 100%;
+	height: 5.4px;
+	cursor: pointer;
+	background: transparent;
+	border-color: transparent;
+	border-width: 16px 0;
+	margin: 5px;
+
+	color: transparent;
+}
+input[type='range'].custom-slider::-ms-fill-lower {
+	background: white;
+	border: 0.2px solid #010101;
+	border-radius: 2.6px;
+	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type='range'].custom-slider:focus::-ms-fill-lower {
+	background: white;
+}
+input[type='range'].custom-slider::-ms-fill-upper {
+	background: white;
+	border: 0.2px solid #010101;
+	border-radius: 2.6px;
+	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type='range'].custom-slider:focus::-ms-fill-upper {
+	background: white;
 }
 </style>
