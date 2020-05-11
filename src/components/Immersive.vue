@@ -22,7 +22,9 @@
 
 		<!-- Custom tooltip -->
 		<div class="custom-tooltip" ref="tooltip" id="tooltip">
-			<span class="tooltiptext">{{ focusedContent }}</span>
+			<span class="tooltiptext">{{ focusedContent }}<br/>
+			<span v-if="focusedHotspot">{{ focusedHotspot.position }}</span><br/>
+			<span v-if="focusedHotspot">{{ focusedHotspot.point }}</span></span>
 		</div>
 
 		<div class="player-footer">
@@ -683,6 +685,7 @@ export default {
 					hotspot,
 					SPHERE_RADIUS
 				)
+				hotspot['point'] = point
 				let spriteMaterial = new THREE.SpriteMaterial({
 					map: this.hotspotManager.textures[hotspot.type],
 					opacity: 1,
