@@ -2,6 +2,10 @@
 	<div class="parent">
 		<div class="scene" ref="scene3D"></div>
 
+		<div style="color:white; position: absolute; left:10px; top:80px;">
+			<h1>{{ current3DPosition }}</h1>
+		</div>
+
 		<div v-if="immersiveScene" class="header-immersive has-text-centered">
 			<h2 class="title-font header-title">
 				<router-link to="/"
@@ -141,6 +145,7 @@ import { ImmersiveManager } from '../utils/ImmersiveManager'
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls'
 
 import VTooltip from 'v-tooltip'
+import { Vector3 } from 'three'
 
 Vue.use(VTooltip)
 
@@ -199,6 +204,7 @@ export default {
 			closeUpImages: [],
 			sliderTooltipsLabel: ['', ''],
 			soundVolume: 40,
+			current3DPosition: new Vector3()
 		}
 	},
 	mounted() {
@@ -210,6 +216,7 @@ export default {
 		if (!this.immersiveScene.layers) {
 			this.immersiveManager.processOldImmersive(this.immersiveScene)
 		}
+
 		//Loading only text hotspot and close ups
 		this.immersiveScene.hotspots = this.immersiveScene.hotspots.filter(
 			(hotspot) => {
@@ -300,7 +307,7 @@ export default {
 				this.fov,
 				this.el.clientWidth / this.el.clientHeight,
 				1,
-				4000
+				5000
 			)
 			this.camera.position.set(0, 0, 10)
 
@@ -316,8 +323,8 @@ export default {
 			this.controls.enableZoom = false
 			this.controls.rotateSpeed = -0.5
 
-			//var axesHelper = new THREE.AxesHelper(5)
-			//this.scene.add(axesHelper)
+			let axesHelper = new THREE.AxesHelper(5)
+			this.scene.add(axesHelper)
 
 			//Add events listeners
 			//this.el.addEventListener('mousedown', this.onPointerStart, false)
@@ -353,6 +360,10 @@ export default {
 					volume: soundFile.ambianceSound.volume,
 				}
 			})
+
+			if (soundFiles && soundFiles.length > 0) {
+				this.soundVolume = soundFiles[0].volume * 100
+			}
 
 			this.soundManager
 				.init(soundFiles)
@@ -409,19 +420,27 @@ export default {
 		},
 		loadAssets() {
 			this.displayLoading(true)
-			this.geometry = new THREE.SphereGeometry(SPHERE_RADIUS + 20, 60, 60)
+			this.geometry = new THREE.SphereGeometry(SPHERE_RADIUS + 20, 32, 32)
 			this.geometry.scale(-1, 1, 1)
 			this.hotspotManager.loadHotspotTextures()
 
 			Bluebird.each(this.immersiveScene.layers, (layer, index) => {
 				return new Promise((resolve, reject) => {
+					console.log(
+						'Loading texture',
+						`/assets/immersives/${this.site}/${layer.uniqueID}.jpg`
+					)
 					this.textureLoader.load(
-						`/assets/immersives/${this.site}/${layer.uniqueID}.png`,
+						`/assets/immersives/${this.site}/${layer.uniqueID}.jpg`,
 						(texture) => {
+							console.log(
+								'Texture loaded!',
+								`/assets/immersives/${this.site}/${layer.uniqueID}.jpg`
+							)
 							let material = new THREE.MeshBasicMaterial({
 								map: texture,
 								transparent: true,
-								side: THREE.FrontSide,
+								side: THREE.DoubleSide,
 								depthWrite: true,
 								blending: THREE.NormalBlending,
 							})
@@ -442,7 +461,10 @@ export default {
 			})
 				.then(() => {
 					this.meshes[0].material.opacity = 1
-					this.meshes[1].material.opacity = 0
+					if (this.meshes.length > 1) {
+						this.meshes[1].material.opacity = 0
+					}
+
 					this.selectedMesh = this.meshes[0]
 					this.previousMeshId = this.selectedMesh.uuid
 					this.displayHotspots()
@@ -570,6 +592,7 @@ export default {
 					}
 				} else if (intersected.type === 'Mesh') {
 					//console.log('POSITION XYZ', intersect.point)
+					this.current3DPosition = intersect.point
 				}
 			})
 
@@ -658,7 +681,7 @@ export default {
 			this.immersiveScene.hotspots.forEach((hotspot, index) => {
 				let point = this.hotspotManager.generate3DPosition(
 					hotspot,
-					SPHERE_RADIUS - 1
+					SPHERE_RADIUS
 				)
 				let spriteMaterial = new THREE.SpriteMaterial({
 					map: this.hotspotManager.textures[hotspot.type],
@@ -667,12 +690,13 @@ export default {
 					depthWrite: true,
 				})
 				let sprite = new THREE.Sprite(spriteMaterial)
-				sprite.scale.set(100, 100, 1)
+				sprite.scale.set(100, 100, 100)
 				sprite.position.copy(point.clone())
 				sprite.uuid = hotspot.uniqueID
 				sprite.renderOrder = this.meshes.length + index
 				this.hotspots.push(sprite)
 				this.scene.add(sprite)
+				console.log('Add hotspot', hotspot)
 			})
 		},
 		updateHotspotsOpacity() {

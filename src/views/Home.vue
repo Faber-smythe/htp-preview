@@ -16,20 +16,18 @@
 			@change="onTabChange"
 		>
 			<b-tab-item label="Experiences" icon="cube">
-				<b-carousel
-					:indicator-inside="false"
-					v-if="immersives.length > 0"
-					:has-drag="true"
-				>
+				<b-carousel v-if="immersives.length > 0" :has-drag="true">
 					<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
 						<span class="image">
 							<div
 								class="hero-body has-text-centered"
 								:style="
-									`background-image: url(/img/immersives/${immersive.name}.jpg); height: 60vh; width:100%; background-size:cover;`
+									`background-image: url(${coverURL(
+										immersive
+									)}); height: 70vh; width:100%; background-size:cover;`
 								"
 							>
-								<h3 class="subtitle title-font">{{ immersive.site }}</h3>
+								<h3 class="subtitle title-font">{{ $t(immersive.site) }}</h3>
 								<h1 class="title title-font">
 									<a
 										:href="
@@ -41,14 +39,6 @@
 							</div>
 						</span>
 					</b-carousel-item>
-					<template slot="indicators" slot-scope="props">
-						<span class="al image">
-							<img
-								:src="`/img/immersives/${immersives[props.i].name}-thumb.jpg`"
-								:title="props.i"
-							/>
-						</span>
-					</template>
 				</b-carousel>
 			</b-tab-item>
 
@@ -241,7 +231,9 @@ export default {
 			this.markers = []
 			this.popups = []
 			sites.forEach((site) => {
-				let popup = new mapboxgl.Popup({ offset: 25 }).setText(site.name)
+				let popup = new mapboxgl.Popup({ offset: 25 }).setText(
+					this.$t(site.site)
+				)
 				this.markers.push(
 					new mapboxgl.Marker()
 						.setLngLat(site.lngLat)
@@ -258,6 +250,11 @@ export default {
 		},
 		getImgUrl(value) {
 			return `https://picsum.photos/id/43${value}/1230/500`
+		},
+		// eslint-disable-next-line no-unused-vars
+		coverURL(immersive) {
+			//return `/img/immersives/${immersive.name}.jpg`
+			return `/img/placeholder.jpg`
 		},
 	},
 }

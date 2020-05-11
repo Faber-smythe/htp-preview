@@ -1,0 +1,419 @@
+﻿{
+    "name": "TourArtillerie",
+    "template": "CubeMapVisite",
+    "layers": [
+        {
+            "uniqueID": "tourartillerie.scenelayer.new_layer0",
+            "localizedTimestampTitle": "",
+            "cartelDescription": {
+                "title": "${CubemapTitle_Imm_MagasinArtillerie}",
+                "subtitle": "",
+                "description": "${CubemapDesc_Imm_MagasinArtillerie}"
+            },
+            "skyboxMaterial": "tourartillerie",
+            "ambianceSound": {
+                "fileName": "Amb_Artillery_V4",
+                "volume": 1.0
+            },
+            "triggerType": "",
+            "filtersOut": [],
+            "filtersIn": []
+        }
+    ],
+    "requiredAssetBundles": [
+        "tourartillerie"
+    ],
+    "camera": {
+        "type": "Pan&Tilt",
+        "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "sensitivity": 2.0,
+        "zoomMin": 20.0,
+        "zoomMax": 55.0,
+        "topClampValue": 0.0,
+        "bottomClampValue": 0.0,
+        "leftClampValue": 0.0,
+        "rightClampValue": 0.0,
+        "xAxisLocked": false,
+        "yAxisLocked": false,
+        "zAxisLocked": false,
+        "autoRotate": false,
+        "autoRotationSpeed": 0.0,
+        "autoRotationTriggerTime": 0.0
+    },
+    "hotspots": [
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartilleriecoffrepentu",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_CoffrePentu}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -5626.626953125,
+                "y": 145.2508544921875
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartilleriepoudre",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_Poudre}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 2371.752685546875,
+                "y": 475.669677734375
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartilleriehacquebutes",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_Hacquebutes}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -2012.425537109375,
+                "y": 219.81910705566407
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartilleriefauconneau",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_Fauconneau}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -1444.925537109375,
+                "y": 1354.819091796875
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartillerieveuglaire",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_Veuglaire}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -2032.425537109375,
+                "y": 1089.819091796875
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartillerietrepied",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_Trepied}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 266.95654296875,
+                "y": 1146.775634765625
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartillerieculasse",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_Culasse}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -728.04345703125,
+                "y": 2051.775390625
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartillerieateliertailleboulets",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_AtelierTailleBoulets}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 2743.372802734375,
+                "y": 575.2508544921875
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartilleriecanonamain",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_CanonAMain}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 3423.372802734375,
+                "y": 225.2508544921875
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.texthotspot.hotspotimmmagasinartillerieecouvillon",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_MagasinArtillerie_Ecouvillon}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 4173.37353515625,
+                "y": 355.2508544921875
+            }
+        },
+        {
+            "uniqueID": "tourartillerie.navigationhotspot.iocoffremunitions",
+            "type": "NavigationHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "SceneName",
+                    "value": "IOCoffreMunitions",
+                    "filtersOut": [],
+                    "filtersIn": []
+                },
+                {
+                    "type": "SceneTemplate",
+                    "value": "IOCoffreMunitions",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 3483.3818359375,
+                "y": 875.24658203125
+            }
+        }
+    ],
+    "widgets": [
+        {
+            "type": "CameraPinchToZoom",
+            "uniqueID": "",
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "content": [],
+            "contentList": [],
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "type": "CameraZoom",
+            "uniqueID": "",
+            "position": {
+                "x": -100.0,
+                "y": 660.0
+            },
+            "content": [],
+            "contentList": [],
+            "filtersOut": [],
+            "filtersIn": []
+        }
+    ],
+    "closeUps": [],
+    "ignoreGeolocEvent": false,
+    "defaultSceneNavigation": {
+        "sceneName": "",
+        "sceneTemplate": "",
+        "sceneType": "",
+        "loadingScreen": false
+    },
+    "inactivitySkipTimer": 0.0,
+    "contextConditions": [],
+    "ambianceSound": "",
+    "ambianceVolume": 0.0,
+    "cartelDescriptions": [],
+    "cubemapMaterial": "tourartillerie"
+}

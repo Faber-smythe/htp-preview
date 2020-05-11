@@ -19,14 +19,14 @@ export class HotspotManager {
 		)
 
 		//Ca ca fontionne pas
-		let cartesianCoordinates = this.polarToCartesian(
+		/*let cartesianCoordinates = this.polarToCartesian(
 			polarCoordinates.x,
 			polarCoordinates.y,
 			sphereRadius
-		)
+		)*/
 
 		//Ca ca fonctionne a peu près
-		cartesianCoordinates = this.sphericalTo3DCoordinates(
+		let cartesianCoordinates = this.sphericalTo3DCoordinates(
 			polarCoordinates.x,
 			polarCoordinates.y,
 			sphereRadius
@@ -53,9 +53,9 @@ export class HotspotManager {
 		longitude *= DEG2RAD
 
 		let coordinates = new THREE.Vector3(
-			- sphereRadius * Math.cos(latitude) * Math.cos(longitude),
+			sphereRadius * Math.cos(latitude) * Math.cos(longitude) * -1,
 			sphereRadius * Math.cos(latitude) * Math.sin(longitude),
-			- sphereRadius * Math.sin(latitude)
+			sphereRadius * Math.sin(latitude) * -1
 		)
 
 		return coordinates
@@ -67,9 +67,8 @@ export class HotspotManager {
 		let origin = new THREE.Vector3(0, 0, sphereRadius)
 		//let rotation = new THREE.Euler(latitude, longitude, 0)
 		let rotation = new THREE.Quaternion().setFromEuler(
-			new THREE.Euler(latitude, longitude, 0, 'XZY')
+			new THREE.Euler(latitude, longitude, 0)
 		)
-		rotation.x *= -1
 		let point = origin.applyQuaternion(rotation)
 
 		return point

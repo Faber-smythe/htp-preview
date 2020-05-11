@@ -1,0 +1,674 @@
+﻿{
+    "name": "Cellier",
+    "template": "CubeMapVisite",
+    "layers": [
+        {
+            "uniqueID": "cellier.scenelayer.closed",
+            "localizedTimestampTitle": "",
+            "cartelDescription": {
+                "title": "${CubemapTitle_Imm_DonjonCellier}",
+                "subtitle": "",
+                "description": "${CubemapDesc_Imm_DonjonCellier}"
+            },
+            "skyboxMaterial": "cellier_closed",
+            "ambianceSound": {
+                "fileName": "Amb_Cellar",
+                "volume": 0.75
+            },
+            "triggerType": "Cutaway",
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "uniqueID": "cellier.scenelayer.open",
+            "localizedTimestampTitle": "",
+            "cartelDescription": {
+                "title": "${CubemapTitle_Imm_DonjonCellier}",
+                "subtitle": "",
+                "description": "${CubemapDesc_Imm_DonjonCellier}"
+            },
+            "skyboxMaterial": "cellier_open",
+            "ambianceSound": {
+                "fileName": "Amb_Cellar",
+                "volume": 0.75
+            },
+            "triggerType": "Cutaway",
+            "filtersOut": [],
+            "filtersIn": []
+        }
+    ],
+    "requiredAssetBundles": [
+        "cellier",
+        "relics-closeups"
+    ],
+    "camera": {
+        "type": "Pan&Tilt",
+        "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "rotation": {
+            "x": 0.0,
+            "y": -90.0,
+            "z": 0.0
+        },
+        "sensitivity": 2.0,
+        "zoomMin": 20.0,
+        "zoomMax": 55.0,
+        "topClampValue": 0.0,
+        "bottomClampValue": 0.0,
+        "leftClampValue": 0.0,
+        "rightClampValue": 0.0,
+        "xAxisLocked": false,
+        "yAxisLocked": false,
+        "zAxisLocked": false,
+        "autoRotate": false,
+        "autoRotationSpeed": 0.0,
+        "autoRotationTriggerTime": 0.0
+    },
+    "hotspots": [
+        {
+            "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncelliercivieres",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${HotspotCubemap_Imm_DonjonCellier_Civieres}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -3261.23681640625,
+                "y": 169.35336303710938
+            }
+        },
+        {
+            "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncellieroutilsterrassement",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${HotspotCubemap_Imm_DonjonCellier_OutilsTerrassement}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -2906.5810546875,
+                "y": 249.58956909179688
+            }
+        },
+        {
+            "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncellieretabli",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${HotspotCubemap_Imm_DonjonCellier_Etabli}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 107.9229736328125,
+                "y": 1248.803955078125
+            }
+        },
+        {
+            "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncelliercutawayviande",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${HotspotCubemap_Imm_DonjonCellier_Cutaway_Viande}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -4018.898681640625,
+                "y": -485.28851318359377
+            }
+        },
+        {
+            "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncelliercutawayetageres",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${HotspotCubemap_Imm_DonjonCellier_Cutaway_Etageres}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -4421.1298828125,
+                "y": 287.90753173828127
+            }
+        },
+        {
+            "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncelliercutawaypuits",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${HotspotCubemap_Imm_DonjonCellier_Cutaway_Puits}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 4870.3017578125,
+                "y": 417.4336242675781
+            }
+        },
+        {
+            "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncelliercutawaytonneauxvin",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${HotspotCubemap_Imm_DonjonCellier_Cutaway_TonneauxVin}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -5423.255859375,
+                "y": 353.52337646484377
+            }
+        },
+        {
+            "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncelliercutawayescaliers",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${HotspotCubemap_Imm_DonjonCellier_Cutaway_Escaliers}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -5012.18994140625,
+                "y": -390.1339111328125
+            }
+        },
+        {
+            "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncelliercutawaypots",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${HotspotCubemap_Imm_DonjonCellier_Cutaway_Pots}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -5086.4765625,
+                "y": 592.8579711914063
+            }
+        },
+        {
+            "uniqueID": "cellier.animhotspot.blend",
+            "type": "AnimHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Prefab",
+                    "value": "Blend",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "HotspotGroup",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -3617.314697265625,
+                "y": -69.44691467285156
+            }
+        },
+        {
+            "uniqueID": "cellier.model3dhotspot.helmet3dobject",
+            "type": "Model3DHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Prefab",
+                    "value": "Helmet3DObject",
+                    "filtersOut": [],
+                    "filtersIn": []
+                },
+                {
+                    "type": "Title",
+                    "value": "${IOTitle_CasquePiece}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -1897.2529296875,
+                "y": 660.8511962890625
+            }
+        },
+        {
+            "uniqueID": "cellier.closeuphotspot.bouclier",
+            "type": "CloseUpHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Image",
+                    "value": "Bouclier",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -2393.36572265625,
+                "y": 905.0585327148438
+            }
+        },
+        {
+            "uniqueID": "cellier.fxhotspot.torchflames",
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Prefab",
+                    "value": "TorchFlames",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -762.89990234375,
+                "y": -1035.447021484375
+            }
+        },
+        {
+            "uniqueID": "cellier.fxhotspot.torchmask",
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Prefab",
+                    "value": "torchMask",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -749.6949462890625,
+                "y": -599.68359375
+            }
+        },
+        {
+            "uniqueID": "cellier.fxhotspot.torchmask2",
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Prefab",
+                    "value": "torchMask2",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 3897.365234375,
+                "y": -309.30023193359377
+            }
+        },
+        {
+            "uniqueID": "cellier.fxhotspot.torchflames2",
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Prefab",
+                    "value": "TorchFlames2",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 3923.768310546875,
+                "y": -507.3200988769531
+            }
+        },
+        {
+            "uniqueID": "cellier.fxhotspot.torchflames3",
+            "type": "FXHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Prefab",
+                    "value": "TorchFlames3",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -3448.5888671875,
+                "y": -200.70639038085938
+            }
+        }
+    ],
+    "widgets": [
+        {
+            "type": "CameraZoom",
+            "uniqueID": "",
+            "position": {
+                "x": -100.0,
+                "y": 660.0
+            },
+            "content": [],
+            "contentList": [],
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "type": "CameraPinchToZoom",
+            "uniqueID": "",
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "content": [],
+            "contentList": [],
+            "filtersOut": [],
+            "filtersIn": []
+        }
+    ],
+    "closeUps": [
+        {
+            "fileName": "Bouclier",
+            "type": "2D Texture",
+            "cartelDescription": {
+                "title": "${TitleCubemap_Imm_DonjonCellier_Cutaway_MakingOf}",
+                "subtitle": "",
+                "description": ""
+            },
+            "ratioMode": "Fit in Parent",
+            "zoomAvailable": false,
+            "hotspots": [
+                {
+                    "uniqueID": "cellier.texthotspot.hotspotcubemapimmdonjoncelliercutawaymakingof",
+                    "type": "TextHotspot",
+                    "zoomLevelDisplayMin": 1.0,
+                    "zoomLevelDisplayMax": 4.0,
+                    "content": [],
+                    "contentList": [
+                        {
+                            "type": "Text",
+                            "value": "${HotspotCubemap_Imm_DonjonCellier_Cutaway_MakingOf}",
+                            "filtersOut": [],
+                            "filtersIn": []
+                        }
+                    ],
+                    "index": 0,
+                    "requiredAssetBundle": "",
+                    "displayIndexes": [],
+                    "layers": [],
+                    "spriteFileName": "",
+                    "visitedSpriteFileName": "",
+                    "color": "",
+                    "navigationType": "",
+                    "filtersOut": [],
+                    "filtersIn": [],
+                    "position": {
+                        "x": -429.9604797363281,
+                        "y": -61.344852447509769
+                    }
+                }
+            ],
+            "widgets": [],
+            "sound": "",
+            "volume": 0.0
+        }
+    ],
+    "audioDescription": {
+        "fileName": "",
+        "volume": 0.0,
+        "playAtStart": false,
+        "visuallyImpaired": false,
+        "isLocalized": false
+    },
+    "lockBeaconDetection": false,
+    "defaultSceneNavigation": {
+        "sceneName": "",
+        "sceneTemplate": "",
+        "sceneType": ""
+    },
+    "contextConditions": [],
+    "ambianceSound": "",
+    "ambianceVolume": 0.0,
+    "cartelDescriptions": [],
+    "cubemapMaterial": "cellier"
+}

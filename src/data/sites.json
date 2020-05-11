@@ -26,7 +26,7 @@
             {
                 "id": "IMMGrandeSalle",
                 "name": "CubemapTitle_Imm_GrandeSalleAudience",
-                "file": "ConfigurationFiles_immgrandesalle.json"
+                "file": "immgrandesalle.json"
             }
         ]
     },
@@ -41,7 +41,17 @@
             {
                 "id": "CourChateau",
                 "name": "CubemapTitle_Imm_CourChateau",
-                "file": "ConfigurationsFiles_courchateau.json"
+                "file": "courchateau.json"
+            },
+            {
+                "id": "Cellier",
+                "name": "CubemapTitle_Imm_DonjonCellier",
+                "file": "cellier.json"
+            },
+            {
+                "id": "Carriere",
+                "name": "CubemapTitle_Imm_Carriere",
+                "file": "carriere.json"
             }
         ]
     },
@@ -51,6 +61,23 @@
         "lngLat": [
             0.2334263,
             47.1681036
+        ],
+        "immersives": [
+            {
+                "id": "TourArtillerie",
+                "name": "CubemapTitle_Imm_MagasinArtillerie",
+                "file": "tourartillerie.json"
+            },
+            {
+                "id": "TourDuMoulin",
+                "name": "CubemapTitle_Imm_TourMoulin",
+                "file": "tourdumoulin.json"
+            },
+            {
+                "id": "PrisonDesTempliers",
+                "name": "CubemapTitle_Imm_PrisonTempliers",
+                "file": "prisondestempliers.json"
+            }
         ]
     }
 ]
