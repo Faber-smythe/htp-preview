@@ -22,9 +22,37 @@
 
 		<!-- Custom tooltip -->
 		<div class="custom-tooltip" ref="tooltip" id="tooltip">
-			<span class="tooltiptext">{{ focusedContent }}<br/>
-			<span v-if="focusedHotspot">{{ focusedHotspot.position }}</span><br/>
-			<span v-if="focusedHotspot">{{ focusedHotspot.point }}</span></span>
+			<span class="tooltiptext"
+				>{{ focusedContent }}<br />
+				<span v-if="focusedHotspot">{{ focusedHotspot.position }}</span
+				><br />
+				<span v-if="focusedHotspot">{{ focusedHotspot.point }}</span>
+				<br />
+				<span v-if="focusedHotspot">{{ focusedHotspot.polar }}</span></span
+			>
+		</div>
+
+		<div
+			style="width: 40vw; height:100%; margin-top:3em; margin-bottom: 3em;background-color:white; float:right;"
+			v-if="immersiveScene && immersiveScene.hotspots && isSelectionMode"
+		>
+			<div style="height: 100%; overflow:auto;">
+				<div
+					class="field"
+					style="margin: 1em;"
+					v-for="hotspot in immersiveScene.hotspots"
+					:key="hotspot.uniqueID"
+				>
+					<b-radio
+						v-model="selectedHotspot"
+						name="hotspot"
+						:native-value="hotspot"
+					>
+						{{ getHotspotLabel(hotspot) }} 
+						<span v-if="hotspot.coord">{{ hotspot.coord }}</span>
+					</b-radio>
+				</div>
+			</div>
 		</div>
 
 		<div class="player-footer">
@@ -57,28 +85,8 @@
 							@input="onSliderDragging"
 							v-model="draggingValue"
 						/>
-						<!--<b-slider
-							type="is-white"
-							tooltip-type="is-white"
-							:min="0"
-							:max="100"
-							:value="0"
-							:bigger-slider-focus="true"
-							:tooltip="false"
-							v-model="draggingValue"
-							:custom-formatter="onTooltipFormat"
-							@dragging="onSliderDragging"
-							@input="onSliderDragging"
-						></b-slider>-->
 					</b-field>
 				</div>
-				<!--<div class="column is-2">
-					<div class="field">
-						<b-switch :value="false" v-model="isMute" @input="toggleMute">
-							Mute
-						</b-switch>
-					</div>
-				</div>-->
 
 				<div class="column is-offset-1 is-2">
 					<v-popover offset="16">
@@ -119,6 +127,16 @@
 						</template>
 					</v-popover>
 				</div>
+				<div class="column is-2">
+					<div class="field">
+						<b-switch
+							v-model="isSelectionMode"
+							@input="onSelectionModeChanged"
+							style="z-index: 1000;"
+						>
+						</b-switch>
+					</div>
+				</div>
 			</div>
 		</div>
 		<b-modal :active.sync="isModalCloseUpVisible">
@@ -134,6 +152,7 @@
 			</div>
 		</b-modal>
 		<img id="closeUpImg" style="display:none;" />
+		
 	</div>
 </template>
 
@@ -182,6 +201,7 @@ export default {
 			geometry: null,
 			material: null,
 			el: null,
+			canvas: null,
 			textureLoader: new THREE.TextureLoader(),
 			isUserInteracting: false,
 			isMenuVisible: false,
@@ -206,7 +226,10 @@ export default {
 			closeUpImages: [],
 			sliderTooltipsLabel: ['', ''],
 			soundVolume: 40,
-			current3DPosition: new Vector3()
+			current3DPosition: new Vector3(),
+			isGeometryUpdated: false,
+			isSelectionMode: false,
+			selectedHotspot: null,
 		}
 	},
 	mounted() {
@@ -432,6 +455,7 @@ export default {
 						'Loading texture',
 						`/assets/immersives/${this.site}/${layer.uniqueID}.jpg`
 					)
+
 					this.textureLoader.load(
 						`/assets/immersives/${this.site}/${layer.uniqueID}.jpg`,
 						(texture) => {
@@ -439,6 +463,37 @@ export default {
 								'Texture loaded!',
 								`/assets/immersives/${this.site}/${layer.uniqueID}.jpg`
 							)
+
+							if (this.isGeometryUpdated) {
+								this.canvas = document.createElement('canvas')
+								this.canvas.width = texture.image.width
+								this.canvas.height = texture.image.height
+								this.canvas
+									.getContext('2d')
+									.drawImage(
+										texture.image,
+										0,
+										0,
+										texture.image.width,
+										texture.image.height
+									)
+								for (let i = 0, l = this.geometry.vertices.length; i < l; i++) {
+									let dir = this.position2Dir(this.geometry.vertices[i])
+									let h = this.getH(dir)
+									let vector = new THREE.Vector3()
+									vector.set(
+										this.geometry.vertices[i].x,
+										this.geometry.vertices[i],
+										this.geometry.vertices[i].z
+									)
+									vector.setLength(h)
+									this.geometry.vertices[i].x = vector.x
+									this.geometry.vertices[i].y = vector.y
+									this.geometry.vertices[i].z = vector.z
+								}
+								this.isGeometryUpdated = true
+							}
+
 							let material = new THREE.MeshBasicMaterial({
 								map: texture,
 								transparent: true,
@@ -478,6 +533,49 @@ export default {
 					console.error('Error when loading texture:', error)
 					this.displayLoading(false)
 				})
+		},
+		getH(dir) {
+			dir.az = 360 - dir.az + 180
+			dir.az = dir.az % 360
+
+			let x = Math.floor((this.canvas.width * dir.az) / 360)
+			let y = Math.floor((this.canvas.height * (dir.h + 90)) / 180)
+
+			let pixelData = this.canvas.getContext('2d').getImageData(x, y, 1, 1).data
+			var h = 200 + pixelData[0] / 5
+			//console.log(h);
+			return h
+		},
+		position2Dir(position) {
+			var az = null
+			var h = null
+
+			var vector = new THREE.Vector3(position.x, position.y, position.z)
+			var length = vector.length()
+
+			var hd =
+				Math.sqrt(Math.pow(position.x, 2) + Math.pow(position.z, 2)) / length
+
+			h = (Math.atan(position.y / length / hd) / Math.PI) * 180
+			h *= -1
+
+			az = Math.atan(position.z / hd / (position.x / hd))
+			//if (lazerJS.projectName == 'Export') {
+			//    az += Math.PI / 2;
+			// }
+
+			if (position.x < 0 && position.z > 0) az = Math.PI + az
+			if (position.x < 0 && position.z < 0) az = Math.PI + az
+			if (position.x > 0 && position.z < 0) az = Math.PI * 2 + az
+
+			az = (az / Math.PI) * 180
+
+			if (isNaN(az)) az = 0
+
+			return {
+				az: az,
+				h: h,
+			}
 		},
 		displayLoading(isLoading) {
 			if (isLoading) {
@@ -651,11 +749,6 @@ export default {
 							this.tooltip.style.top = `${top}px`
 							this.tooltip.style.left = `${left}px`
 							this.tooltip.style.opacity = 1
-							console.log(
-								'Position',
-								this.tooltip.style.top,
-								this.tooltip.style.left
-							)
 						}, 5)
 					}
 				}
@@ -694,12 +787,12 @@ export default {
 				})
 				let sprite = new THREE.Sprite(spriteMaterial)
 				sprite.scale.set(100, 100, 100)
-				sprite.position.copy(point.clone())
+				//sprite.position.copy(point.clone())
+				sprite.position.copy(point)
 				sprite.uuid = hotspot.uniqueID
 				sprite.renderOrder = this.meshes.length + index
 				this.hotspots.push(sprite)
 				this.scene.add(sprite)
-				console.log('Add hotspot', hotspot)
 			})
 		},
 		updateHotspotsOpacity() {
@@ -742,6 +835,55 @@ export default {
 		toggleTooltip(command) {
 			this.tooltip.style.display = command === 'show' ? 'block' : 'none'
 			this.showTooltip = command === 'show'
+		},
+		onSelectionModeChanged() {
+			if (this.isSelectionMode) {
+				this.el.addEventListener('dblclick', this.onDoubleClick, false)
+			} else {
+				this.el.removeEventListener('dblclick', this.onDoubleClick, false)
+			}
+		},
+		onDoubleClick(event) {
+			console.log('onDoubleClick', event)
+			event.preventDefault()
+
+			let domRect = this.el.getBoundingClientRect()
+
+			let clientX = event.clientX || event.touches[0].clientX
+			let clientY = event.clientY || event.touches[0].clientY
+
+			let mouse = new THREE.Vector2(
+				((clientX - domRect.x) / this.el.clientWidth) * 2 - 1,
+				-((clientY - domRect.y) / this.el.clientHeight) * 2 + 1
+			)
+
+			this.rayCaster.setFromCamera(mouse, this.camera)
+
+			this.toggleTooltip('hide')
+			this.tooltip.style.opacity = 0
+
+			let intersects = this.rayCaster.intersectObjects(this.scene.children)
+			intersects.forEach((intersect) => {
+				let intersected = intersect.object
+				if (intersected.type === 'Mesh') {
+					if (this.selectedHotspot) {
+						let point = intersect.point.clone()
+						this.selectedHotspot['coord'] = point
+						console.log('MESH intercepted lol', this.selectedHotspot['coord'])
+					}
+				}
+			})
+		},
+		getHotspotLabel(hotspot) {
+			if (hotspot.contentList && hotspot.contentList.length > 0) {
+				let key = hotspot.contentList[0].value
+					.replace('${', '')
+					.replace('}', '')
+
+				return key
+			} else {
+				return ''
+			}
 		},
 	},
 }
