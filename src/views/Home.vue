@@ -5,9 +5,10 @@
 				<img class="logo" src="/img/logos/logo_histopad.png" alt="HistoPad" />
 			</h1>
 			<h3>
-				Bienvenue sur la page de preview des applications HistoPad. Veuillez
-				sélectionner un monument ci-dessous :
+				{{ $t('welcome_message') }}
 			</h3>
+
+			<LanguageSwitcher style="position: absolute; top: 1em; right: 1em;"/>
 		</section>
 		<b-tabs
 			v-model="activeTab"
@@ -15,7 +16,7 @@
 			class="block"
 			@change="onTabChange"
 		>
-			<b-tab-item label="Experiences" icon="cube">
+			<b-tab-item :label="$t('augmented_visits')" icon="cube">
 				<b-carousel v-if="immersives.length > 0" :has-drag="true">
 					<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
 						<span class="image">
@@ -42,7 +43,7 @@
 				</b-carousel>
 			</b-tab-item>
 
-			<b-tab-item label="Carte" icon="map-marked-alt">
+			<b-tab-item :label="$t('map')" icon="map-marked-alt">
 				<div class="map">
 					<div
 						id="mapglContainer"
@@ -94,6 +95,7 @@
 import sites from '../data/sites.json'
 import geoData from '../data/geo.json'
 import mapboxgl from 'mapbox-gl'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 
 mapboxgl.accessToken =
 	'pk.eyJ1IjoidGl3ZW5jZSIsImEiOiJjazlpNms1dXgwMGwxM3FxY2gwZzZqeXB3In0.AxKj_fU8XeDD0ru_uCSCHw'
@@ -102,6 +104,9 @@ export default {
 	name: 'Home',
 	props: {
 		msg: String,
+	},
+	components: {
+		LanguageSwitcher,
 	},
 	data() {
 		return {

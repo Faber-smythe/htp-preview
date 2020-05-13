@@ -1,4 +1,10 @@
 {
+    "histopad": "HistoPad",
+    "language.fr": "Français",
+    "language.en": "Anglais",
+    "map": "Carte",
+    "augmented_visits": "Visites augmentées",
+    "welcome_message": "Bienvenue sur la page teaser des applications HistoPad. Veuillez sélectionner une expérience panorama 360 disponible ci-dessous :",
     "france.chambord.chateau": "Château de Chambord",
     "france.blois.chateau": "Château royal de Blois",
     "france.loches.donjon": "Donjon de Loches",

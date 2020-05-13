@@ -46,8 +46,6 @@ export class HotspotManager {
 			sphereRadius
 		)*/
 
-		
-
 		return cartesianCoordinates
 	}
 

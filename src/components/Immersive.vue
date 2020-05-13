@@ -1,11 +1,9 @@
 <template>
 	<div class="parent">
+		<!-- Used to display 3D canvas which display the 3D scene-->
 		<div class="scene" ref="scene3D"></div>
 
-		<div style="color:white; position: absolute; left:10px; top:80px;">
-			<h1>{{ current3DPosition }}</h1>
-		</div>
-
+		<!-- Header navigation-->
 		<div v-if="immersiveScene" class="header-immersive has-text-centered">
 			<h2 class="title-font header-title">
 				<router-link to="/"
@@ -22,48 +20,19 @@
 
 		<!-- Custom tooltip -->
 		<div class="custom-tooltip" ref="tooltip" id="tooltip">
-			<span class="tooltiptext"
-				>{{ focusedContent }}<br />
-				<span v-if="focusedHotspot">{{ focusedHotspot.position }}</span
-				><br />
-				<span v-if="focusedHotspot">{{ focusedHotspot.point }}</span>
-				<br />
-				<span v-if="focusedHotspot">{{ focusedHotspot.polar }}</span></span
-			>
+			<span class="tooltiptext">{{ focusedContent }} </span>
 		</div>
 
-		<div
-			style="width: 40vw; height:100%; margin-top:3em; margin-bottom: 3em;background-color:white; float:right;"
-			v-if="immersiveScene && immersiveScene.hotspots && isSelectionMode"
-		>
-			<div style="height: 100%; overflow:auto;">
-				<div
-					class="field"
-					style="margin: 1em;"
-					v-for="hotspot in immersiveScene.hotspots"
-					:key="hotspot.uniqueID"
-				>
-					<b-radio
-						v-model="selectedHotspot"
-						name="hotspot"
-						:native-value="hotspot"
-					>
-						{{ getHotspotLabel(hotspot) }} 
-						<span v-if="hotspot.coord">{{ hotspot.coord }}</span>
-					</b-radio>
-				</div>
-			</div>
-		</div>
-
+		<!-- Footer -->
 		<div class="player-footer">
 			<div class="columns is-mobile is-vcentered">
 				<span
 					style="font-size:0.8em; position:absolute; bottom: 0.4em; left:33%;"
-					>{{ sliderTooltipsLabel[0] }}</span
+					>{{ $t(sliderTooltipsLabel[0]) }}</span
 				>
 				<span
 					style="font-size:0.8em; position:absolute; bottom: 0.4em; right:33%"
-					>{{ sliderTooltipsLabel[1] }}</span
+					>{{ $t(sliderTooltipsLabel[1]) }}</span
 				>
 
 				<div
@@ -127,18 +96,12 @@
 						</template>
 					</v-popover>
 				</div>
-				<div class="column is-2">
-					<div class="field">
-						<b-switch
-							v-model="isSelectionMode"
-							@input="onSelectionModeChanged"
-							style="z-index: 1000;"
-						>
-						</b-switch>
-					</div>
-				</div>
 			</div>
 		</div>
+
+		<LanguageSwitcher style="position: absolute; top: 1em; right: 1em;" />
+
+		<!-- Modal for close up display -->
 		<b-modal :active.sync="isModalCloseUpVisible">
 			<!--<p class="image" v-if="closeUpImage">
 				<img :src="closeUpImage" :alt="focusedContent" style="height: 100%; width: 100%; object-fit: contain"/>
@@ -152,7 +115,6 @@
 			</div>
 		</b-modal>
 		<img id="closeUpImg" style="display:none;" />
-		
 	</div>
 </template>
 
@@ -165,8 +127,9 @@ import { SoundManager } from '../utils/SoundManager'
 import { ImmersiveManager } from '../utils/ImmersiveManager'
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls'
 
+import LanguageSwitcher from './LanguageSwitcher'
+
 import VTooltip from 'v-tooltip'
-import { Vector3 } from 'three'
 
 Vue.use(VTooltip)
 
@@ -177,6 +140,9 @@ export default {
 	props: {
 		site: String,
 		immersiveFileName: String,
+	},
+	components: {
+		LanguageSwitcher,
 	},
 	data() {
 		return {
@@ -226,10 +192,7 @@ export default {
 			closeUpImages: [],
 			sliderTooltipsLabel: ['', ''],
 			soundVolume: 40,
-			current3DPosition: new Vector3(),
 			isGeometryUpdated: false,
-			isSelectionMode: false,
-			selectedHotspot: null,
 		}
 	},
 	mounted() {
@@ -254,9 +217,7 @@ export default {
 
 		//Load slider tooltips label
 		this.sliderTooltipsLabel = this.immersiveScene.layers.map((layer) => {
-			return this.$t(
-				layer.localizedTimestampTitle.replace('${', '').replace('}', '')
-			)
+			return layer.localizedTimestampTitle.replace('${', '').replace('}', '')
 		})
 
 		this.init()
@@ -282,9 +243,6 @@ export default {
 		this.soundManager.unloadSounds()
 	},
 	computed: {
-		isOverBound() {
-			return this.draggingValue == 0 || this.draggingValue == 100
-		},
 		focusedContent() {
 			if (
 				this.focusedHotspot &&
@@ -348,20 +306,20 @@ export default {
 			this.controls.enableZoom = false
 			this.controls.rotateSpeed = -0.5
 
-			let axesHelper = new THREE.AxesHelper(5)
-			this.scene.add(axesHelper)
+			/*let axesHelper = new THREE.AxesHelper(5)
+			this.scene.add(axesHelper)*/
 
 			//Add events listeners
-			//this.el.addEventListener('mousedown', this.onPointerStart, false)
-			//this.el.addEventListener('mousemove', this.onPointerMove, false)
-			//this.el.addEventListener('mouseup', this.onPointerUp, false)
+			this.el.addEventListener('mousedown', this.onPointerStart, false)
+			this.el.addEventListener('mousemove', this.onPointerMove, false)
+			this.el.addEventListener('mouseup', this.onPointerUp, false)
 
-			//this.el.addEventListener('touchstart', this.onPointerStart, false)
-			//this.el.addEventListener('touchmove', this.onPointerMove, false)
-			//this.el.addEventListener('touchend', this.onPointerUp, false)
+			this.el.addEventListener('touchstart', this.onPointerStart, false)
+			this.el.addEventListener('touchmove', this.onPointerMove, false)
+			this.el.addEventListener('touchend', this.onPointerUp, false)
 
 			//this.el.addEventListener('mousedown', this.onDocumentMouseDown, false)
-			this.el.addEventListener('mousemove', this.onMouseOver, false)
+			//this.el.addEventListener('mousemove', this.onMouseOver, false)
 			this.el.addEventListener('click', this.onClick, false)
 			this.el.addEventListener('touchstart', this.onClick, false)
 
@@ -445,54 +403,19 @@ export default {
 		},
 		loadAssets() {
 			this.displayLoading(true)
-			this.geometry = new THREE.SphereGeometry(SPHERE_RADIUS + 20, 32, 32)
+			this.geometry = new THREE.SphereGeometry(SPHERE_RADIUS + 30, 32, 32)
 			this.geometry.scale(-1, 1, 1)
 			this.hotspotManager.loadHotspotTextures()
 
 			Bluebird.each(this.immersiveScene.layers, (layer, index) => {
 				return new Promise((resolve, reject) => {
-					console.log(
-						'Loading texture',
-						`/assets/immersives/${this.site}/${layer.uniqueID}.jpg`
-					)
+					let textureURL = `/assets/immersives/${this.site}/${layer.uniqueID}.jpg`
+					console.log('Loading texture', textureURL)
 
 					this.textureLoader.load(
-						`/assets/immersives/${this.site}/${layer.uniqueID}.jpg`,
+						textureURL,
 						(texture) => {
-							console.log(
-								'Texture loaded!',
-								`/assets/immersives/${this.site}/${layer.uniqueID}.jpg`
-							)
-
-							if (this.isGeometryUpdated) {
-								this.canvas = document.createElement('canvas')
-								this.canvas.width = texture.image.width
-								this.canvas.height = texture.image.height
-								this.canvas
-									.getContext('2d')
-									.drawImage(
-										texture.image,
-										0,
-										0,
-										texture.image.width,
-										texture.image.height
-									)
-								for (let i = 0, l = this.geometry.vertices.length; i < l; i++) {
-									let dir = this.position2Dir(this.geometry.vertices[i])
-									let h = this.getH(dir)
-									let vector = new THREE.Vector3()
-									vector.set(
-										this.geometry.vertices[i].x,
-										this.geometry.vertices[i],
-										this.geometry.vertices[i].z
-									)
-									vector.setLength(h)
-									this.geometry.vertices[i].x = vector.x
-									this.geometry.vertices[i].y = vector.y
-									this.geometry.vertices[i].z = vector.z
-								}
-								this.isGeometryUpdated = true
-							}
+							console.log('Texture loaded!', textureURL)
 
 							let material = new THREE.MeshBasicMaterial({
 								map: texture,
@@ -534,49 +457,6 @@ export default {
 					this.displayLoading(false)
 				})
 		},
-		getH(dir) {
-			dir.az = 360 - dir.az + 180
-			dir.az = dir.az % 360
-
-			let x = Math.floor((this.canvas.width * dir.az) / 360)
-			let y = Math.floor((this.canvas.height * (dir.h + 90)) / 180)
-
-			let pixelData = this.canvas.getContext('2d').getImageData(x, y, 1, 1).data
-			var h = 200 + pixelData[0] / 5
-			//console.log(h);
-			return h
-		},
-		position2Dir(position) {
-			var az = null
-			var h = null
-
-			var vector = new THREE.Vector3(position.x, position.y, position.z)
-			var length = vector.length()
-
-			var hd =
-				Math.sqrt(Math.pow(position.x, 2) + Math.pow(position.z, 2)) / length
-
-			h = (Math.atan(position.y / length / hd) / Math.PI) * 180
-			h *= -1
-
-			az = Math.atan(position.z / hd / (position.x / hd))
-			//if (lazerJS.projectName == 'Export') {
-			//    az += Math.PI / 2;
-			// }
-
-			if (position.x < 0 && position.z > 0) az = Math.PI + az
-			if (position.x < 0 && position.z < 0) az = Math.PI + az
-			if (position.x > 0 && position.z < 0) az = Math.PI * 2 + az
-
-			az = (az / Math.PI) * 180
-
-			if (isNaN(az)) az = 0
-
-			return {
-				az: az,
-				h: h,
-			}
-		},
 		displayLoading(isLoading) {
 			if (isLoading) {
 				this.loadingComponent = this.$buefy.loading.open({
@@ -594,26 +474,11 @@ export default {
 		onPointerStart(event) {
 			event.preventDefault()
 			this.isUserInteracting = true
-
-			let clientX = event.clientX || event.touches[0].clientX
-			let clientY = event.clientY || event.touches[0].clientY
-
-			this.onMouseDownMouseX = clientX
-			this.onMouseDownMouseY = clientY
-
-			this.onMouseDownLon = this.lon
-			this.onMouseDownLat = this.lat
 		},
 		onPointerMove(event) {
 			event.preventDefault()
 			if (this.isUserInteracting) {
-				let clientX = event.clientX || event.touches[0].clientX
-				let clientY = event.clientY || event.touches[0].clientY
-
-				this.lon =
-					(this.onMouseDownMouseX - clientX) * 0.2 + this.onMouseDownLon
-				this.lat =
-					(clientY - this.onMouseDownMouseY) * 0.2 + this.onMouseDownLat
+				this.toggleTooltip('hide')
 			}
 		},
 		onPointerUp() {
@@ -690,9 +555,6 @@ export default {
 							this.tooltip.style.opacity = 1
 						}, 100)
 					}
-				} else if (intersected.type === 'Mesh') {
-					//console.log('POSITION XYZ', intersect.point)
-					this.current3DPosition = intersect.point
 				}
 			})
 
@@ -735,11 +597,7 @@ export default {
 							this.closeUpImage = `/assets/immersives/${this.site}/closeups/${this.focusedHotspot.contentList[0].value}.jpg`
 							this.isModalCloseUpVisible = true
 						}
-					} else if (
-						this.focusedHotspot.type == 'TextHotspot' &&
-						event.touches &&
-						event.touches.length == 1
-					) {
+					} else if (this.focusedHotspot.type == 'TextHotspot') {
 						setTimeout(() => {
 							this.toggleTooltip('show')
 							let tooltipRect = this.tooltip.getBoundingClientRect()
@@ -835,44 +693,6 @@ export default {
 		toggleTooltip(command) {
 			this.tooltip.style.display = command === 'show' ? 'block' : 'none'
 			this.showTooltip = command === 'show'
-		},
-		onSelectionModeChanged() {
-			if (this.isSelectionMode) {
-				this.el.addEventListener('dblclick', this.onDoubleClick, false)
-			} else {
-				this.el.removeEventListener('dblclick', this.onDoubleClick, false)
-			}
-		},
-		onDoubleClick(event) {
-			console.log('onDoubleClick', event)
-			event.preventDefault()
-
-			let domRect = this.el.getBoundingClientRect()
-
-			let clientX = event.clientX || event.touches[0].clientX
-			let clientY = event.clientY || event.touches[0].clientY
-
-			let mouse = new THREE.Vector2(
-				((clientX - domRect.x) / this.el.clientWidth) * 2 - 1,
-				-((clientY - domRect.y) / this.el.clientHeight) * 2 + 1
-			)
-
-			this.rayCaster.setFromCamera(mouse, this.camera)
-
-			this.toggleTooltip('hide')
-			this.tooltip.style.opacity = 0
-
-			let intersects = this.rayCaster.intersectObjects(this.scene.children)
-			intersects.forEach((intersect) => {
-				let intersected = intersect.object
-				if (intersected.type === 'Mesh') {
-					if (this.selectedHotspot) {
-						let point = intersect.point.clone()
-						this.selectedHotspot['coord'] = point
-						console.log('MESH intercepted lol', this.selectedHotspot['coord'])
-					}
-				}
-			})
 		},
 		getHotspotLabel(hotspot) {
 			if (hotspot.contentList && hotspot.contentList.length > 0) {
