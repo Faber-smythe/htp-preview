@@ -28,7 +28,7 @@
 									)}); height: 70vh; width:100%; background-size:cover;`
 								"
 							>
-								<h3 class="subtitle title-font">{{ $t(immersive.site) }}</h3>
+								<h3 class="subtitle title-font"><a target="_blank" rel="noopener noreferrer" :href="$t(`${immersive.site}.url`)">{{ $t(immersive.site) }}</a></h3>
 								<h1 class="title title-font">
 									<a
 										:href="

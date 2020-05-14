@@ -3,20 +3,53 @@
 		<!-- Used to display 3D canvas which display the 3D scene-->
 		<div class="scene" ref="scene3D"></div>
 
+
 		<!-- Header navigation-->
 		<div v-if="immersiveScene" class="header-immersive has-text-centered">
-			<h2 class="title-font header-title">
-				<router-link to="/"
-					><b-icon
-						pack="fas"
-						icon="long-arrow-alt-left"
-						type="is-white"
-						style="margin-right: 0.8em; margin-top: 0.1em;"
-					></b-icon
-				></router-link>
-				<span>&nbsp;&nbsp;&nbsp;{{ immersiveTitle }}</span>
-			</h2>
+			<div class="columns">
+				<div class="column">
+					<h2 class="title-font header-title">
+						<router-link to="/"
+							><b-icon
+								pack="fas"
+								icon="long-arrow-alt-left"
+								type="is-white"
+								style="margin-right: 0.8em; margin-top: 0.1em;"
+							></b-icon
+						></router-link>
+						<span>&nbsp;&nbsp;&nbsp;{{ immersiveTitle }}</span>
+						<b-dropdown
+							aria-role="list"
+							style="margin-left: 1em;"
+							v-if="immersives && immersives.length > 0"
+						>
+							<button
+								class="button is-black"
+								slot="trigger"
+								slot-scope="{ active }"
+							>
+								<template>
+									<b-icon icon="cube"></b-icon>
+									<span>{{ $t('rooms') }}</span>
+									<b-icon :icon="active ? 'caret-up' : 'caret-down'"></b-icon>
+								</template>
+							</button>
+
+							<b-dropdown-item
+								aria-role="listitem"
+								v-for="immersive in immersives"
+								:key="immersive.id"
+								@click="onImmersiveChange(immersive)"
+							>
+								{{ $t(immersive.name) }}
+							</b-dropdown-item>
+						</b-dropdown>
+					</h2>
+				</div>
+			</div>
 		</div>
+
+		<img src="/img/logos/logo_histopad_white.png" alt="Logo HistoPad" style="width:5em; position: fixed; margin:1.5em;"/>
 
 		<!-- Custom tooltip -->
 		<div class="custom-tooltip" ref="tooltip" id="tooltip">
@@ -106,6 +139,10 @@
 			<!--<p class="image" v-if="closeUpImage">
 				<img :src="closeUpImage" :alt="focusedContent" style="height: 100%; width: 100%; object-fit: contain"/>
 			</p>-->
+			<div v-if="immersiveScene" class="header-immersive has-text-centered">
+				<h2 class="title-font header-title" v-html="$t(closeUpTitle)"></h2>
+			</div>
+
 			<div style="height: 100%; width:100%">
 				<img
 					:src="closeUpImage"
@@ -126,6 +163,8 @@ import { HotspotManager } from '../utils/HotspotManager'
 import { SoundManager } from '../utils/SoundManager'
 import { ImmersiveManager } from '../utils/ImmersiveManager'
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls'
+
+import sites from '../data/sites.json'
 
 import LanguageSwitcher from './LanguageSwitcher'
 
@@ -187,60 +226,24 @@ export default {
 			focusedHotspot: {},
 			tooltip: null,
 			closeUpImage: '',
+			closeUpTitle: '',
 			isModalCloseUpVisible: false,
 			loadingComponent: null,
 			closeUpImages: [],
 			sliderTooltipsLabel: ['', ''],
 			soundVolume: 40,
 			isGeometryUpdated: false,
+			immersives: [],
+			immersiveFile: '',
 		}
 	},
 	mounted() {
-		this.immersiveScene = JSON.parse(
-			JSON.stringify(
-				require(`../data/sites/${this.site}/${this.immersiveFileName}`)
-			)
-		)
-		if (!this.immersiveScene.layers) {
-			this.immersiveManager.processOldImmersive(this.immersiveScene)
-		}
-
-		//Loading only text hotspot and close ups
-		this.immersiveScene.hotspots = this.immersiveScene.hotspots.filter(
-			(hotspot) => {
-				return (
-					hotspot.type === 'TextHotspot' ||
-					(hotspot.type === 'CloseUpHotspot' && hotspot.contentList.length == 1)
-				)
-			}
-		)
-
-		//Load slider tooltips label
-		this.sliderTooltipsLabel = this.immersiveScene.layers.map((layer) => {
-			return layer.localizedTimestampTitle.replace('${', '').replace('}', '')
-		})
-
-		this.init()
+		this.immersiveFile = new String(this.immersiveFileName)
+		this.loadImmersive()
 	},
 	beforeDestroy() {
-		if (this.scene) {
-			this.scene.children.forEach((child) => {
-				if (child.geometry && child.material) {
-					child.geometry.dispose()
-					child.material.dispose()
-				}
-			})
-
-			this.scene.children.forEach((child) => {
-				child.remove()
-			})
-
-			this.scene.dispose()
-			this.renderer.renderLists.dispose()
-
-			if (this.controls) this.controls.dispose()
-		}
-		this.soundManager.unloadSounds()
+		this.unloadImmersive()
+		if (this.controls) this.controls.dispose()
 	},
 	computed: {
 		focusedContent() {
@@ -268,6 +271,67 @@ export default {
 		},
 	},
 	methods: {
+		loadImmersive() {
+			this.immersiveScene = JSON.parse(
+				JSON.stringify(
+					require(`../data/sites/${this.site}/${this.immersiveFile}`)
+				)
+			)
+
+			//Loading only text hotspot and close ups
+			this.immersiveScene.hotspots = this.immersiveScene.hotspots.filter(
+				(hotspot) => {
+					return (
+						hotspot.type === 'TextHotspot' ||
+						(hotspot.type === 'CloseUpHotspot' &&
+							hotspot.contentList.length == 1)
+					)
+				}
+			)
+
+			//Load slider tooltips label
+			this.sliderTooltipsLabel = this.immersiveScene.layers.map((layer) => {
+				return layer.localizedTimestampTitle.replace('${', '').replace('}', '')
+			})
+
+			//Load other available immersives for this site
+			this.immersives = sites
+				.find((s) => {
+					return s.site == this.site
+				})
+				.immersives.filter((immersive) => {
+					return immersive.id !== this.immersiveScene.name
+				})
+
+			this.init()
+		},
+		unloadImmersive() {
+			if (this.scene) {
+				//Disposal children materials and geometry
+				this.scene.children.forEach((child) => {
+					if (child.geometry && child.material) {
+						child.geometry.dispose()
+						child.material.dispose()
+					}
+				})
+
+				//Removing children (meshes and sprites)
+				while (this.scene.children.length > 0) {
+					this.scene.remove(this.scene.children[0])
+				}
+
+				this.scene.dispose()
+				this.renderer.renderLists.dispose()
+
+				//Removing geometry, textures, and materials
+				this.geometry.dispose()
+				this.textures.forEach((texture) => {
+					texture.dispose()
+				})
+			}
+
+			this.soundManager.unloadSounds()
+		},
 		init() {
 			this.el = this.$refs['scene3D']
 			this.tooltip = this.$refs['tooltip']
@@ -283,6 +347,9 @@ export default {
 			window.addEventListener('resize', this.onWindowResize, false)
 		},
 		initScene() {
+			if (this.scene) {
+				return
+			}
 			this.scene = new THREE.Scene()
 			this.rayCaster = new THREE.Raycaster()
 
@@ -318,16 +385,9 @@ export default {
 			this.el.addEventListener('touchmove', this.onPointerMove, false)
 			this.el.addEventListener('touchend', this.onPointerUp, false)
 
-			//this.el.addEventListener('mousedown', this.onDocumentMouseDown, false)
-			//this.el.addEventListener('mousemove', this.onMouseOver, false)
 			this.el.addEventListener('click', this.onClick, false)
 			this.el.addEventListener('touchstart', this.onClick, false)
-
-			//this.el.addEventListener('touchstart', this.onDocumentMouseDown, false)
-
 			this.el.addEventListener('wheel', this.onDocumentMouseWheel, false)
-
-			//this.el.addEventListener('touchstart', this.onMouseOver, false)
 		},
 		initAmbient() {
 			let soundFiles = this.immersiveScene.layers.filter((layer) => {
@@ -380,32 +440,19 @@ export default {
 		animate() {
 			requestAnimationFrame(this.animate)
 
-			/*if (!this.isUserInteracting) {
-				this.lon += 0.1
-			}*/
-
-			/*this.lat = Math.max(-85, Math.min(85, this.lat))
-			this.phi = THREE.MathUtils.degToRad(90 - this.lat)
-			this.theta = THREE.MathUtils.degToRad(this.lon)
-
-			let target = new THREE.Vector3(
-				SPHERE_RADIUS * Math.sin(this.phi) * Math.cos(this.theta),
-				SPHERE_RADIUS * Math.cos(this.phi),
-				SPHERE_RADIUS * Math.sin(this.phi) * Math.sin(this.theta)
-			)
-
-			this.camera.target = target
-			this.camera.lookAt(this.camera.target)
-			this.camera.updateProjectionMatrix()*/
-
 			this.controls.update()
 			this.renderer.render(this.scene, this.camera)
 		},
 		loadAssets() {
 			this.displayLoading(true)
+
 			this.geometry = new THREE.SphereGeometry(SPHERE_RADIUS + 30, 32, 32)
 			this.geometry.scale(-1, 1, 1)
 			this.hotspotManager.loadHotspotTextures()
+
+			this.meshes = []
+			this.textures = []
+			this.materials = []
 
 			Bluebird.each(this.immersiveScene.layers, (layer, index) => {
 				return new Promise((resolve, reject) => {
@@ -416,7 +463,6 @@ export default {
 						textureURL,
 						(texture) => {
 							console.log('Texture loaded!', textureURL)
-
 							let material = new THREE.MeshBasicMaterial({
 								map: texture,
 								transparent: true,
@@ -428,6 +474,8 @@ export default {
 							mesh.uuid = layer.uniqueID
 							mesh.renderOrder = index
 							this.meshes.push(mesh)
+							this.textures.push(texture)
+							this.materials.push(material)
 							this.scene.add(mesh)
 							mesh.position.set(0, 0, 0)
 							resolve(true)
@@ -594,7 +642,14 @@ export default {
 								event.type == 'click') ||
 							event.type == 'touchstart'
 						) {
-							this.closeUpImage = `/assets/immersives/${this.site}/closeups/${this.focusedHotspot.contentList[0].value}.jpg`
+							let file = this.focusedHotspot.contentList[0].value
+							let closeUp = this.immersiveScene.closeUps.find((closeUp) => {
+								return closeUp.fileName == file
+							})
+							this.closeUpTitle = closeUp.cartelDescription.title
+								.replace('${', '')
+								.replace('}', '')
+							this.closeUpImage = `/assets/immersives/${this.site}/closeups/${file}.jpg`
 							this.isModalCloseUpVisible = true
 						}
 					} else if (this.focusedHotspot.type == 'TextHotspot') {
@@ -631,6 +686,7 @@ export default {
 			return this.sliderTooltipsLabel[index]
 		},
 		displayHotspots() {
+			this.hotspots = []
 			this.immersiveScene.hotspots.forEach((hotspot, index) => {
 				let point = this.hotspotManager.generate3DPosition(
 					hotspot,
@@ -671,7 +727,7 @@ export default {
 			})
 		},
 		isHotspotDisplayedInLayer(hotspot) {
-			if (hotspot.layers && hotspot.layers.length > 0) {
+			if (hotspot && hotspot.layers && hotspot.layers.length > 0) {
 				let foundLayer = hotspot.layers.find((layer) => {
 					return layer == this.selectedMesh.uuid
 				})
@@ -704,6 +760,15 @@ export default {
 			} else {
 				return ''
 			}
+		},
+		onImmersiveChange(immersive) {
+			this.toggleTooltip('hide')
+			this.draggingValue = 0
+			let url = `/preview/${this.site}/immersive/${immersive.id}`
+			window.history.replaceState(null, null, url)
+			this.immersiveFile = immersive.file
+			this.unloadImmersive()
+			this.loadImmersive()
 		},
 	},
 }
@@ -764,6 +829,14 @@ export default {
 }
 
 .header-title {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.closeup-title {
+	font-size: 1.5em;
+	color: white;
 	display: flex;
 	align-items: center;
 	justify-content: center;

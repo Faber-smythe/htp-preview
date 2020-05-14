@@ -1,18 +1,13 @@
 <template>
 	<b-dropdown aria-role="list" position="is-bottom-left">
-		<p
-			class="tag"
-			slot="trigger"
-			role="button"
-			style="cursor: pointer;"
-		>
+		<p class="tag" slot="trigger" role="button" style="cursor: pointer;">
 			<img
 				:src="`/img/flags/${selectedLanguage}.svg`"
 				:alt="selectedLanguage"
 				style="width: 1em; height: 1em; margin-right: 0.5em;"
 			/>
-			&nbsp;
-			{{ $t(`language.${selectedLanguage}`) }}
+			<span v-if="!isSmartPhone">
+			&nbsp;{{ $t(`language.${selectedLanguage}`) }}</span>
 		</p>
 
 		<b-dropdown-item
@@ -56,6 +51,23 @@ export default {
 				language = 'en'
 			}
 			return language
+		},
+		isSmartPhone() {
+			let toMatch = [
+				/Android/i,
+				/webOS/i,
+				/iPhone/i,
+				/iPad/i,
+				/iPod/i,
+				/BlackBerry/i,
+				/Windows Phone/i,
+			]
+
+			let match = toMatch.some((toMatchItem) => {
+				return navigator.userAgent.match(toMatchItem)
+			})
+
+			return match
 		},
 	},
 	methods: {
