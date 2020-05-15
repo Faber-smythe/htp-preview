@@ -4,7 +4,24 @@
     "layers": [
         {
             "uniqueID": "carriere.scenelayer.new_layer0",
-            "localizedTimestampTitle": "",
+            "localizedTimestampTitle": "${past}",
+            "cartelDescription": {
+                "title": "${CubemapTitle_Imm_Carriere}",
+                "subtitle": "",
+                "description": "${CubemapDesc_Imm_Carriere}"
+            },
+            "skyboxMaterial": "carriere",
+            "ambianceSound": {
+                "fileName": "Amb_Querry",
+                "volume": 0.5
+            },
+            "triggerType": "Timeline",
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "uniqueID": "carriere.scenelayer.new_layer1",
+            "localizedTimestampTitle": "${present}",
             "cartelDescription": {
                 "title": "${CubemapTitle_Imm_Carriere}",
                 "subtitle": "",

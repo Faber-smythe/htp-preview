@@ -4,7 +4,24 @@
     "layers": [
         {
             "uniqueID": "tourdumoulin.scenelayer.new_layer0",
-            "localizedTimestampTitle": "",
+            "localizedTimestampTitle": "1204",
+            "cartelDescription": {
+                "title": "${CubemapTitle_Imm_TourMoulin}",
+                "subtitle": "",
+                "description": "${CubemapDesc_Imm_TourMoulin}"
+            },
+            "skyboxMaterial": "tourdumoulin",
+            "ambianceSound": {
+                "fileName": "Amb_LowerRoom",
+                "volume": 1.0
+            },
+            "triggerType": "",
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "uniqueID": "tourdumoulin.scenelayer.new_layer1",
+            "localizedTimestampTitle": "${today}",
             "cartelDescription": {
                 "title": "${CubemapTitle_Imm_TourMoulin}",
                 "subtitle": "",

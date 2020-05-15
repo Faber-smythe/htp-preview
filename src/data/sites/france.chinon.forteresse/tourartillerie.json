@@ -4,7 +4,24 @@
     "layers": [
         {
             "uniqueID": "tourartillerie.scenelayer.new_layer0",
-            "localizedTimestampTitle": "",
+            "localizedTimestampTitle": "${15_Th_Century}",
+            "cartelDescription": {
+                "title": "${CubemapTitle_Imm_MagasinArtillerie}",
+                "subtitle": "",
+                "description": "${CubemapDesc_Imm_MagasinArtillerie}"
+            },
+            "skyboxMaterial": "tourartillerie",
+            "ambianceSound": {
+                "fileName": "Amb_Artillery_V4",
+                "volume": 1.0
+            },
+            "triggerType": "",
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "uniqueID": "tourartillerie.scenelayer.new_layer1",
+            "localizedTimestampTitle": "${today}",
             "cartelDescription": {
                 "title": "${CubemapTitle_Imm_MagasinArtillerie}",
                 "subtitle": "",

@@ -727,6 +727,9 @@ export default {
 			})
 		},
 		isHotspotDisplayedInLayer(hotspot) {
+			if (this.selectedMesh.uuid.indexOf('new_layer1') > -1) {
+				return false
+			}
 			if (hotspot && hotspot.layers && hotspot.layers.length > 0) {
 				let foundLayer = hotspot.layers.find((layer) => {
 					return layer == this.selectedMesh.uuid
