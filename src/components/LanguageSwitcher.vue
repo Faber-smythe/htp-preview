@@ -26,8 +26,11 @@
 </template>
 
 <script>
+import { utilsMixin } from '../utils/mixins'
+
 export default {
 	name: 'LanguageSwitcher',
+	mixins: [utilsMixin],
 	data() {
 		return {
 			languages: ['en', 'fr'],
@@ -51,23 +54,6 @@ export default {
 				language = 'en'
 			}
 			return language
-		},
-		isSmartPhone() {
-			let toMatch = [
-				/Android/i,
-				/webOS/i,
-				/iPhone/i,
-				/iPad/i,
-				/iPod/i,
-				/BlackBerry/i,
-				/Windows Phone/i,
-			]
-
-			let match = toMatch.some((toMatchItem) => {
-				return navigator.userAgent.match(toMatchItem)
-			})
-
-			return match
 		},
 	},
 	methods: {

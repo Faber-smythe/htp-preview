@@ -3,7 +3,6 @@
 		<!-- Used to display 3D canvas which display the 3D scene-->
 		<div class="scene" ref="scene3D"></div>
 
-
 		<!-- Header navigation-->
 		<div v-if="immersiveScene" class="header-immersive has-text-centered">
 			<div class="columns">
@@ -18,38 +17,10 @@
 							></b-icon
 						></router-link>
 						<span>&nbsp;&nbsp;&nbsp;{{ immersiveTitle }}</span>
-						<b-dropdown
-							aria-role="list"
-							style="margin-left: 1em;"
-							v-if="immersives && immersives.length > 0"
-						>
-							<button
-								class="button is-black"
-								slot="trigger"
-								slot-scope="{ active }"
-							>
-								<template>
-									<b-icon icon="cube"></b-icon>
-									<span>{{ $t('rooms') }}</span>
-									<b-icon :icon="active ? 'caret-up' : 'caret-down'"></b-icon>
-								</template>
-							</button>
-
-							<b-dropdown-item
-								aria-role="listitem"
-								v-for="immersive in immersives"
-								:key="immersive.id"
-								@click="onImmersiveChange(immersive)"
-							>
-								{{ $t(immersive.name) }}
-							</b-dropdown-item>
-						</b-dropdown>
 					</h2>
 				</div>
 			</div>
 		</div>
-
-		<img src="/img/logos/logo_histopad_white.png" alt="Logo HistoPad" style="width:5em; position: fixed; margin:1.5em;"/>
 
 		<!-- Custom tooltip -->
 		<div class="custom-tooltip" ref="tooltip" id="tooltip">
@@ -60,16 +31,58 @@
 		<div class="player-footer">
 			<div class="columns is-mobile is-vcentered">
 				<span
-					style="font-size:0.8em; position:absolute; bottom: 0.4em; left:33%;"
+					:style="
+						isSmartPhone
+							? 'font-size:0.8em; position:absolute; bottom: 0.4em; left:25%;'
+							: 'font-size:0.8em; position:absolute; bottom: 0.4em; left:33%;'
+					"
 					>{{ $t(sliderTooltipsLabel[0]) }}</span
 				>
 				<span
-					style="font-size:0.8em; position:absolute; bottom: 0.4em; right:33%"
+					:style="
+						isSmartPhone
+							? 'font-size:0.8em; position:absolute; bottom: 0.4em; right:25%;'
+							: 'font-size:0.8em; position:absolute; bottom: 0.4em; right:33%;'
+					"
 					>{{ $t(sliderTooltipsLabel[1]) }}</span
 				>
+				<div class="column">
+					<b-dropdown
+						aria-role="list"
+						position="is-top-right"
+						style="margin: 0.5em;"
+						v-if="immersives && immersives.length > 0"
+					>
+						<!--<button
+							class="button is-black"
+							slot="trigger"
+							slot-scope="{ active }"
+						>
+							<template>
+								<b-icon icon="map-marked"></b-icon>
+								<b-icon :icon="active ? 'caret-up' : 'caret-down'"></b-icon>
+							</template>
+						</button>-->
+
+						<button class="button is-black" slot="trigger">
+							<template>
+								<b-icon icon="map-marked"></b-icon>
+							</template>
+						</button>
+
+						<b-dropdown-item
+							aria-role="listitem"
+							v-for="immersive in immersives"
+							:key="immersive.id"
+							@click="onImmersiveChange(immersive)"
+						>
+							{{ $t(immersive.name) }}
+						</b-dropdown-item>
+					</b-dropdown>
+				</div>
 
 				<div
-					class="column is-one-third is-offset-one-third"
+					:class="isSmartPhone ? 'column is-half' : 'column is-one-third'"
 					v-if="
 						immersiveScene &&
 							immersiveScene.layers &&
@@ -90,8 +103,8 @@
 					</b-field>
 				</div>
 
-				<div class="column is-offset-1 is-2">
-					<v-popover offset="16">
+				<div class="column">
+					<v-popover offset="16" placement="bottom-center">
 						<!-- This will be the popover target (for the events and position) -->
 						<b-button
 							class="tooltip-target b3 is-black is-large"
@@ -110,21 +123,30 @@
 									class="slider"
 									id="soundRange"
 									orient="vertical"
+									:style="
+										isSmartPhone
+											? 'height: 15em; width:16px;'
+											: 'height: 10em; width:8px;'
+									"
 									@input="onVolumeChange"
 									v-model="soundVolume"
 								/>
-								<b-icon
-									pack="fas"
-									icon="volume-up"
-									type="is-white"
-									style="position:fixed; top: 0.5em;; left: 2.3em;"
-								></b-icon>
-								<b-icon
-									pack="fas"
-									icon="volume-down"
-									type="is-white"
-									style="position:fixed; bottom: 0.5em; left:2.3em;"
-								></b-icon>
+
+								<b-button
+									icon-left="volume-up"
+									type="is-black"
+									style="position:fixed; top: 0.1em;; left: 2.3em;"
+									@click="udpdateVolume(5)"
+								>
+								</b-button>
+
+								<b-button
+									icon-left="volume-down"
+									type="is-black"
+									style="position:fixed; bottom: 0.1em; left:2.3em;"
+									@click="udpdateVolume(-5)"
+								>
+								</b-button>
 							</div>
 						</template>
 					</v-popover>
@@ -132,7 +154,18 @@
 			</div>
 		</div>
 
-		<LanguageSwitcher style="position: absolute; top: 1em; right: 1em;" />
+		<!--<LanguageSwitcher v-if="!isSmartPhone" style="position: absolute; top: 1em; right: 1em;" />-->
+
+		<img
+			v-if="!isSmartPhone"
+			src="/img/logos/logo_histopad_white.png"
+			alt="Logo HistoPad"
+			:style="
+				!isSmartPhone
+					? 'width:5em; position: fixed; margin:1.5em;'
+					: 'width:5em; position: fixed; margin:1.5em; bottom: 0em;'
+			"
+		/>
 
 		<!-- Modal for close up display -->
 		<b-modal :active.sync="isModalCloseUpVisible">
@@ -162,10 +195,15 @@ import Bluebird from 'bluebird'
 import { HotspotManager } from '../utils/HotspotManager'
 import { SoundManager } from '../utils/SoundManager'
 import { ImmersiveManager } from '../utils/ImmersiveManager'
-import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls'
+//import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls'
+import { OrbitControls } from '../utils/OrbitControls'
+
+
+import { utilsMixin } from '../utils/mixins'
 
 import sites from '../data/sites.json'
 
+// eslint-disable-next-line no-unused-vars
 import LanguageSwitcher from './LanguageSwitcher'
 
 import VTooltip from 'v-tooltip'
@@ -176,12 +214,13 @@ const SPHERE_RADIUS = 2048
 
 export default {
 	name: 'Immersive',
+	mixins: [utilsMixin],
 	props: {
 		site: String,
 		immersiveFileName: String,
 	},
 	components: {
-		LanguageSwitcher,
+		//LanguageSwitcher,
 	},
 	data() {
 		return {
@@ -360,6 +399,7 @@ export default {
 				5000
 			)
 			this.camera.position.set(0, 0, 10)
+			this.camera.target = new THREE.Vector3( 0, 0, 0 )
 
 			this.renderer = new THREE.WebGLRenderer()
 			this.renderer.setPixelRatio(window.devicePixelRatio)
@@ -372,6 +412,16 @@ export default {
 			//this.controls.enableDamping = true
 			this.controls.enableZoom = false
 			this.controls.rotateSpeed = -0.5
+
+			this.controls.addEventListener('change', (event) => {
+				console.log(
+					'controls change',
+					event.target.getAzimuthalAngle(),
+					event.target.getPolarAngle(),
+					event.target.object.position,
+					event.target.object.rotation
+				)
+			})
 
 			/*let axesHelper = new THREE.AxesHelper(5)
 			this.scene.add(axesHelper)*/
@@ -490,7 +540,9 @@ export default {
 				.then(() => {
 					this.meshes[0].material.opacity = 1
 					if (this.meshes.length > 1) {
-						this.meshes[1].material.opacity = 0
+						for (let i = 1; i < this.meshes.length; i++) {
+							this.meshes[i].material.opacity = 0
+						}
 					}
 
 					this.selectedMesh = this.meshes[0]
@@ -499,6 +551,8 @@ export default {
 					this.updateHotspotsOpacity()
 					this.renderer.compile(this.scene, this.camera)
 					this.displayLoading(false)
+
+					this.initSlider()
 				})
 				.catch((error) => {
 					console.error('Error when loading texture:', error)
@@ -514,10 +568,19 @@ export default {
 				this.loadingComponent.close()
 			}
 		},
+		initSlider() {
+			this.stepLength = 100 / this.meshes.length
+			this.stepsValue = new Array(this.meshes.length)
+			let k = 0
+			for (let i = 0; i <= 100; i += this.stepLength) {
+				this.stepsValue[k] = i
+				k++
+			}
+		},
 		onWindowResize() {
 			this.camera.aspect = this.el.clientWidth / this.el.clientHeight
-			this.camera.updateProjectionMatrix()
 			this.renderer.setSize(this.el.clientWidth, this.el.clientHeight)
+			this.camera.updateProjectionMatrix()
 		},
 		onPointerStart(event) {
 			event.preventDefault()
@@ -653,6 +716,41 @@ export default {
 							this.isModalCloseUpVisible = true
 						}
 					} else if (this.focusedHotspot.type == 'TextHotspot') {
+						/**
+						 * lat = Math.max( - 85, Math.min( 85, lat ) );
+							phi = THREE.MathUtils.degToRad( 90 - lat );
+							theta = THREE.MathUtils.degToRad( lon );
+
+							camera.target.x = 500 * Math.sin( phi ) * Math.cos( theta );
+							camera.target.y = 500 * Math.cos( phi );
+							camera.target.z = 500 * Math.sin( phi ) * Math.sin( theta );
+
+							camera.lookAt( camera.target );
+						 */
+						//this.camera.lookAt(intersect.point)
+
+						let spherical = new THREE.Spherical().setFromCartesianCoords(
+							intersect.point.x,
+							intersect.point.y,
+							intersect.point.z
+						)
+						console.log('Spherical', spherical, this.controls.object)
+
+						/*this.camera.target.x =
+							SPHERE_RADIUS *
+							Math.sin(spherical.phi) *
+							Math.cos(spherical.theta)
+						this.camera.target.y = SPHERE_RADIUS * Math.cos(spherical.phi)
+						this.camera.target.z =
+							SPHERE_RADIUS *
+							Math.sin(spherical.phi) *
+							Math.sin(spherical.theta)
+
+						this.camera.lookAt(this.camera.target)*/
+
+						this.controls.setAzimuthalAngle(spherical.phi)
+						this.controls.setPolarAngle(spherical.theta)
+
 						setTimeout(() => {
 							this.toggleTooltip('show')
 							let tooltipRect = this.tooltip.getBoundingClientRect()
@@ -669,6 +767,7 @@ export default {
 		},
 		onSliderDragging() {
 			let opacity = this.draggingValue / 100
+
 			this.meshes[0].material.opacity = 1 - opacity
 			this.meshes[1].material.opacity = 0 + opacity
 
@@ -747,6 +846,10 @@ export default {
 			this.soundManager.mute(this.isMute)
 		},
 		onVolumeChange() {
+			this.soundManager.setVolume(this.soundVolume / 100)
+		},
+		udpdateVolume(value) {
+			this.soundVolume += value
 			this.soundManager.setVolume(this.soundVolume / 100)
 		},
 		toggleTooltip(command) {
@@ -870,7 +973,7 @@ export default {
 .slider-container {
 	display: flex;
 	height: auto;
-	width: 75px;
+	width: 5rem;
 	background: black;
 	border-radius: 3px;
 	opacity: 0.9;

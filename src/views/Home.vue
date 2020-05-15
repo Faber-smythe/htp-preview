@@ -141,8 +141,6 @@ export default {
 					})
 				)
 			})
-
-			console.log('Immersives', this.immersives)
 		},
 		initMap() {
 			setTimeout(() => {
