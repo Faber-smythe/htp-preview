@@ -19,6 +19,7 @@
     "core-js": "^3.6.4",
     "hammerjs": "^2.0.8",
     "howler": "^2.1.3",
+    "is_js": "^0.9.0",
     "mapbox-gl": "^1.9.1",
     "register-service-worker": "^1.7.1",
     "three": "^0.115.0",

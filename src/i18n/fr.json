@@ -101,5 +101,7 @@
     "TimelineStampTitle_Imm_GrandeSalleAudience": "Audience",
     "TimelineStampTitle_Imm_GrandeSalleBanquet": "Banquet",
     "#TODAY_YEAR": "Aujourd'hui",
+    "today": "Aujourd'hui",
+    "past": "Passé",
     "1205": "1205"
 }

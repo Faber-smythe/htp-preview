@@ -21,7 +21,7 @@
         },
         {
             "uniqueID": "carriere.scenelayer.new_layer1",
-            "localizedTimestampTitle": "${present}",
+            "localizedTimestampTitle": "${today}",
             "cartelDescription": {
                 "title": "${CubemapTitle_Imm_Carriere}",
                 "subtitle": "",

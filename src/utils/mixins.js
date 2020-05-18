@@ -1,3 +1,4 @@
+
 export let utilsMixin = {
 	computed: {
 		isSmartPhone() {
@@ -16,6 +17,6 @@ export let utilsMixin = {
 			})
 
 			return match
-		},
+		}
 	},
 }

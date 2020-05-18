@@ -53,18 +53,7 @@
 						style="margin: 0.5em;"
 						v-if="immersives && immersives.length > 0"
 					>
-						<!--<button
-							class="button is-black"
-							slot="trigger"
-							slot-scope="{ active }"
-						>
-							<template>
-								<b-icon icon="map-marked"></b-icon>
-								<b-icon :icon="active ? 'caret-up' : 'caret-down'"></b-icon>
-							</template>
-						</button>-->
-
-						<button class="button is-black" slot="trigger">
+						<button class="button is-large background-button" slot="trigger">
 							<template>
 								<b-icon icon="map-marked"></b-icon>
 							</template>
@@ -94,20 +83,21 @@
 							type="range"
 							min="0"
 							max="100"
-							value="0"
+							value="100"
 							class="custom-slider"
-							style="width: 100%"
+							:style="isFirefox ? 'margin-bottom: 20px;': ''"
 							@input="onSliderDragging"
 							v-model="draggingValue"
 						/>
 					</b-field>
+					<div class="background-slider" :style="isFirefox ? 'margin-bottom: 20px;': 'margin-bottom: 12px;'"></div>
 				</div>
 
 				<div class="column">
 					<v-popover offset="16" placement="bottom-center">
 						<!-- This will be the popover target (for the events and position) -->
 						<b-button
-							class="tooltip-target b3 is-black is-large"
+							class="tooltip-target b3 is-large background-button"
 							icon-left="volume-up"
 						>
 						</b-button>
@@ -136,7 +126,7 @@
 									icon-left="volume-up"
 									type="is-black"
 									style="position:fixed; top: 0.1em;; left: 2.3em;"
-									@click="udpdateVolume(5)"
+									@click="updateVolume(5)"
 								>
 								</b-button>
 
@@ -144,7 +134,7 @@
 									icon-left="volume-down"
 									type="is-black"
 									style="position:fixed; bottom: 0.1em; left:2.3em;"
-									@click="udpdateVolume(-5)"
+									@click="updateVolume(-5)"
 								>
 								</b-button>
 							</div>
@@ -155,17 +145,18 @@
 		</div>
 
 		<!--<LanguageSwitcher v-if="!isSmartPhone" style="position: absolute; top: 1em; right: 1em;" />-->
-
-		<img
-			v-if="!isSmartPhone"
-			src="/img/logos/logo_histopad_white.png"
-			alt="Logo HistoPad"
-			:style="
-				!isSmartPhone
-					? 'width:5em; position: fixed; margin:1.5em;'
-					: 'width:5em; position: fixed; margin:1.5em; bottom: 0em;'
-			"
-		/>
+		<a href="/">
+			<img
+				v-if="!isSmartPhone"
+				src="/img/logos/logo_histopad_white.png"
+				alt="Logo HistoPad"
+				:style="
+					!isSmartPhone
+						? 'width:5em; position: fixed; margin:1.5em;'
+						: 'width:5em; position: fixed; margin:1.5em; bottom: 0em;'
+				"
+			/>
+		</a>
 
 		<!-- Modal for close up display -->
 		<b-modal :active.sync="isModalCloseUpVisible">
@@ -191,13 +182,16 @@
 <script>
 import Vue from 'vue'
 import * as THREE from 'three'
+// eslint-disable-next-line no-unused-vars
+import is from 'is_js'
+
+import TWEEN from '@tweenjs/tween.js'
 import Bluebird from 'bluebird'
 import { HotspotManager } from '../utils/HotspotManager'
 import { SoundManager } from '../utils/SoundManager'
 import { ImmersiveManager } from '../utils/ImmersiveManager'
-//import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls'
-import { OrbitControls } from '../utils/OrbitControls'
-
+import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls'
+//import { OrbitControls } from '../utils/OrbitControls'
 
 import { utilsMixin } from '../utils/mixins'
 
@@ -207,6 +201,7 @@ import sites from '../data/sites.json'
 import LanguageSwitcher from './LanguageSwitcher'
 
 import VTooltip from 'v-tooltip'
+import { Vector3 } from 'three'
 
 Vue.use(VTooltip)
 
@@ -251,7 +246,7 @@ export default {
 			isMenuVisible: false,
 			scaling: false,
 			manager: null,
-			draggingValue: 0,
+			draggingValue: 100,
 			loadedTextures: [],
 			hotspots: [],
 			meshes: [],
@@ -270,10 +265,12 @@ export default {
 			loadingComponent: null,
 			closeUpImages: [],
 			sliderTooltipsLabel: ['', ''],
-			soundVolume: 40,
+			soundVolume: 0,
 			isGeometryUpdated: false,
 			immersives: [],
 			immersiveFile: '',
+			timeSpiral: null,
+			timeSpiralMaterial: null
 		}
 	},
 	mounted() {
@@ -308,6 +305,9 @@ export default {
 					.replace('}', '')
 			)
 		},
+		isFirefox() {
+			return is.firefox()
+		}
 	},
 	methods: {
 		loadImmersive() {
@@ -359,6 +359,8 @@ export default {
 					this.scene.remove(this.scene.children[0])
 				}
 
+				this.timeSpiralMaterial.dispose()
+
 				this.scene.dispose()
 				this.renderer.renderLists.dispose()
 
@@ -380,6 +382,7 @@ export default {
 
 			this.initScene()
 			this.loadAssets()
+			this.loa
 			this.initAmbient()
 			this.loadCloseUps()
 			this.animate()
@@ -399,7 +402,7 @@ export default {
 				5000
 			)
 			this.camera.position.set(0, 0, 10)
-			this.camera.target = new THREE.Vector3( 0, 0, 0 )
+			this.camera.target = new THREE.Vector3(0, 0, 0)
 
 			this.renderer = new THREE.WebGLRenderer()
 			this.renderer.setPixelRatio(window.devicePixelRatio)
@@ -412,16 +415,6 @@ export default {
 			//this.controls.enableDamping = true
 			this.controls.enableZoom = false
 			this.controls.rotateSpeed = -0.5
-
-			this.controls.addEventListener('change', (event) => {
-				console.log(
-					'controls change',
-					event.target.getAzimuthalAngle(),
-					event.target.getPolarAngle(),
-					event.target.object.position,
-					event.target.object.rotation
-				)
-			})
 
 			/*let axesHelper = new THREE.AxesHelper(5)
 			this.scene.add(axesHelper)*/
@@ -487,10 +480,13 @@ export default {
 				closeUpImage.src = url
 			})
 		},
-		animate() {
+		animate(time) {
 			requestAnimationFrame(this.animate)
 
+			TWEEN.update(time)
+
 			this.controls.update()
+
 			this.renderer.render(this.scene, this.camera)
 		},
 		loadAssets() {
@@ -498,6 +494,7 @@ export default {
 
 			this.geometry = new THREE.SphereGeometry(SPHERE_RADIUS + 30, 32, 32)
 			this.geometry.scale(-1, 1, 1)
+			//Load textures for hotspots sprites
 			this.hotspotManager.loadHotspotTextures()
 
 			this.meshes = []
@@ -519,6 +516,7 @@ export default {
 								side: THREE.DoubleSide,
 								depthWrite: true,
 								blending: THREE.NormalBlending,
+								opacity: 0,
 							})
 							let mesh = new THREE.Mesh(this.geometry, material)
 							mesh.uuid = layer.uniqueID
@@ -538,14 +536,14 @@ export default {
 				})
 			})
 				.then(() => {
-					this.meshes[0].material.opacity = 1
+					this.meshes[this.meshes.length - 1].material.opacity = 1
 					if (this.meshes.length > 1) {
-						for (let i = 1; i < this.meshes.length; i++) {
+						for (let i = 0; i < this.meshes.length - 1; i++) {
 							this.meshes[i].material.opacity = 0
 						}
 					}
 
-					this.selectedMesh = this.meshes[0]
+					this.selectedMesh = this.meshes[this.meshes.length - 1]
 					this.previousMeshId = this.selectedMesh.uuid
 					this.displayHotspots()
 					this.updateHotspotsOpacity()
@@ -553,6 +551,34 @@ export default {
 					this.displayLoading(false)
 
 					this.initSlider()
+				})
+				.then(() => {
+					//Load texture for time spiral
+					this.textureLoader.load('/img/time_spirale.png', (texture) => {
+						this.timeSpiralMaterial = new THREE.SpriteMaterial({
+							map: texture,
+							opacity: 1,
+							transparent: true,
+							depthWrite: true,
+							rotation: this.$i18n.locale !== 'fr' ? Math.PI : 0,
+						})
+						this.timeSpiral = new THREE.Sprite(this.timeSpiralMaterial)
+						this.timeSpiral.scale.set(300, 300, 300)
+						this.timeSpiral.position.copy(new Vector3(0, -400, 0))
+						this.timeSpiral.renderOrder =
+							this.meshes.length + this.hotspots.length + 10
+
+						this.scene.add(this.timeSpiral)
+
+						/*let spritey = this.makeTextSprite(' World! ', {
+							fontsize: 32,
+							fontface: 'Poppins',
+							backgroundColor: { r: 0, g: 0, b: 0, a: 0.0 },
+						})
+						spritey.position.set(0, -400, 0)
+						spritey.renderOrder = this.meshes.length + this.hotspots.length + 11
+						this.scene.add(spritey)*/
+					})
 				})
 				.catch((error) => {
 					console.error('Error when loading texture:', error)
@@ -716,51 +742,60 @@ export default {
 							this.isModalCloseUpVisible = true
 						}
 					} else if (this.focusedHotspot.type == 'TextHotspot') {
-						/**
-						 * lat = Math.max( - 85, Math.min( 85, lat ) );
-							phi = THREE.MathUtils.degToRad( 90 - lat );
-							theta = THREE.MathUtils.degToRad( lon );
-
-							camera.target.x = 500 * Math.sin( phi ) * Math.cos( theta );
-							camera.target.y = 500 * Math.cos( phi );
-							camera.target.z = 500 * Math.sin( phi ) * Math.sin( theta );
-
-							camera.lookAt( camera.target );
-						 */
-						//this.camera.lookAt(intersect.point)
-
+						//Getting spherical coordinates of the targeted hotspots
 						let spherical = new THREE.Spherical().setFromCartesianCoords(
 							intersect.point.x,
 							intersect.point.y,
 							intersect.point.z
 						)
-						console.log('Spherical', spherical, this.controls.object)
 
-						/*this.camera.target.x =
-							SPHERE_RADIUS *
-							Math.sin(spherical.phi) *
-							Math.cos(spherical.theta)
-						this.camera.target.y = SPHERE_RADIUS * Math.cos(spherical.phi)
-						this.camera.target.z =
-							SPHERE_RADIUS *
-							Math.sin(spherical.phi) *
-							Math.sin(spherical.theta)
+						//Calculating camera position (opposite from targeted hotspot position)
+						//Polar coordinates
+						let phi = Math.PI - spherical.phi
+						let theta = Math.PI + spherical.theta
+						//Cartesian coordinates
+						let targetPosition = new THREE.Vector3().setFromSphericalCoords(
+							10,
+							phi,
+							theta
+						)
 
-						this.camera.lookAt(this.camera.target)*/
+						let that = this
 
-						this.controls.setAzimuthalAngle(spherical.phi)
-						this.controls.setPolarAngle(spherical.theta)
+						//Tweening position
+						let fromPosition = {
+							x: this.camera.position.x,
+							y: this.camera.position.y,
+							z: this.camera.position.z,
+						}
 
-						setTimeout(() => {
-							this.toggleTooltip('show')
-							let tooltipRect = this.tooltip.getBoundingClientRect()
+						let to = {
+							x: targetPosition.x,
+							y: targetPosition.y,
+							z: targetPosition.z,
+						}
+						//Tweening animation for camera position
+						new TWEEN.Tween(fromPosition)
+							.to(to, 200)
+							.easing(TWEEN.Easing.Quadratic.InOut)
+							.onUpdate(function(event) {
+								if (that.camera && event) {
+									that.camera.position.x = event.x
+									that.camera.position.y = event.y
+									that.camera.position.z = event.z
+								}
+							})
+							.onComplete(function() {
+								that.toggleTooltip('show')
+								let tooltipRect = that.tooltip.getBoundingClientRect()
 
-							let top = clientY - tooltipRect.height - 20
-							let left = clientX - domRect.x - 150
-							this.tooltip.style.top = `${top}px`
-							this.tooltip.style.left = `${left}px`
-							this.tooltip.style.opacity = 1
-						}, 5)
+								let top = domRect.height / 2 - tooltipRect.height - 20
+								let left = domRect.width / 2 - domRect.x - 150
+								that.tooltip.style.top = `${top}px`
+								that.tooltip.style.left = `${left}px`
+								that.tooltip.style.opacity = 1
+							})
+							.start()
 					}
 				}
 			})
@@ -770,6 +805,7 @@ export default {
 
 			this.meshes[0].material.opacity = 1 - opacity
 			this.meshes[1].material.opacity = 0 + opacity
+			this.timeSpiral.material.opacity = 0 + opacity
 
 			this.selectedMesh = opacity > 0.5 ? this.meshes[1] : this.meshes[0]
 
@@ -846,10 +882,16 @@ export default {
 			this.soundManager.mute(this.isMute)
 		},
 		onVolumeChange() {
+			this.soundVolume = Number(this.soundVolume)
 			this.soundManager.setVolume(this.soundVolume / 100)
 		},
-		udpdateVolume(value) {
-			this.soundVolume += value
+		updateVolume(value) {
+			this.soundVolume += Number(value)
+			if (this.soundVolume > 100) {
+				this.soundVolume = 100
+			} else if (this.soundVolume < 0) {
+				this.soundVolume = 0
+			}
 			this.soundManager.setVolume(this.soundVolume / 100)
 		},
 		toggleTooltip(command) {
@@ -869,12 +911,107 @@ export default {
 		},
 		onImmersiveChange(immersive) {
 			this.toggleTooltip('hide')
-			this.draggingValue = 0
+			this.draggingValue = 100
 			let url = `/preview/${this.site}/immersive/${immersive.id}`
 			window.history.replaceState(null, null, url)
 			this.immersiveFile = immersive.file
 			this.unloadImmersive()
 			this.loadImmersive()
+		},
+		makeTextSprite(message, parameters) {
+			if (parameters === undefined) parameters = {}
+
+			let fontface = parameters['fontface'] ? parameters['fontface'] : 'Arial'
+
+			let fontsize = parameters['fontsize'] ? parameters['fontsize'] : 18
+
+			let borderThickness = parameters['borderThickness']
+				? parameters['borderThickness']
+				: 4
+
+			let borderColor = parameters['borderColor']
+				? parameters['borderColor']
+				: { r: 0, g: 0, b: 0, a: 1.0 }
+
+			let backgroundColor = parameters['backgroundColor']
+				? parameters['backgroundColor']
+				: { r: 255, g: 255, b: 255, a: 1.0 }
+
+			//var spriteAlignment = THREE.SpriteAlignment.topLeft
+
+			let canvas = document.createElement('canvas')
+			let context = canvas.getContext('2d')
+			context.textAlign = ''
+			context.font = 'Bold ' + fontsize + 'px ' + fontface
+
+			// get size data (height depends only on font size)
+			let metrics = context.measureText(message)
+			let textWidth = metrics.width
+
+			// background color
+			context.fillStyle =
+				'rgba(' +
+				backgroundColor.r +
+				',' +
+				backgroundColor.g +
+				',' +
+				backgroundColor.b +
+				',' +
+				backgroundColor.a +
+				')'
+			// border color
+			context.strokeStyle =
+				'rgba(' +
+				borderColor.r +
+				',' +
+				borderColor.g +
+				',' +
+				borderColor.b +
+				',' +
+				borderColor.a +
+				')'
+
+			context.lineWidth = borderThickness
+			this.roundRect(
+				context,
+				borderThickness / 2,
+				borderThickness / 2,
+				textWidth + borderThickness,
+				fontsize * 1.4 + borderThickness,
+				6
+			)
+			// 1.4 is extra height factor for text below baseline: g,j,p,q.
+
+			// text color
+			context.fillStyle = 'rgba(255, 255, 255, 1.0)'
+
+			context.fillText(message, borderThickness, fontsize + borderThickness)
+
+			// canvas contents will be used for a texture
+			let texture = new THREE.Texture(canvas)
+			texture.needsUpdate = true
+
+			let spriteMaterial = new THREE.SpriteMaterial({
+				map: texture,
+			})
+			let sprite = new THREE.Sprite(spriteMaterial)
+			sprite.scale.set(100, 50, 1.0)
+			return sprite
+		},
+		roundRect(ctx, x, y, w, h, r) {
+			ctx.beginPath()
+			ctx.moveTo(x + r, y)
+			ctx.lineTo(x + w - r, y)
+			ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+			ctx.lineTo(x + w, y + h - r)
+			ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+			ctx.lineTo(x + r, y + h)
+			ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+			ctx.lineTo(x, y + r)
+			ctx.quadraticCurveTo(x, y, x + r, y)
+			ctx.closePath()
+			ctx.fill()
+			ctx.stroke()
 		},
 	},
 }
@@ -902,10 +1039,33 @@ export default {
 	left: 0;
 	right: 0;
 	padding: 0.2em;
-	background-color: black;
-	opacity: 0.8;
+	background: rgb(0, 0, 0);
+	background: linear-gradient(
+		0deg,
+		rgba(0, 0, 0, 1) 0%,
+		rgba(0, 0, 0, 0) 100%,
+		rgba(0, 0, 0, 0) 100%
+	);
 	color: white;
 }
+
+.modal-close {
+	background: none;
+    height: 40px;
+    position: fixed;
+    left: 10px!important;
+    top: 10px!important;
+    width: 40px;
+}
+
+.background-button,
+.background-button:hover,
+.background-button:focus {
+	background: rgba(0, 0, 0, 0);
+	color: white;
+	border-color: transparent;
+}
+
 .custom-tooltip {
 	position: absolute;
 	width: 300px;
@@ -924,7 +1084,13 @@ export default {
 	top: 0;
 	left: 0;
 	right: 0;
-	background: black;
+	background: rgb(0, 0, 0);
+	background: linear-gradient(
+		180deg,
+		rgba(0, 0, 0, 1) 0%,
+		rgba(0, 0, 0, 0) 100%,
+		rgba(0, 0, 0, 0) 100%
+	);
 	opacity: 0.8;
 	padding: 0.7em;
 	color: white;
@@ -976,7 +1142,6 @@ export default {
 	width: 5rem;
 	background: black;
 	border-radius: 3px;
-	opacity: 0.9;
 	padding: 1em;
 }
 
@@ -987,14 +1152,19 @@ input[type='range'][orient='vertical'] {
 	height: 100px;
 }
 
+.background-slider {
+	height: 3.4px;
+	background: rgba(185, 185, 185, 0.5);
+	border-radius: 1.3px;
+	margin-left: 22px;
+    margin-right: 22px;
+	margin-top: -20px;
+}
+
 input[type='range'].custom-slider {
 	-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
 	width: 100%; /* Specific width is required for Firefox. */
 	background: transparent; /* Otherwise white in Chrome */
-}
-
-input[type='range'].custom-slider::-webkit-slider-thumb {
-	-webkit-appearance: none;
 }
 
 input[type='range'].custom-slider:focus {
@@ -1013,24 +1183,20 @@ input[type='range'].custom-slider::-ms-track {
 
 input[type='range'].custom-slider::-webkit-slider-thumb {
 	-webkit-appearance: none;
-	border: 1px solid #000000;
-	height: 26px;
-	width: 10px;
-	border-radius: 3px;
-	background: #ffffff;
-	cursor: pointer;
-	margin-top: -10px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
-	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+	border: none;
+	height: 40px;
+	width: 21px;
+	background: white;
+	background: url('/img/logos/time_cursor_thin.png') no-repeat;
+	border-radius: 0 !important;
+	margin-top: -40px;
 }
 
-/* All the same stuff for Firefox */
 input[type='range'].custom-slider::-moz-range-thumb {
-	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-	border: 1px solid #000000;
-	height: 26px;
-	width: 10px;
-	border-radius: 3px;
-	background: #ffffff;
+	height: 40px;
+	width: 21px;
+	border: 0;
+	background: url('/img/logos/time_cursor_thin.png') no-repeat;
 	cursor: pointer;
 }
 
@@ -1047,57 +1213,53 @@ input[type='range'].custom-slider::-ms-thumb {
 
 input[type='range'].custom-slider::-webkit-slider-runnable-track {
 	width: 100%;
-	height: 5.4px;
+	height: 3.4px;
 	cursor: pointer;
-	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-	background: white;
+	background: rgba(185, 185, 185, 0.0);
 	border-radius: 1.3px;
 	margin: 5px;
-	border: 0.2px solid #010101;
 }
 
 input[type='range'].custom-slider:focus::-webkit-slider-runnable-track {
-	background: white;
+	background: rgba(185, 185, 185, 0.0);
 }
 
 input[type='range'].custom-slider::-moz-range-track {
 	width: 100%;
-	height: 5.4px;
+	height: 3.4px;
 	cursor: pointer;
-	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-	background: white;
-	margin: 5px;
+	background: rgba(185, 185, 185, 0.0);
+	margin-bottom: 20px;
 	border-radius: 1.3px;
-	border: 0.2px solid #010101;
+}
+
+input[type='range'].custom-slider:focus::-moz-range-track {
+	background: rgba(185, 185, 185, 0.0);
 }
 
 input[type='range'].custom-slider::-ms-track {
 	width: 100%;
-	height: 5.4px;
+	height: 3.4px;
 	cursor: pointer;
 	background: transparent;
 	border-color: transparent;
 	border-width: 16px 0;
 	margin: 5px;
-
 	color: transparent;
 }
+
 input[type='range'].custom-slider::-ms-fill-lower {
-	background: white;
-	border: 0.2px solid #010101;
+	background: rgba(185, 185, 185, 0.0);
 	border-radius: 2.6px;
-	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
 }
 input[type='range'].custom-slider:focus::-ms-fill-lower {
-	background: white;
+	background: rgba(185, 185, 185, 0.0);
 }
 input[type='range'].custom-slider::-ms-fill-upper {
-	background: white;
-	border: 0.2px solid #010101;
+	background: rgba(185, 185, 185, 0.0);
 	border-radius: 2.6px;
-	box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
 }
 input[type='range'].custom-slider:focus::-ms-fill-upper {
-	background: white;
+	background: rgba(185, 185, 185, 0.0);
 }
 </style>

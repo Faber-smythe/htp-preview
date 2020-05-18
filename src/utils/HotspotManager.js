@@ -1,15 +1,7 @@
 import * as THREE from 'three'
-// eslint-disable-next-line no-unused-vars
-import { Vector3, MathUtils } from 'three'
 
 const RAD2DEG = 180 / Math.PI
-// eslint-disable-next-line no-unused-vars
 const DEG2RAD = Math.PI / 180
-
-// eslint-disable-next-line no-unused-vars
-const GLOBE_WIDTH = 12866 / 2
-// eslint-disable-next-line no-unused-vars
-const GLOBE_HEIGHT = 6433 / 2
 
 export class HotspotManager {
 	constructor() {
@@ -79,18 +71,11 @@ export class HotspotManager {
 
 	// eslint-disable-next-line no-unused-vars
 	polarToCartesian(longitude, latitude, sphereRadius, hotspot) {
-		//A mon avis je comprends rien à ce qu'il se passe copy pasta violent !
 		let origin = new THREE.Vector3(0, 0, sphereRadius)
 
-		var phi = latitude * Math.PI / 180;
-		var theta = (270 - longitude) * Math.PI / 180;
-
-		hotspot['polar'] = {
-			longitude: longitude,
-			latitude: latitude,
-			theta: theta,
-			phi: phi
-		}
+		//Converting to radians and rotate angle to fit with THREE behaviour... (Unity axes -> THREE axes)
+		var phi = latitude * DEG2RAD;
+		var theta = (270 - longitude) * DEG2RAD;
 		
 		//let rotation = new THREE.Euler(latitude, longitude, 0)
 		let rotation = new THREE.Euler(phi, theta, 0, 'YZX')
