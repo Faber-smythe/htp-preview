@@ -29,122 +29,112 @@
 
 		<!-- Footer -->
 		<div class="player-footer">
-			<div class="columns is-mobile is-vcentered">
-				<span
-					:style="
-						isSmartPhone
-							? 'font-size:0.8em; position:absolute; bottom: 0.4em; left:25%;'
-							: 'font-size:0.8em; position:absolute; bottom: 0.4em; left:33%;'
-					"
-					>{{ $t(sliderTooltipsLabel[0]) }}</span
-				>
-				<span
-					:style="
-						isSmartPhone
-							? 'font-size:0.8em; position:absolute; bottom: 0.4em; right:25%;'
-							: 'font-size:0.8em; position:absolute; bottom: 0.4em; right:33%;'
-					"
-					>{{ $t(sliderTooltipsLabel[1]) }}</span
-				>
-				<div class="column">
-					<b-dropdown
-						aria-role="list"
-						position="is-top-right"
-						style="margin: 0.5em;"
-						v-if="immersives && immersives.length > 0"
-					>
-						<button class="button is-large background-button" slot="trigger">
-							<template>
-								<b-icon icon="map-marked"></b-icon>
-							</template>
-						</button>
+			<!-- Slider labels left and right-->
+			<span :style="leftSliderStyle">{{ $t(sliderTooltipsLabel[0]) }}</span>
+			<span :style="rightSliderStyle">{{ $t(sliderTooltipsLabel[1]) }}</span>
 
-						<b-dropdown-item
-							aria-role="listitem"
-							v-for="immersive in immersives"
-							:key="immersive.id"
-							@click="onImmersiveChange(immersive)"
-						>
-							{{ $t(immersive.name) }}
-						</b-dropdown-item>
-					</b-dropdown>
-				</div>
+			<!-- Rooms dropdown -->
+			<b-dropdown
+				aria-role="list"
+				position="is-top-right"
+				class="footer-left-bottom"
+				v-if="immersives && immersives.length > 0"
+			>
+				<button class="button is-large background-button" slot="trigger">
+					<template>
+						<b-icon icon="map-marked"></b-icon>
+					</template>
+				</button>
 
+				<b-dropdown-item
+					aria-role="listitem"
+					v-for="immersive in immersives"
+					:key="immersive.id"
+					@click="onImmersiveChange(immersive)"
+				>
+					{{ $t(immersive.name) }}
+				</b-dropdown-item>
+			</b-dropdown>
+
+			<!-- Time slider -->
+			<b-field :style="timeSliderStyle">
+				<input
+					:disabled="loading"
+					type="range"
+					min="0"
+					max="100"
+					value="100"
+					class="custom-slider"
+					:style="isFirefox ? 'margin-bottom: 15px;' : ''"
+					@input="onSliderDragging"
+					v-model="draggingValue"
+				/>
+			</b-field>
+			<div :style="timeSliderBackgroundStyle">
 				<div
-					:class="isSmartPhone ? 'column is-half' : 'column is-one-third'"
-					v-if="
-						immersiveScene &&
-							immersiveScene.layers &&
-							immersiveScene.layers.length > 0
-					"
+					class="background-slider"
+					style="margin-left: 15px; margin-right: 15px;"
+				></div>
+			</div>
+
+			<!-- Sound settings popover -->
+			<v-popover
+				offset="16"
+				placement="bottom-start"
+				class="footer-right-bottom"
+				@hide="onSoundPopoverClick"
+			>
+				<!-- This will be the popover target (for the events and position) -->
+				<b-button
+					class="tooltip-target b3 is-large background-button"
+					icon-left="volume-up"
+					@click="onSoundPopoverClick"
 				>
-					<b-field style="margin-left: 0.5em; margin-right: 0.5em;">
+				</b-button>
+
+				<!-- This will be the content of the popover -->
+				<template slot="popover">
+					<div class="slider-container">
+						<b-button
+							icon-left="volume-down"
+							type="is-black"
+							style="position:fixed; bottom: 0.2em; left: 2.3em;"
+							@click="updateVolume(-5)"
+							v-if="soundPopoverVisible"
+						>
+						</b-button>
+
 						<input
 							type="range"
 							min="0"
 							max="100"
-							value="100"
-							class="custom-slider"
-							:style="isFirefox ? 'margin-bottom: 20px;': ''"
-							@input="onSliderDragging"
-							v-model="draggingValue"
+							value="40"
+							class="sound-slider"
+							id="soundRange"
+							orient="vertical"
+							:style="
+								isSmartPhone
+									? 'height: 15em; width:16px;'
+									: 'height: 10em; width:8px;'
+							"
+							@input="onVolumeChange"
+							v-model="soundVolume"
 						/>
-					</b-field>
-					<div class="background-slider" :style="isFirefox ? 'margin-bottom: 20px;': 'margin-bottom: 12px;'"></div>
-				</div>
 
-				<div class="column">
-					<v-popover offset="16" placement="bottom-center">
-						<!-- This will be the popover target (for the events and position) -->
 						<b-button
-							class="tooltip-target b3 is-large background-button"
 							icon-left="volume-up"
+							type="is-black"
+							style="position:fixed; top: 0.1em; left: 2.3em;"
+							@click="updateVolume(5)"
+							v-if="soundPopoverVisible"
 						>
 						</b-button>
-
-						<!-- This will be the content of the popover -->
-						<template slot="popover">
-							<div class="slider-container">
-								<input
-									type="range"
-									min="0"
-									max="100"
-									value="40"
-									class="slider"
-									id="soundRange"
-									orient="vertical"
-									:style="
-										isSmartPhone
-											? 'height: 15em; width:16px;'
-											: 'height: 10em; width:8px;'
-									"
-									@input="onVolumeChange"
-									v-model="soundVolume"
-								/>
-
-								<b-button
-									icon-left="volume-up"
-									type="is-black"
-									style="position:fixed; top: 0.1em;; left: 2.3em;"
-									@click="updateVolume(5)"
-								>
-								</b-button>
-
-								<b-button
-									icon-left="volume-down"
-									type="is-black"
-									style="position:fixed; bottom: 0.1em; left:2.3em;"
-									@click="updateVolume(-5)"
-								>
-								</b-button>
-							</div>
-						</template>
-					</v-popover>
-				</div>
-			</div>
+					</div>
+				</template>
+			</v-popover>
 		</div>
 
-		<!--<LanguageSwitcher v-if="!isSmartPhone" style="position: absolute; top: 1em; right: 1em;" />-->
+		<!-- Top left header logo -->
 		<a href="/">
 			<img
 				v-if="!isSmartPhone"
@@ -270,10 +260,16 @@ export default {
 			immersives: [],
 			immersiveFile: '',
 			timeSpiral: null,
-			timeSpiralMaterial: null
+			timeSpiralMaterial: null,
+			soundPopoverVisible: false,
+			loading: true
 		}
 	},
 	mounted() {
+		this.$i18n.locale = !localStorage.getItem('locale')
+			? this.navigatorLanguage
+			: localStorage.getItem('locale')
+
 		this.immersiveFile = new String(this.immersiveFileName)
 		this.loadImmersive()
 	},
@@ -307,7 +303,44 @@ export default {
 		},
 		isFirefox() {
 			return is.firefox()
-		}
+		},
+		isSafari() {
+			return is.safari()
+		},
+		leftSliderStyle() {
+			if (this.isSmartPhone) {
+				if (this.isLandscape) {
+					return 'font-size:0.8em; position:absolute; bottom: 0.4em; left:20%; text-align:center; width: 100px;'
+				} else {
+					return 'font-size:0.8em; position:absolute; bottom: 0.4em; left:13%; text-align:center; width: 100px;'
+				}
+			} else {
+				return 'font-size:0.8em; position:absolute; bottom: 0.4em; left:31%; text-align:center; width: 100px;'
+			}
+		},
+		rightSliderStyle() {
+			if (this.isSmartPhone) {
+				if (this.isLandscape) {
+					return 'font-size:0.8em; position:absolute; bottom: 0.4em; right:20%; text-align:center; width: 100px;'
+				} else {
+					return 'font-size:0.8em; position:absolute; bottom: 0.4em; right:13%; text-align:center; width: 100px;'
+				}
+			} else {
+				return 'font-size:0.8em; position:absolute; bottom: 0.4em; right:31%; text-align:center; width: 100px;'
+			}
+		},
+		timeSliderBackgroundStyle() {
+			let style = this.isSmartPhone
+				? 'width: 50%; margin-left: auto; margin-right: auto; margin-bottom: 30px;'
+				: 'width: 33%; margin-left: auto; margin-right: auto; margin-bottom: 30px;'
+			return style
+		},
+		timeSliderStyle() {
+			let style = this.isSmartPhone
+				? 'margin-left: auto; margin-right: auto; width: 50%'
+				: 'margin-left: auto; margin-right: auto; width: 33%'
+			return style
+		},
 	},
 	methods: {
 		loadImmersive() {
@@ -382,8 +415,6 @@ export default {
 
 			this.initScene()
 			this.loadAssets()
-			this.loa
-			this.initAmbient()
 			this.loadCloseUps()
 			this.animate()
 			window.addEventListener('resize', this.onWindowResize, false)
@@ -433,32 +464,35 @@ export default {
 			this.el.addEventListener('wheel', this.onDocumentMouseWheel, false)
 		},
 		initAmbient() {
-			let soundFiles = this.immersiveScene.layers.filter((layer) => {
-				return (
-					layer.ambianceSound &&
-					layer.ambianceSound.fileName &&
-					layer.ambianceSound.fileName != ''
-				)
-			})
-			soundFiles = soundFiles.map((soundFile) => {
-				return {
-					url: `/assets/immersives/${this.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`,
-					volume: soundFile.ambianceSound.volume,
+			return new Promise((resolve, reject) => {
+				let soundFiles = this.immersiveScene.layers.filter((layer) => {
+					return (
+						layer.ambianceSound &&
+						layer.ambianceSound.fileName &&
+						layer.ambianceSound.fileName != ''
+					)
+				})
+				soundFiles = soundFiles.map((soundFile) => {
+					return {
+						url: `/assets/immersives/${this.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`,
+						volume: soundFile.ambianceSound.volume,
+					}
+				})
+
+				if (soundFiles && soundFiles.length > 0) {
+					this.soundVolume = soundFiles[0].volume * 100
 				}
+				this.soundManager
+					.init(soundFiles)
+					.then(() => {
+						this.soundManager.playSoundAtIndex(this.meshes.length - 1)
+						resolve(true)
+					})
+					.catch((error) => {
+						console.error('Error when playing sound:', error)
+						reject(error)
+					})
 			})
-
-			if (soundFiles && soundFiles.length > 0) {
-				this.soundVolume = soundFiles[0].volume * 100
-			}
-
-			this.soundManager
-				.init(soundFiles)
-				.then(() => {
-					this.soundManager.playSoundAtIndex(0)
-				})
-				.catch((error) => {
-					console.error('Error when playing sound:', error)
-				})
 		},
 		loadCloseUps() {
 			let closeUps = this.immersiveScene.hotspots.filter((hotspot) => {
@@ -504,12 +538,9 @@ export default {
 			Bluebird.each(this.immersiveScene.layers, (layer, index) => {
 				return new Promise((resolve, reject) => {
 					let textureURL = `/assets/immersives/${this.site}/${layer.uniqueID}.jpg`
-					console.log('Loading texture', textureURL)
-
 					this.textureLoader.load(
 						textureURL,
 						(texture) => {
-							console.log('Texture loaded!', textureURL)
 							let material = new THREE.MeshBasicMaterial({
 								map: texture,
 								transparent: true,
@@ -548,9 +579,8 @@ export default {
 					this.displayHotspots()
 					this.updateHotspotsOpacity()
 					this.renderer.compile(this.scene, this.camera)
-					this.displayLoading(false)
-
 					this.initSlider()
+					return this.initAmbient()
 				})
 				.then(() => {
 					//Load texture for time spiral
@@ -579,6 +609,7 @@ export default {
 						spritey.renderOrder = this.meshes.length + this.hotspots.length + 11
 						this.scene.add(spritey)*/
 					})
+					this.displayLoading(false)
 				})
 				.catch((error) => {
 					console.error('Error when loading texture:', error)
@@ -586,6 +617,7 @@ export default {
 				})
 		},
 		displayLoading(isLoading) {
+			this.loading = isLoading
 			if (isLoading) {
 				this.loadingComponent = this.$buefy.loading.open({
 					container: this.el,
@@ -623,29 +655,6 @@ export default {
 		},
 		onDocumentMouseWheel(event) {
 			this.setCameraZoom(event.deltaY)
-		},
-		pinchStart(event) {
-			console.log('pinchstart', event)
-			let dx = event.touches[0].pageX - event.touches[1].pageX
-			let dy = event.touches[0].pageY - event.touches[1].pageY
-			this.touchDistanceEnd = this.touchDistanceStart = Math.sqrt(
-				dx * dx + dy * dy
-			)
-			console.log('Pinch started', this.touchDistanceEnd)
-		},
-		pinchMove(event) {
-			let dx = event.touches[0].pageX - event.touches[1].pageX
-			let dy = event.touches[0].pageY - event.touches[1].pageY
-			this.touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy)
-			console.log('pinchmove', this.touchZoomDistanceEnd)
-			let factor = this.touchDistanceStart / this.touchDistanceEnd
-			this.touchZoomDistanceStart = this.touchZoomDistanceEnd
-			this.setCameraZoom(factor)
-		},
-		pinchEnd(event) {
-			console.log('pinchEnd', event)
-			this.touchDistanceEnd = this.touchDistanceStart = 0
-			this.scaling = false
 		},
 		setCameraZoom(zoom) {
 			this.toggleTooltip('hide')
@@ -762,7 +771,7 @@ export default {
 
 						let that = this
 
-						//Tweening position
+						//From and to positions according to clicked hotspot
 						let fromPosition = {
 							x: this.camera.position.x,
 							y: this.camera.position.y,
@@ -786,9 +795,9 @@ export default {
 								}
 							})
 							.onComplete(function() {
+								//Display hotspot's tooltip when animation is completed
 								that.toggleTooltip('show')
 								let tooltipRect = that.tooltip.getBoundingClientRect()
-
 								let top = domRect.height / 2 - tooltipRect.height - 20
 								let left = domRect.width / 2 - domRect.x - 150
 								that.tooltip.style.top = `${top}px`
@@ -836,7 +845,6 @@ export default {
 				})
 				let sprite = new THREE.Sprite(spriteMaterial)
 				sprite.scale.set(100, 100, 100)
-				//sprite.position.copy(point.clone())
 				sprite.position.copy(point)
 				sprite.uuid = hotspot.uniqueID
 				sprite.renderOrder = this.meshes.length + index
@@ -916,6 +924,7 @@ export default {
 			window.history.replaceState(null, null, url)
 			this.immersiveFile = immersive.file
 			this.unloadImmersive()
+			this.camera.position.set(0, 0, 10)
 			this.loadImmersive()
 		},
 		makeTextSprite(message, parameters) {
@@ -1013,6 +1022,15 @@ export default {
 			ctx.fill()
 			ctx.stroke()
 		},
+		onSoundPopoverClick() {
+			if (this.isSafari) {
+				setTimeout(() => {
+					this.soundPopoverVisible = !this.soundPopoverVisible
+				}, 100)
+			} else {
+				this.soundPopoverVisible = !this.soundPopoverVisible
+			}
+		},
 	},
 }
 </script>
@@ -1051,11 +1069,11 @@ export default {
 
 .modal-close {
 	background: none;
-    height: 40px;
-    position: fixed;
-    left: 10px!important;
-    top: 10px!important;
-    width: 40px;
+	height: 40px;
+	position: fixed;
+	left: 10px !important;
+	top: 10px !important;
+	width: 40px;
 }
 
 .background-button,
@@ -1114,6 +1132,19 @@ export default {
 	justify-content: center;
 }
 
+.footer-left-bottom {
+	margin: 0.5em;
+	position: fixed;
+	left: 0.5em;
+	bottom: 0.5em;
+}
+
+.footer-right-bottom {
+	position: fixed;
+	bottom: 0.8em;
+	right: 1.5em;
+}
+
 .custom-tooltip .tooltiptext::after {
 	content: ' ';
 	position: absolute;
@@ -1145,11 +1176,28 @@ export default {
 	padding: 1em;
 }
 
-input[type='range'][orient='vertical'] {
-	writing-mode: bt-lr; /* IE */
-	-webkit-appearance: slider-vertical; /* WebKit */
+input[type='range'].sound-slider {
+	-webkit-appearance: none;
 	width: 8px;
 	height: 100px;
+	border-radius: 5px;
+	background: #ccc;
+	outline: none;
+	writing-mode: bt-lr; /* IE */
+	-webkit-appearance: slider-vertical; /* WebKit */
+}
+
+input[type='range'].custom-slider::-webkit-slider-runnable-track {
+	width: 100%;
+	height: 3.4px;
+	cursor: pointer;
+	background: white;
+	border-radius: 1.3px;
+	margin: 5px;
+}
+
+input[type='range'].custom-slider:focus::-webkit-slider-runnable-track {
+	background: white;
 }
 
 .background-slider {
@@ -1157,7 +1205,7 @@ input[type='range'][orient='vertical'] {
 	background: rgba(185, 185, 185, 0.5);
 	border-radius: 1.3px;
 	margin-left: 22px;
-    margin-right: 22px;
+	margin-right: 22px;
 	margin-top: -20px;
 }
 
@@ -1187,7 +1235,7 @@ input[type='range'].custom-slider::-webkit-slider-thumb {
 	height: 40px;
 	width: 21px;
 	background: white;
-	background: url('/img/logos/time_cursor_thin.png') no-repeat;
+	background: url('/img/time_cursor_thin.png') no-repeat;
 	border-radius: 0 !important;
 	margin-top: -40px;
 }
@@ -1196,7 +1244,7 @@ input[type='range'].custom-slider::-moz-range-thumb {
 	height: 40px;
 	width: 21px;
 	border: 0;
-	background: url('/img/logos/time_cursor_thin.png') no-repeat;
+	background: url('/img/time_cursor_thin.png') no-repeat;
 	cursor: pointer;
 }
 
@@ -1215,26 +1263,26 @@ input[type='range'].custom-slider::-webkit-slider-runnable-track {
 	width: 100%;
 	height: 3.4px;
 	cursor: pointer;
-	background: rgba(185, 185, 185, 0.0);
+	background: rgba(185, 185, 185, 0);
 	border-radius: 1.3px;
 	margin: 5px;
 }
 
 input[type='range'].custom-slider:focus::-webkit-slider-runnable-track {
-	background: rgba(185, 185, 185, 0.0);
+	background: rgba(185, 185, 185, 0);
 }
 
 input[type='range'].custom-slider::-moz-range-track {
 	width: 100%;
 	height: 3.4px;
 	cursor: pointer;
-	background: rgba(185, 185, 185, 0.0);
+	background: rgba(185, 185, 185, 0);
 	margin-bottom: 20px;
 	border-radius: 1.3px;
 }
 
 input[type='range'].custom-slider:focus::-moz-range-track {
-	background: rgba(185, 185, 185, 0.0);
+	background: rgba(185, 185, 185, 0);
 }
 
 input[type='range'].custom-slider::-ms-track {
@@ -1249,17 +1297,17 @@ input[type='range'].custom-slider::-ms-track {
 }
 
 input[type='range'].custom-slider::-ms-fill-lower {
-	background: rgba(185, 185, 185, 0.0);
+	background: rgba(185, 185, 185, 0);
 	border-radius: 2.6px;
 }
 input[type='range'].custom-slider:focus::-ms-fill-lower {
-	background: rgba(185, 185, 185, 0.0);
+	background: rgba(185, 185, 185, 0);
 }
 input[type='range'].custom-slider::-ms-fill-upper {
-	background: rgba(185, 185, 185, 0.0);
+	background: rgba(185, 185, 185, 0);
 	border-radius: 2.6px;
 }
 input[type='range'].custom-slider:focus::-ms-fill-upper {
-	background: rgba(185, 185, 185, 0.0);
+	background: rgba(185, 185, 185, 0);
 }
 </style>

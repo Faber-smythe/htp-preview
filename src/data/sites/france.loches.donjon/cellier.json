@@ -3,25 +3,8 @@
     "template": "CubeMapVisite",
     "layers": [
         {
-            "uniqueID": "cellier.scenelayer.closed",
-            "localizedTimestampTitle": "",
-            "cartelDescription": {
-                "title": "${CubemapTitle_Imm_DonjonCellier}",
-                "subtitle": "",
-                "description": "${CubemapDesc_Imm_DonjonCellier}"
-            },
-            "skyboxMaterial": "cellier_closed",
-            "ambianceSound": {
-                "fileName": "Amb_Cellar",
-                "volume": 0.75
-            },
-            "triggerType": "Cutaway",
-            "filtersOut": [],
-            "filtersIn": []
-        },
-        {
             "uniqueID": "cellier.scenelayer.open",
-            "localizedTimestampTitle": "",
+            "localizedTimestampTitle": "${past}",
             "cartelDescription": {
                 "title": "${CubemapTitle_Imm_DonjonCellier}",
                 "subtitle": "",
@@ -31,6 +14,23 @@
             "ambianceSound": {
                 "fileName": "Amb_Cellar",
                 "volume": 0.75
+            },
+            "triggerType": "Cutaway",
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "uniqueID": "cellier.scenelayer.present",
+            "localizedTimestampTitle": "${today}",
+            "cartelDescription": {
+                "title": "${CubemapTitle_Imm_DonjonCellier}",
+                "subtitle": "",
+                "description": "${CubemapDesc_Imm_DonjonCellier}"
+            },
+            "skyboxMaterial": "cellier_present",
+            "ambianceSound": {
+                "fileName": "",
+                "volume": 0.0
             },
             "triggerType": "Cutaway",
             "filtersOut": [],
@@ -85,7 +85,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -114,7 +116,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -143,7 +147,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -358,7 +364,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "HotspotGroup",
             "visitedSpriteFileName": "",
             "color": "",
@@ -393,7 +401,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -422,7 +432,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -451,7 +463,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -480,7 +494,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -509,7 +525,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -538,7 +556,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -567,7 +587,9 @@
             "index": 0,
             "requiredAssetBundle": "",
             "displayIndexes": [],
-            "layers": [],
+            "layers": [
+                "cellier.scenelayer.open"
+            ],
             "spriteFileName": "",
             "visitedSpriteFileName": "",
             "color": "",
@@ -635,7 +657,9 @@
                     "index": 0,
                     "requiredAssetBundle": "",
                     "displayIndexes": [],
-                    "layers": [],
+                    "layers": [
+                "cellier.scenelayer.open"
+            ],
                     "spriteFileName": "",
                     "visitedSpriteFileName": "",
                     "color": "",

@@ -29,8 +29,8 @@
             },
             "skyboxMaterial": "carriere",
             "ambianceSound": {
-                "fileName": "Amb_Querry",
-                "volume": 0.5
+                "fileName": "",
+                "volume": 0.0
             },
             "triggerType": "Timeline",
             "filtersOut": [],

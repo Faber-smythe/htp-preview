@@ -4,7 +4,7 @@
     "layers": [
         {
             "uniqueID": "prisondestempliers.scenelayer.new_layer0",
-            "localizedTimestampTitle": "${past}",
+            "localizedTimestampTitle": "${1308}",
             "cartelDescription": {
                 "title": "${CubemapTitle_Imm_PrisonTempliers}",
                 "subtitle": "",
@@ -29,8 +29,8 @@
             },
             "skyboxMaterial": "prisondestempliers",
             "ambianceSound": {
-                "fileName": "Amb_JailTemplar_Theme_V3",
-                "volume": 1.0
+                "fileName": "",
+                "volume": 0.0
             },
             "triggerType": "",
             "filtersOut": [],

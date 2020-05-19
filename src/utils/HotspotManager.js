@@ -10,20 +10,20 @@ export class HotspotManager {
 	}
 
 	/**
-	 *
-	 * @param {*} hotspot
-	 * @param {*} sphereRadius
+	 * Return 3D cartesian coordinates for the specific hotspots into the displayed spheremap
+	 * @param {Object} hotspot
+	 * @param {Number} sphereRadius
 	 */
 
-	// eslint-disable-next-line no-unused-vars
 	generate3DPosition(hotspot, sphereRadius) {
+		//Generate polar coordinates according to 2D cartesian coordinates of the specific hotspot
 		let polarCoordinates = this.planarToPolarCoordinates(
 			hotspot.position.x,
 			hotspot.position.y,
 			sphereRadius
 		)
-
-		//Ca ca fontionne pas
+		
+		//Generate 3D cartesian coordinates according to polar coordinates (latitude and longitude)
 		let cartesianCoordinates = this.polarToCartesian(
 			polarCoordinates.x,
 			polarCoordinates.y,
@@ -31,17 +31,16 @@ export class HotspotManager {
 			hotspot
 		)
 
-		//Ca ca fonctionne a peu près
-		/*let cartesianCoordinates = this.sphericalTo3DCoordinates(
-			polarCoordinates.x,
-			polarCoordinates.y,
-			sphereRadius
-		)*/
-
 		return cartesianCoordinates
 	}
 
-	// eslint-disable-next-line no-unused-vars
+	/**
+	 * Function used to convert polar coordinates from 2D cartesian coordinates by applying the inverse
+	 * of the Mercator projection
+	 * @param {*} x 
+	 * @param {*} y 
+	 * @param {*} sphereRadius 
+	 */
 	planarToPolarCoordinates(x, y, sphereRadius) {
 		let longitude = RAD2DEG * (x / sphereRadius)
 		let latitude =
@@ -51,7 +50,7 @@ export class HotspotManager {
 	}
 
 	/**
-	 *
+	 * Function used to convert spherical to 3D cartesian coordinates (not working well...)
 	 * @param {*} latitude
 	 * @param {*} longitude
 	 * @param {*} sphereRadius
@@ -69,21 +68,29 @@ export class HotspotManager {
 		return coordinates
 	}
 
-	// eslint-disable-next-line no-unused-vars
-	polarToCartesian(longitude, latitude, sphereRadius, hotspot) {
+	/**
+	 * Function used to convert latitude and longitude to 3D cartesian coordinates 
+	 * @param {*} longitude 
+	 * @param {*} latitude 
+	 * @param {*} sphereRadius 
+	 */
+	polarToCartesian(longitude, latitude, sphereRadius) {
 		let origin = new THREE.Vector3(0, 0, sphereRadius)
 
-		//Converting to radians and rotate angle to fit with THREE behaviour... (Unity axes -> THREE axes)
+		//Converting to radians and rotate angle to fit with THREE behaviour... (Unity 3D axes -> THREE.js 3D axes)
 		var phi = latitude * DEG2RAD;
 		var theta = (270 - longitude) * DEG2RAD;
 		
-		//let rotation = new THREE.Euler(latitude, longitude, 0)
+		//Apply euler rotation
 		let rotation = new THREE.Euler(phi, theta, 0, 'YZX')
 		let point = origin.applyEuler(rotation)
 
 		return point
 	}
 
+	/**
+	 * Load textures used to display hotspots sprites
+	 */
 	loadHotspotTextures() {
 		this.textureLoader.load(
 			'/assets/textures/hotspots/White/Content/Off-2.png',

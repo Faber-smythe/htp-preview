@@ -29,8 +29,8 @@
             },
             "skyboxMaterial": "tourdumoulin",
             "ambianceSound": {
-                "fileName": "Amb_LowerRoom",
-                "volume": 1.0
+                "fileName": "",
+                "volume": 0.0
             },
             "triggerType": "",
             "filtersOut": [],

@@ -29,8 +29,8 @@
             },
             "skyboxMaterial": "tourartillerie",
             "ambianceSound": {
-                "fileName": "Amb_Artillery_V4",
-                "volume": 1.0
+                "fileName": "",
+                "volume": 0.0
             },
             "triggerType": "",
             "filtersOut": [],

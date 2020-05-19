@@ -11,6 +11,10 @@ export class SoundManager {
 		this.volume = 0.4
 	}
 
+	/**
+	 * Init playlist and player
+	 * @param {Array} soundFiles
+	 */
 	init(soundFiles) {
 		this.sounds = []
 		return new Promise((resolve, reject) => {
@@ -28,6 +32,10 @@ export class SoundManager {
 		})
 	}
 
+	/**
+	 * Load sound in howl player
+	 * @param {Object} soundFile
+	 */
 	loadSound(soundFile) {
 		return new Promise((resolve) => {
 			let sound = new Howl({
@@ -41,27 +49,43 @@ export class SoundManager {
 		})
 	}
 
-	// eslint-disable-next-line no-unused-vars
+	/**
+	 * Play sound at specific index in the loaded playlist
+	 * @param {Number} index
+	 */
 	playSoundAtIndex(index) {
-		if (this.sounds[this.soundIndex].playing) {
+		if (this.sounds[this.soundIndex] && this.sounds[this.soundIndex].playing) {
 			this.sounds[this.soundIndex].stop()
 		}
-		this.soundIndex = index
-		this.sounds[this.soundIndex].volume(this.volume)
-		this.sounds[this.soundIndex].mute(this.muted)
-		this.sounds[this.soundIndex].play()
+		if (index < this.sounds.length) {
+			this.soundIndex = index
+			this.sounds[this.soundIndex].volume(this.volume)
+			this.sounds[this.soundIndex].mute(this.muted)
+			this.sounds[this.soundIndex].play()
+		}
 	}
 
+	/**
+	 * Mute player
+	 * @param {boolean} muted
+	 */
 	mute(muted) {
 		this.muted = muted
 		this.sounds[this.soundIndex].mute(this.muted)
 	}
 
+	/**
+	 * Set volume
+	 * @param {Number} volume (between 0.0 to 1.0)
+	 */
 	setVolume(volume) {
 		this.volume = volume
 		this.sounds[this.soundIndex].volume(this.volume)
 	}
 
+	/**
+	 * Unload sounds and dispose player
+	 */
 	unloadSounds() {
 		this.sounds.forEach((sound) => {
 			if (sound.playing) {

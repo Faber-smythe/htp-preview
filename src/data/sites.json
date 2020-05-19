@@ -22,13 +22,7 @@
             0.9848193,
             47.4135606
         ],
-        "immersives": [
-            {
-                "id": "IMMGrandeSalle",
-                "name": "CubemapTitle_Imm_GrandeSalleAudience",
-                "file": "immgrandesalle.json"
-            }
-        ]
+        "immersives": []
     },
     {
         "name": "Donjon de Loches",

@@ -2,13 +2,21 @@
 	<div class="container">
 		<section class="section header-section">
 			<h1 class="title title-font">
-				<img class="logo" src="/img/logos/logo_histopad.png" alt="HistoPad" />
+				<img
+					:style="
+						isSmartPhone
+							? 'max-width: 50%; height: auto;'
+							: 'max-width: 25%; height: auto;'
+					"
+					src="/img/logos/logo_histopad.png"
+					alt="HistoPad"
+				/>
 			</h1>
 			<h3>
 				{{ $t('welcome_message') }}
 			</h3>
 
-			<LanguageSwitcher style="position: absolute; top: 1em; right: 1em;"/>
+			<LanguageSwitcher style="position: absolute; top: 1em; right: 1em;" />
 		</section>
 		<b-tabs
 			v-model="activeTab"
@@ -28,7 +36,14 @@
 									)}); height: 70vh; width:100%; background-size:cover;`
 								"
 							>
-								<h3 class="subtitle title-font"><a target="_blank" rel="noopener noreferrer" :href="$t(`${immersive.site}.url`)">{{ $t(immersive.site) }}</a></h3>
+								<h3 class="subtitle title-font">
+									<a
+										target="_blank"
+										rel="noopener noreferrer"
+										:href="$t(`${immersive.site}.url`)"
+										>{{ $t(immersive.site) }}</a
+									>
+								</h3>
 								<h1 class="title title-font">
 									<a
 										:href="
@@ -56,6 +71,9 @@
 
 		<footer class="footer">
 			<div class="content has-text-centered">
+				<p>
+					HistoPad Teaser - version {{ pkgVersion }}
+				</p>
 				<p>
 					Copyright société
 					<strong><a href="https://www.histovery.com">Histovery</a></strong>
@@ -96,12 +114,16 @@ import sites from '../data/sites.json'
 import geoData from '../data/geo.json'
 import mapboxgl from 'mapbox-gl'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import { utilsMixin } from '../utils/mixins'
+
+import pkg from '../../package.json'
 
 mapboxgl.accessToken =
 	'pk.eyJ1IjoidGl3ZW5jZSIsImEiOiJjazlpNms1dXgwMGwxM3FxY2gwZzZqeXB3In0.AxKj_fU8XeDD0ru_uCSCHw'
 
 export default {
 	name: 'Home',
+	mixins: [utilsMixin],
 	props: {
 		msg: String,
 	},
@@ -120,7 +142,14 @@ export default {
 			immersives: [],
 		}
 	},
+	computed: {
+		pkgVersion() {
+			return pkg.version
+		}
+	},
 	mounted() {
+		console.log('Saved locale Home.vue', this.$i18n.locale)
+
 		this.initCarousel()
 		if (this.activeTab == 1) {
 			this.initMap()
@@ -270,10 +299,6 @@ export default {
 .map {
 	width: 100%;
 	height: 100%;
-}
-.logo {
-	max-width: 25%;
-	height: auto;
 }
 
 .carousel .subtitle {
