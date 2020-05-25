@@ -3,11 +3,7 @@
 		<section class="section header-section">
 			<h1 class="title title-font">
 				<img
-					:style="
-						isSmartPhone
-							? 'max-width: 50%; height: auto;'
-							: 'max-width: 25%; height: auto;'
-					"
+					class="main-logo"
 					src="/img/logos/logo_histopad.png"
 					alt="HistoPad"
 				/>
@@ -71,9 +67,7 @@
 
 		<footer class="footer">
 			<div class="content has-text-centered">
-				<p>
-					HistoPad Teaser - version {{ pkgVersion }}
-				</p>
+				<p>HistoPad Teaser - version {{ pkgVersion }}</p>
 				<p>
 					Copyright société
 					<strong><a href="https://www.histovery.com">Histovery</a></strong>
@@ -145,7 +139,7 @@ export default {
 	computed: {
 		pkgVersion() {
 			return pkg.version
-		}
+		},
 	},
 	mounted() {
 		console.log('Saved locale Home.vue', this.$i18n.locale)
@@ -321,5 +315,17 @@ a:hover {
 .footer a:hover,
 .modal a:hover {
 	color: lightslategrey;
+}
+
+.main-logo {
+	max-width: 25%;
+	height: auto;
+}
+
+@media screen and (max-width: 768px) {
+	.main-logo {
+		max-width: 60%;
+		height: auto;
+	}
 }
 </style>

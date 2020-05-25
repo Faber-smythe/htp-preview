@@ -24,14 +24,14 @@
 
 		<!-- Custom tooltip -->
 		<div class="custom-tooltip" ref="tooltip" id="tooltip">
-			<span class="tooltiptext">{{ focusedContent }} </span>
+			<span class="tooltiptext noselect">{{ focusedContent }} </span>
 		</div>
 
 		<!-- Footer -->
 		<div class="player-footer">
 			<!-- Slider labels left and right-->
-			<span :style="leftSliderStyle">{{ $t(sliderTooltipsLabel[0]) }}</span>
-			<span :style="rightSliderStyle">{{ $t(sliderTooltipsLabel[1]) }}</span>
+			<span class="left-slider-tooltip noselect">{{ $t(sliderTooltipsLabel[0]) }}</span>
+			<span class="right-slider-tooltip noselect">{{ $t(sliderTooltipsLabel[1]) }}</span>
 
 			<!-- Rooms dropdown -->
 			<b-dropdown
@@ -40,7 +40,7 @@
 				class="footer-left-bottom"
 				v-if="immersives && immersives.length > 0"
 			>
-				<button class="button is-large background-button" slot="trigger">
+				<button class="button is-large background-button" slot="trigger" @click="onMapDropDownClick">
 					<template>
 						<b-icon icon="map-marked"></b-icon>
 					</template>
@@ -57,7 +57,7 @@
 			</b-dropdown>
 
 			<!-- Time slider -->
-			<b-field :style="timeSliderStyle">
+			<b-field class="time-slider">
 				<input
 					:disabled="loading"
 					type="range"
@@ -70,7 +70,7 @@
 					v-model="draggingValue"
 				/>
 			</b-field>
-			<div :style="timeSliderBackgroundStyle">
+			<div class="time-slider-background">
 				<div
 					class="background-slider"
 					style="margin-left: 15px; margin-right: 15px;"
@@ -98,7 +98,7 @@
 						<b-button
 							icon-left="volume-down"
 							type="is-black"
-							style="position:fixed; bottom: 0.2em; left: 2.3em;"
+							class="btn-volume-down is-large"
 							@click="updateVolume(-5)"
 							v-if="soundPopoverVisible"
 						>
@@ -112,11 +112,6 @@
 							class="sound-slider"
 							id="soundRange"
 							orient="vertical"
-							:style="
-								isSmartPhone
-									? 'height: 15em; width:16px;'
-									: 'height: 10em; width:8px;'
-							"
 							@input="onVolumeChange"
 							v-model="soundVolume"
 						/>
@@ -124,7 +119,7 @@
 						<b-button
 							icon-left="volume-up"
 							type="is-black"
-							style="position:fixed; top: 0.1em; left: 2.3em;"
+							class="btn-volume-up is-large"
 							@click="updateVolume(5)"
 							v-if="soundPopoverVisible"
 						>
@@ -213,14 +208,6 @@ export default {
 			width: window.innerWidth,
 			height: window.innerHeight,
 			ratio: window.innerWidth / window.innerHeight,
-			onMouseDownMouseX: 0,
-			onMouseDownMouseY: 0,
-			lon: -90,
-			lat: 0,
-			onMouseDownLon: 0,
-			onMouseDownLat: 0,
-			phi: 0,
-			theta: 0,
 			renderer: null,
 			camera: null,
 			fov: 60,
@@ -262,7 +249,11 @@ export default {
 			timeSpiral: null,
 			timeSpiralMaterial: null,
 			soundPopoverVisible: false,
-			loading: true
+			loading: true,
+			dx: 0.0,
+			dy: 0.0,
+			touchZoomDistanceEnd: 0.0,
+			touchZoomDistanceStart: 0.0,
 		}
 	},
 	mounted() {
@@ -304,8 +295,8 @@ export default {
 		isFirefox() {
 			return is.firefox()
 		},
-		isSafari() {
-			return is.safari()
+		isSafariOrIOS() {
+			return is.ios() || is.safari()
 		},
 		leftSliderStyle() {
 			if (this.isSmartPhone) {
@@ -445,6 +436,7 @@ export default {
 			this.controls = new OrbitControls(this.camera, this.renderer.domElement)
 			//this.controls.enableDamping = true
 			this.controls.enableZoom = false
+			this.controls.enablePan = false
 			this.controls.rotateSpeed = -0.5
 
 			/*let axesHelper = new THREE.AxesHelper(5)
@@ -455,9 +447,9 @@ export default {
 			this.el.addEventListener('mousemove', this.onPointerMove, false)
 			this.el.addEventListener('mouseup', this.onPointerUp, false)
 
-			this.el.addEventListener('touchstart', this.onPointerStart, false)
-			this.el.addEventListener('touchmove', this.onPointerMove, false)
-			this.el.addEventListener('touchend', this.onPointerUp, false)
+			this.el.addEventListener('touchstart', this.onPointerStart, true)
+			this.el.addEventListener('touchmove', this.onPointerMove, true)
+			this.el.addEventListener('touchend', this.onPointerUp, true)
 
 			this.el.addEventListener('click', this.onClick, false)
 			this.el.addEventListener('touchstart', this.onClick, false)
@@ -643,22 +635,48 @@ export default {
 		onPointerStart(event) {
 			event.preventDefault()
 			this.isUserInteracting = true
+			if (event.touches && event.touches.length == 2) {
+				this.controls.enableRotate = false
+				this.dx = event.touches[0].pageX - event.touches[1].pageX
+				this.dy = event.touches[0].pageY - event.touches[1].pageY
+				this.touchZoomDistanceEnd = Math.sqrt(
+					this.dx * this.dx + this.dy * this.dy
+				)
+			}
 		},
 		onPointerMove(event) {
 			event.preventDefault()
 			if (this.isUserInteracting) {
 				this.toggleTooltip('hide')
 			}
+			if (event.touches && event.touches.length == 2) {
+				this.dx = event.touches[0].pageX - event.touches[1].pageX
+				this.dy = event.touches[0].pageY - event.touches[1].pageY
+				this.touchZoomDistanceEnd = Math.sqrt(
+					this.dx * this.dx + this.dy * this.dy
+				)
+
+				let factor = this.touchZoomDistanceStart / this.touchZoomDistanceEnd
+				this.touchZoomDistanceStart = this.touchZoomDistanceEnd
+
+				if (factor !== 0) {
+					this.fov = this.camera.fov * factor 
+					this.setCameraZoom()
+				}
+			} else {
+				this.controls.enableRotate = true
+			}
 		},
 		onPointerUp() {
 			this.isUserInteracting = false
+			this.controls.enableRotate = true
 		},
 		onDocumentMouseWheel(event) {
-			this.setCameraZoom(event.deltaY)
+			this.fov = this.camera.fov + event.deltaY * 0.05
+			this.setCameraZoom()
 		},
-		setCameraZoom(zoom) {
+		setCameraZoom() {
 			this.toggleTooltip('hide')
-			this.fov = this.camera.fov + zoom * 0.05
 			this.camera.fov = THREE.MathUtils.clamp(this.fov, 20, 60)
 			this.camera.updateProjectionMatrix()
 		},
@@ -1023,7 +1041,7 @@ export default {
 			ctx.stroke()
 		},
 		onSoundPopoverClick() {
-			if (this.isSafari) {
+			if (this.isSafariOrIOS) {
 				setTimeout(() => {
 					this.soundPopoverVisible = !this.soundPopoverVisible
 				}, 100)
@@ -1031,6 +1049,11 @@ export default {
 				this.soundPopoverVisible = !this.soundPopoverVisible
 			}
 		},
+		onMapDropDownClick() {
+			if (this.isSmartPhone) {
+				this.toggleTooltip('hide')
+			}
+		}
 	},
 }
 </script>
@@ -1091,11 +1114,13 @@ export default {
 	z-index: 5;
 	left: 50px;
 	border-radius: 3px;
-	font-size: 12px;
+	font-size: 0.75rem;
 	background-color: black;
 	color: white;
 	display: none;
 }
+
+
 
 .header-immersive {
 	position: fixed;
@@ -1156,6 +1181,16 @@ export default {
 	border-color: black transparent transparent transparent;
 }
 
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
 .tooltip.popover .popover-inner {
 	background: #f9f9f9;
 	color: black;
@@ -1170,7 +1205,7 @@ export default {
 .slider-container {
 	display: flex;
 	height: auto;
-	width: 5rem;
+	width: 6rem;
 	background: black;
 	border-radius: 3px;
 	padding: 1em;
@@ -1178,13 +1213,27 @@ export default {
 
 input[type='range'].sound-slider {
 	-webkit-appearance: none;
-	width: 8px;
-	height: 100px;
+	width: 1rem;
+	height: 8rem;
 	border-radius: 5px;
 	background: #ccc;
 	outline: none;
 	writing-mode: bt-lr; /* IE */
+	margin-top: 0.6rem;
+	margin-bottom: 0.6rem;
 	-webkit-appearance: slider-vertical; /* WebKit */
+}
+
+.btn-volume-up {
+	position:fixed; 
+	top: 0em; 
+	left: 1.7em;
+}
+
+.btn-volume-down {
+	position:fixed; 
+	bottom: 0em; 
+	left: 1.7em;
 }
 
 input[type='range'].custom-slider::-webkit-slider-runnable-track {
@@ -1198,6 +1247,39 @@ input[type='range'].custom-slider::-webkit-slider-runnable-track {
 
 input[type='range'].custom-slider:focus::-webkit-slider-runnable-track {
 	background: white;
+}
+
+.time-slider {
+	margin-left: auto;
+	margin-right: auto;
+	width: 33%;
+}
+
+.time-slider-background {
+	width: 33%;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 30px;
+}
+
+/** Slider tooltips */
+
+.left-slider-tooltip {
+	font-size: 0.8em;
+	position: absolute;
+	bottom: 0.4em;
+	left: 31%;
+	text-align: center;
+	width: 100px;
+}
+
+.right-slider-tooltip {
+	font-size: 0.8em;
+	position: absolute;
+	bottom: 0.4em;
+	right: 31%;
+	text-align: center;
+	width: 100px;
 }
 
 .background-slider {
@@ -1310,4 +1392,107 @@ input[type='range'].custom-slider::-ms-fill-upper {
 input[type='range'].custom-slider:focus::-ms-fill-upper {
 	background: rgba(185, 185, 185, 0);
 }
+
+@media screen and (min-width: 501px) and (max-width: 823px) {
+	.tooltiptext {
+		font-size: 1rem;
+	}
+
+	.left-slider-tooltip {
+		font-size: 0.8em;
+		position: absolute;
+		bottom: 0.4em;
+		left: 20%;
+		text-align: center;
+		width: 100px;
+	}
+
+	.right-slider-tooltip {
+		font-size: 0.8em;
+		position: absolute;
+		bottom: 0.4em;
+		right: 20%;
+		text-align: center;
+		width: 100px;
+	}
+
+	.time-slider {
+		margin-left: auto;
+		margin-right: auto;
+		width: 50%;
+	}
+
+	.time-slider-background {
+		width: 50%;
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 30px;
+	}
+
+	input[type='range'].sound-slider {
+		-webkit-appearance: none;
+		width: 2rem;
+		height: 12.5rem;
+		border-radius: 5px;
+		background: #ccc;
+		outline: none;
+		margin-top: 0.6rem;
+		margin-bottom: 0.6rem;
+		writing-mode: bt-lr; /* IE */
+		-webkit-appearance: slider-vertical; /* WebKit */
+	}
+
+}
+
+@media screen and (max-width: 501px) {
+	.tooltiptext {
+		font-size: 1rem;
+	}
+
+	.left-slider-tooltip {
+		font-size: 0.8em;
+		position: absolute;
+		bottom: 0.4em;
+		left: 17%;
+		text-align: center;
+		width: 100px;
+	}
+
+	.right-slider-tooltip {
+		font-size: 0.8em;
+		position: absolute;
+		bottom: 0.4em;
+		right: 17%;
+		text-align: center;
+		width: 100px;
+	}
+
+	.time-slider {
+		margin-left: auto;
+		margin-right: auto;
+		width: 50%;
+	}
+
+	.time-slider-background {
+		width: 50%;
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 30px;
+	}
+
+	input[type='range'].sound-slider {
+		-webkit-appearance: none;
+		width: 2rem;
+		height: 12.5rem;
+		border-radius: 5px;
+		background: #ccc;
+		outline: none;
+		margin-top: 0.6rem;
+		margin-bottom: 0.6rem;
+		writing-mode: bt-lr; /* IE */
+		-webkit-appearance: slider-vertical; /* WebKit */
+	}
+
+}
+
 </style>
