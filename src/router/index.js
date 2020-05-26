@@ -2,6 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import PreviewSite from '../views/PreviewSite.vue'
+import AugmentedVisit from '../views/AugmentedVisit.vue'
+
 
 Vue.use(VueRouter)
 
@@ -12,7 +14,12 @@ const routes = [
 		component: Home,
 	},
 	{
-		path: '/preview/:site/immersive/:immersive',
+		path: '/:linkLabel',
+		name: 'AugmentedVisit',
+		component: AugmentedVisit,
+	},
+	{
+		path: '/teaser/:linkLabel/immersive/:immersive',
 		name: 'PreviewSite',
 		component: PreviewSite,
 	},

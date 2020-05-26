@@ -6,7 +6,7 @@
 		
 	</div>-->
 
-	<Immersive :site="site" :immersiveFileName="immersiveFileName" v-if="immersiveFileName"></Immersive>
+	<Immersive :site="site" :linkLabel="linkLabel" :immersiveFileName="immersiveFileName" v-if="immersiveFileName"></Immersive>
 </template>
 
 <script>
@@ -20,15 +20,17 @@ export default {
 	},
 	data() {
 		return {
-			site: this.$route.params.site,
+			site: {},
+			linkLabel: this.$route.params.linkLabel,
 			immersiveID: this.$route.params.immersive,
 			immersiveFileName: null
 		}
 	},
 	mounted() {
 		let selectedSite = sites.find(s => {
-			return s.site == this.site
+			return s.linkLabel == this.linkLabel
 		})
+		this.site = selectedSite.site
 
 		let foundImmersive = selectedSite.immersives.find(immersive => {
 			return immersive.id == this.immersiveID

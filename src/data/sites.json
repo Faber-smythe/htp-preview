@@ -2,6 +2,8 @@
     {
         "name": "Chateau de Chambord",
         "site": "france.chambord.chateau",
+        "linkLabel": "chambord",
+        "display": false,
         "lngLat": [
             1.517229,
             47.616278
@@ -10,6 +12,8 @@
     {
         "name": "Chateau royale de Blois",
         "site": "france.blois.chateau",
+        "linkLabel": "blois",
+        "display": false,
         "lngLat": [
             1.330551,
             47.585558
@@ -18,6 +22,8 @@
     {
         "name": "Chateau royale d'Amboise",
         "site": "france.amboise.chateau",
+        "linkLabel": "amboise",
+        "display": false,
         "lngLat": [
             0.9848193,
             47.4135606
@@ -27,6 +33,8 @@
     {
         "name": "Donjon de Loches",
         "site": "france.loches.donjon",
+        "linkLabel": "loches",
+        "display": true,
         "lngLat": [
             0.9943971,
             47.1249142
@@ -52,6 +60,8 @@
     {
         "name": "Forteresse royale de Chinon",
         "site": "france.chinon.forteresse",
+        "linkLabel": "chinon",
+        "display": true,
         "lngLat": [
             0.2334263,
             47.1681036

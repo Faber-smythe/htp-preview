@@ -83,6 +83,7 @@
 				placement="bottom-start"
 				class="footer-right-bottom"
 				@hide="onSoundPopoverClick"
+				:autoHide="true"
 			>
 				<!-- This will be the popover target (for the events and position) -->
 				<b-button
@@ -196,6 +197,7 @@ export default {
 	name: 'Immersive',
 	mixins: [utilsMixin],
 	props: {
+		linkLabel: String,
 		site: String,
 		immersiveFileName: String,
 	},
@@ -1170,6 +1172,10 @@ export default {
 	right: 1.5em;
 }
 
+.tooltiptext {
+	font-size: 1rem;
+}
+
 .custom-tooltip .tooltiptext::after {
 	content: ' ';
 	position: absolute;
@@ -1394,9 +1400,6 @@ input[type='range'].custom-slider:focus::-ms-fill-upper {
 }
 
 @media screen and (min-width: 501px) and (max-width: 823px) {
-	.tooltiptext {
-		font-size: 1rem;
-	}
 
 	.left-slider-tooltip {
 		font-size: 0.8em;
@@ -1445,9 +1448,6 @@ input[type='range'].custom-slider:focus::-ms-fill-upper {
 }
 
 @media screen and (max-width: 501px) {
-	.tooltiptext {
-		font-size: 1rem;
-	}
 
 	.left-slider-tooltip {
 		font-size: 0.8em;

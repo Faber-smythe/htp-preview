@@ -1,6 +1,5 @@
 <template>
-	<div class="container-fluid">
-		<NavigationBar />
+	<div class="container">
 		<section class="section header-section">
 			<h1 class="title title-font">
 				<img
@@ -12,37 +11,59 @@
 			<h3>
 				{{ $t('welcome_message') }}
 			</h3>
-		</section>
 
-		<b-carousel v-if="immersives.length > 0" :has-drag="true">
-			<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
-				<span class="image">
+			<LanguageSwitcher style="position: absolute; top: 1em; right: 1em;" />
+		</section>
+		<b-tabs
+			v-model="activeTab"
+			position="is-centered"
+			class="block"
+			@change="onTabChange"
+		>
+			<b-tab-item :label="$t('augmented_visits')" icon="cube">
+				<b-carousel v-if="immersives.length > 0" :has-drag="true">
+					<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
+						<span class="image">
+							<div
+								class="hero-body has-text-centered"
+								:style="
+									`background-image: url(${coverURL(
+										immersive
+									)}); height: 70vh; width:100%; background-size:cover;`
+								"
+							>
+								<h3 class="subtitle title-font">
+									<a
+										target="_blank"
+										rel="noopener noreferrer"
+										:href="$t(`${immersive.site}.url`)"
+										>{{ $t(immersive.site) }}</a
+									>
+								</h3>
+								<h1 class="title title-font">
+									<a
+										:href="
+											`/preview/${immersive.site}/immersive/${immersive.id}`
+										"
+										>{{ $t(immersive.name) }}</a
+									>
+								</h1>
+							</div>
+						</span>
+					</b-carousel-item>
+				</b-carousel>
+			</b-tab-item>
+
+			<b-tab-item :label="$t('map')" icon="map-marked-alt">
+				<div class="map">
 					<div
-						class="hero-body has-text-centered"
-						:style="
-							`background-image: url(${coverURL(
-								immersive
-							)}); height: 70vh; width:100%; background-size:cover;`
-						"
-					>
-						<h3 class="subtitle title-font">
-							<a
-								target="_blank"
-								rel="noopener noreferrer"
-								:href="$t(`${immersive.site}.url`)"
-								>{{ $t(immersive.site) }}</a
-							>
-						</h3>
-						<h1 class="title title-font">
-							<a
-								:href="`/preview/${immersive.site}/immersive/${immersive.id}`"
-								>{{ $t(immersive.name) }}</a
-							>
-						</h1>
-					</div>
-				</span>
-			</b-carousel-item>
-		</b-carousel>
+						id="mapglContainer"
+						style="
+		height: 70vh;"
+					></div>
+				</div>
+			</b-tab-item>
+		</b-tabs>
 
 		<footer class="footer">
 			<div class="content has-text-centered">
@@ -87,7 +108,6 @@ import sites from '../data/sites.json'
 import geoData from '../data/geo.json'
 import mapboxgl from 'mapbox-gl'
 import LanguageSwitcher from '../components/LanguageSwitcher'
-import NavigationBar from '../components/NavigationBar'
 import { utilsMixin } from '../utils/mixins'
 
 import pkg from '../../package.json'
@@ -102,8 +122,6 @@ export default {
 		msg: String,
 	},
 	components: {
-		NavigationBar,
-		// eslint-disable-next-line vue/no-unused-components
 		LanguageSwitcher,
 	},
 	data() {
