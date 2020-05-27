@@ -4,9 +4,9 @@
     "layers": [
         {
             "uniqueID": "carriere.scenelayer.new_layer0",
-            "localizedTimestampTitle": "${past}",
+            "localizedTimestampTitle": "${11_Th_Century}",
             "cartelDescription": {
-                "title": "${CubemapTitle_Imm_Carriere}",
+                "title": "${CubemapTitle_Imm_Carriere_Past}",
                 "subtitle": "",
                 "description": "${CubemapDesc_Imm_Carriere}"
             },
@@ -23,7 +23,7 @@
             "uniqueID": "carriere.scenelayer.new_layer1",
             "localizedTimestampTitle": "${today}",
             "cartelDescription": {
-                "title": "${CubemapTitle_Imm_Carriere}",
+                "title": "${CubemapTitle_Imm_Carriere_Today}",
                 "subtitle": "",
                 "description": "${CubemapDesc_Imm_Carriere}"
             },

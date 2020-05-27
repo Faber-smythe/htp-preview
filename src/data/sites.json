@@ -34,25 +34,28 @@
         "name": "Donjon de Loches",
         "site": "france.loches.donjon",
         "linkLabel": "loches",
-        "display": true,
+        "display": false,
         "lngLat": [
             0.9943971,
             47.1249142
         ],
         "immersives": [
             {
+                "site": "france.loches.donjon",
                 "id": "CourChateau",
-                "name": "CubemapTitle_Imm_CourChateau",
+                "name": "CubemapTitle_Imm_CourChateau_Home",
                 "file": "courchateau.json"
             },
             {
+                "site": "france.loches.donjon",
                 "id": "Cellier",
-                "name": "CubemapTitle_Imm_DonjonCellier",
+                "name": "CubemapTitle_Imm_DonjonCellier_Home",
                 "file": "cellier.json"
             },
             {
+                "site": "france.loches.donjon",
                 "id": "Carriere",
-                "name": "CubemapTitle_Imm_Carriere",
+                "name": "CubemapTitle_Imm_Carriere_Home",
                 "file": "carriere.json"
             }
         ]
@@ -61,6 +64,36 @@
         "name": "Forteresse royale de Chinon",
         "site": "france.chinon.forteresse",
         "linkLabel": "chinon",
+        "display": false,
+        "lngLat": [
+            0.2334263,
+            47.1681036
+        ],
+        "immersives": [
+            {
+                "site": "france.chinon.forteresse",
+                "id": "TourArtillerie",
+                "name": "CubemapTitle_Imm_MagasinArtillerie_Home",
+                "file": "tourartillerie.json"
+            },
+            {
+                "site": "france.chinon.forteresse",
+                "id": "TourDuMoulin",
+                "name": "CubemapTitle_Imm_TourMoulin_Home",
+                "file": "tourdumoulin.json"
+            },
+            {
+                "site": "france.chinon.forteresse",
+                "id": "PrisonDesTempliers",
+                "name": "CubemapTitle_Imm_PrisonTempliers_Home",
+                "file": "prisondestempliers.json"
+            }
+        ]
+    },
+    {
+        "name": "Forteresse royale de Chinon & Donjon de Loches",
+        "linkLabel": "chinon-loches",
+        "site": "chinon-loches",
         "display": true,
         "lngLat": [
             0.2334263,
@@ -68,19 +101,40 @@
         ],
         "immersives": [
             {
+                "site": "france.chinon.forteresse",
                 "id": "TourArtillerie",
-                "name": "CubemapTitle_Imm_MagasinArtillerie",
+                "name": "CubemapTitle_Imm_MagasinArtillerie_Home",
                 "file": "tourartillerie.json"
             },
             {
+                "site": "france.loches.donjon",
+                "id": "CourChateau",
+                "name": "CubemapTitle_Imm_CourChateau_Home",
+                "file": "courchateau.json"
+            },
+            {
+                "site": "france.chinon.forteresse",
                 "id": "TourDuMoulin",
-                "name": "CubemapTitle_Imm_TourMoulin",
+                "name": "CubemapTitle_Imm_TourMoulin_Home",
                 "file": "tourdumoulin.json"
             },
             {
+                "site": "france.loches.donjon",
+                "id": "Cellier",
+                "name": "CubemapTitle_Imm_DonjonCellier_Home",
+                "file": "cellier.json"
+            },
+            {
+                "site": "france.chinon.forteresse",
                 "id": "PrisonDesTempliers",
-                "name": "CubemapTitle_Imm_PrisonTempliers",
+                "name": "CubemapTitle_Imm_PrisonTempliers_Home",
                 "file": "prisondestempliers.json"
+            },
+            {
+                "site": "france.loches.donjon",
+                "id": "Carriere",
+                "name": "CubemapTitle_Imm_Carriere_Home",
+                "file": "carriere.json"
             }
         ]
     }

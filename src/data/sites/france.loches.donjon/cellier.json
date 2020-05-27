@@ -4,9 +4,9 @@
     "layers": [
         {
             "uniqueID": "cellier.scenelayer.open",
-            "localizedTimestampTitle": "${past}",
+            "localizedTimestampTitle": "${11_Th_Century}",
             "cartelDescription": {
-                "title": "${CubemapTitle_Imm_DonjonCellier}",
+                "title": "${CubemapTitle_Imm_DonjonCellier_Past}",
                 "subtitle": "",
                 "description": "${CubemapDesc_Imm_DonjonCellier}"
             },
@@ -23,7 +23,7 @@
             "uniqueID": "cellier.scenelayer.present",
             "localizedTimestampTitle": "${today}",
             "cartelDescription": {
-                "title": "${CubemapTitle_Imm_DonjonCellier}",
+                "title": "${CubemapTitle_Imm_DonjonCellier_Today}",
                 "subtitle": "",
                 "description": "${CubemapDesc_Imm_DonjonCellier}"
             },

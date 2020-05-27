@@ -8,14 +8,12 @@
 			<div class="columns">
 				<div class="column">
 					<h2 class="title-font header-title">
-						<router-link to="/"
-							><b-icon
-								pack="fas"
-								icon="long-arrow-alt-left"
-								type="is-white"
-								style="margin-right: 0.8em; margin-top: 0.1em;"
-							></b-icon
-						></router-link>
+						<b-button
+							class="background-button"
+							icon-left="long-arrow-alt-left"
+							@click="goBack()"						
+						>
+						</b-button>
 						<span>&nbsp;&nbsp;&nbsp;{{ immersiveTitle }}</span>
 					</h2>
 				</div>
@@ -30,8 +28,12 @@
 		<!-- Footer -->
 		<div class="player-footer">
 			<!-- Slider labels left and right-->
-			<span class="left-slider-tooltip noselect">{{ $t(sliderTooltipsLabel[0]) }}</span>
-			<span class="right-slider-tooltip noselect">{{ $t(sliderTooltipsLabel[1]) }}</span>
+			<span class="left-slider-tooltip noselect">{{
+				$t(sliderTooltipsLabel[0])
+			}}</span>
+			<span class="right-slider-tooltip noselect">{{
+				$t(sliderTooltipsLabel[1])
+			}}</span>
 
 			<!-- Rooms dropdown -->
 			<b-dropdown
@@ -40,7 +42,11 @@
 				class="footer-left-bottom"
 				v-if="immersives && immersives.length > 0"
 			>
-				<button class="button is-large background-button" slot="trigger" @click="onMapDropDownClick">
+				<button
+					class="button is-large background-button"
+					slot="trigger"
+					@click="onMapDropDownClick"
+				>
 					<template>
 						<b-icon icon="map-marked"></b-icon>
 					</template>
@@ -168,8 +174,6 @@
 <script>
 import Vue from 'vue'
 import * as THREE from 'three'
-// eslint-disable-next-line no-unused-vars
-import is from 'is_js'
 
 import TWEEN from '@tweenjs/tween.js'
 import Bluebird from 'bluebird'
@@ -182,9 +186,6 @@ import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/Or
 import { utilsMixin } from '../utils/mixins'
 
 import sites from '../data/sites.json'
-
-// eslint-disable-next-line no-unused-vars
-import LanguageSwitcher from './LanguageSwitcher'
 
 import VTooltip from 'v-tooltip'
 import { Vector3 } from 'three'
@@ -199,10 +200,7 @@ export default {
 	props: {
 		linkLabel: String,
 		site: String,
-		immersiveFileName: String,
-	},
-	components: {
-		//LanguageSwitcher,
+		foundImmersive: Object,
 	},
 	data() {
 		return {
@@ -247,7 +245,6 @@ export default {
 			soundVolume: 0,
 			isGeometryUpdated: false,
 			immersives: [],
-			immersiveFile: '',
 			timeSpiral: null,
 			timeSpiralMaterial: null,
 			soundPopoverVisible: false,
@@ -263,7 +260,7 @@ export default {
 			? this.navigatorLanguage
 			: localStorage.getItem('locale')
 
-		this.immersiveFile = new String(this.immersiveFileName)
+		this.selectedImmersive = JSON.parse(JSON.stringify(this.foundImmersive))
 		this.loadImmersive()
 	},
 	beforeDestroy() {
@@ -293,12 +290,6 @@ export default {
 					.replace('${', '')
 					.replace('}', '')
 			)
-		},
-		isFirefox() {
-			return is.firefox()
-		},
-		isSafariOrIOS() {
-			return is.ios() || is.safari()
 		},
 		leftSliderStyle() {
 			if (this.isSmartPhone) {
@@ -337,9 +328,15 @@ export default {
 	},
 	methods: {
 		loadImmersive() {
+
+			this.immersives = sites
+				.find((s) => {
+					return s.site == this.site
+				}).immersives
+			
 			this.immersiveScene = JSON.parse(
 				JSON.stringify(
-					require(`../data/sites/${this.site}/${this.immersiveFile}`)
+					require(`../data/sites/${this.selectedImmersive.site}/${this.selectedImmersive.file}`)
 				)
 			)
 
@@ -368,6 +365,7 @@ export default {
 					return immersive.id !== this.immersiveScene.name
 				})
 
+		
 			this.init()
 		},
 		unloadImmersive() {
@@ -461,25 +459,31 @@ export default {
 			return new Promise((resolve, reject) => {
 				let soundFiles = this.immersiveScene.layers.filter((layer) => {
 					return (
-						layer.ambianceSound &&
-						layer.ambianceSound.fileName &&
-						layer.ambianceSound.fileName != ''
+						layer.ambianceSound 
 					)
 				})
+
 				soundFiles = soundFiles.map((soundFile) => {
+					let soundURL = soundFile.ambianceSound.fileName !== '' ? `/assets/immersives/${this.selectedImmersive.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`
+						: `/assets/sounds/default.mp3`
+
+					soundFile.ambianceSound.volume = soundFile.ambianceSound.fileName !== '' ? soundFile.ambianceSound.volume : 0.05
+
 					return {
-						url: `/assets/immersives/${this.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`,
+						url: soundURL,
 						volume: soundFile.ambianceSound.volume,
 					}
 				})
 
 				if (soundFiles && soundFiles.length > 0) {
-					this.soundVolume = soundFiles[0].volume * 100
+					this.soundVolume = soundFiles[soundFiles.length - 1].volume * 100					
 				}
+
 				this.soundManager
 					.init(soundFiles)
 					.then(() => {
 						this.soundManager.playSoundAtIndex(this.meshes.length - 1)
+						this.soundManager.setVolume(soundFiles[soundFiles.length - 1].volume)
 						resolve(true)
 					})
 					.catch((error) => {
@@ -531,7 +535,8 @@ export default {
 
 			Bluebird.each(this.immersiveScene.layers, (layer, index) => {
 				return new Promise((resolve, reject) => {
-					let textureURL = `/assets/immersives/${this.site}/${layer.uniqueID}.jpg`
+					let textureURL = `/assets/immersives/${this.selectedImmersive.site}/${layer.uniqueID}.jpg`
+
 					this.textureLoader.load(
 						textureURL,
 						(texture) => {
@@ -543,6 +548,7 @@ export default {
 								blending: THREE.NormalBlending,
 								opacity: 0,
 							})
+
 							let mesh = new THREE.Mesh(this.geometry, material)
 							mesh.uuid = layer.uniqueID
 							mesh.renderOrder = index
@@ -574,6 +580,7 @@ export default {
 					this.updateHotspotsOpacity()
 					this.renderer.compile(this.scene, this.camera)
 					this.initSlider()
+				
 					return this.initAmbient()
 				})
 				.then(() => {
@@ -662,7 +669,7 @@ export default {
 				this.touchZoomDistanceStart = this.touchZoomDistanceEnd
 
 				if (factor !== 0) {
-					this.fov = this.camera.fov * factor 
+					this.fov = this.camera.fov * factor
 					this.setCameraZoom()
 				}
 			} else {
@@ -842,6 +849,8 @@ export default {
 				this.toggleTooltip('hide')
 				this.updateHotspotsOpacity()
 				this.previousMeshId = this.selectedMesh.uuid
+
+				this.soundVolume = this.immersiveScene.layers[opacity > 0.5 ? 1 : 0].ambianceSound.volume * 100
 				this.soundManager.playSoundAtIndex(opacity > 0.5 ? 1 : 0)
 			}
 		},
@@ -940,9 +949,9 @@ export default {
 		onImmersiveChange(immersive) {
 			this.toggleTooltip('hide')
 			this.draggingValue = 100
-			let url = `/preview/${this.site}/immersive/${immersive.id}`
+			let url = `/teaser/${this.site}/immersive/${immersive.id}`
 			window.history.replaceState(null, null, url)
-			this.immersiveFile = immersive.file
+			this.selectedImmersive = immersive
 			this.unloadImmersive()
 			this.camera.position.set(0, 0, 10)
 			this.loadImmersive()
@@ -1055,7 +1064,7 @@ export default {
 			if (this.isSmartPhone) {
 				this.toggleTooltip('hide')
 			}
-		}
+		},
 	},
 }
 </script>
@@ -1122,8 +1131,6 @@ export default {
 	display: none;
 }
 
-
-
 .header-immersive {
 	position: fixed;
 	top: 0;
@@ -1188,12 +1195,12 @@ export default {
 }
 
 .noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Old versions of Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
@@ -1231,14 +1238,14 @@ input[type='range'].sound-slider {
 }
 
 .btn-volume-up {
-	position:fixed; 
-	top: 0em; 
+	position: fixed;
+	top: 0em;
 	left: 1.7em;
 }
 
 .btn-volume-down {
-	position:fixed; 
-	bottom: 0em; 
+	position: fixed;
+	bottom: 0em;
 	left: 1.7em;
 }
 
@@ -1400,7 +1407,6 @@ input[type='range'].custom-slider:focus::-ms-fill-upper {
 }
 
 @media screen and (min-width: 501px) and (max-width: 823px) {
-
 	.left-slider-tooltip {
 		font-size: 0.8em;
 		position: absolute;
@@ -1444,11 +1450,9 @@ input[type='range'].custom-slider:focus::-ms-fill-upper {
 		writing-mode: bt-lr; /* IE */
 		-webkit-appearance: slider-vertical; /* WebKit */
 	}
-
 }
 
 @media screen and (max-width: 501px) {
-
 	.left-slider-tooltip {
 		font-size: 0.8em;
 		position: absolute;
@@ -1492,7 +1496,5 @@ input[type='range'].custom-slider:focus::-ms-fill-upper {
 		writing-mode: bt-lr; /* IE */
 		-webkit-appearance: slider-vertical; /* WebKit */
 	}
-
 }
-
 </style>

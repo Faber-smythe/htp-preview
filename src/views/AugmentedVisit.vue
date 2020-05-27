@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid">
 		<NavigationBar />
-		<section class="section header-section">
+		<section class="home-section header-section">
 			<h1 class="title title-font">
 				<img
 					class="main-logo"
@@ -27,7 +27,11 @@
 		</section>
 
 		<div class="container-fluid" style="margin-top: 1rem; margin-bottom: 1rem;">
-			<b-carousel v-if="immersives.length > 0" :has-drag="true">
+			<b-carousel
+				v-if="immersives.length > 0"
+				:has-drag="true"
+				:autoplay="false"
+			>
 				<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
 					<span class="image">
 						<div
@@ -66,7 +70,7 @@
 			style="margin-top: 4rem; margin-bottom: 4rem;"
 		>
 			<div class="container">
-				<div class="header-intro title-font">
+				<div class="header-intro title-font background-sceau">
 					<h2>
 						{{ $t('infos_histovery') }}
 					</h2>
@@ -78,72 +82,11 @@
 			</div>
 		</section>
 
-		<section class="container-fluid header-intro">
-			<div class="columns">
-				<div class="column is-6 no-margin">
-					<div
-						class="container"
-						style="background-color: #460012; color: white;"
-					>
-						<h2 style="font-size: 2rem; margin: 0 auto; padding: 2rem;">
-							Faire parler <i>les collections</i>
-						</h2>
-					</div>
-					<div class="container">
-						<div
-							style="
-								background-image: url(/img/partners/donjon_de_loches.jpg); width:100%; min-height: 420px;
-								background-size:cover;
-								background-position: center;
-							"
-						></div>
-					</div>
-				</div>
-				<div class="column is-6 no-margin">
-					<div
-						style="
-								background-image: url(/img/partners/forteresse_royale_chinon.jpg); width:100%; min-height: 300px;
-								background-size:cover;
-								background-position: center;
-							"
-					></div>
-					<div class="columns">
-						<div
-							class="column is-8"
-							style="padding-top: 0!important; padding-right:0!important; padding-bottom: 0!important"
-						>
-							<div
-								class="container-fluid"
-								style="background-color: #755131; 
-										color: white; 
-										min-height: 244px;"
-							>
-								<h2
-									style="font-size: 2rem; display: inline-block; vertical-align:middle; padding: 2rem;"
-								>
-									Partir à <i>la chasse aux trésors.</i>
-								</h2>
-							</div>
-						</div>
-						<div
-							class="column is-4"
-							style="padding-top: 0!important; padding-left:0!important;"
-						>
-							<div
-								style="
-								background-image: url(/img/partners/coffre_tresor.jpg); width:100%; 
-								min-height: 244px;
-								background-size:cover;
-								background-position: center;
-							"
-							></div>
-						</div>
-					</div>
-				</div>
-			</div>
+		<section class="container-fluid">
+			<SitePromo />
 		</section>
 
-		<br/><br/>
+		<br /><br />
 
 		<section class="home-section social-network">
 			<SocialNetwork />
@@ -165,6 +108,8 @@
 import sites from '../data/sites.json'
 import NavigationBar from '../components/NavigationBar'
 import SocialNetwork from '../components/SocialNetwork'
+import SitePromo from '../components/SitePromo'
+
 import { utilsMixin } from '../utils/mixins'
 
 import pkg from '../../package.json'
@@ -175,6 +120,7 @@ export default {
 	components: {
 		NavigationBar,
 		SocialNetwork,
+		SitePromo
 	},
 	data() {
 		return {
@@ -186,6 +132,7 @@ export default {
 			mapLoaded: false,
 			immersives: [],
 			linkLabel: this.$route.params.linkLabel,
+			isPromoVisible: false,
 		}
 	},
 	computed: {
@@ -210,7 +157,6 @@ export default {
 			siteWithImmersives.forEach((swi) => {
 				this.immersives = this.immersives.concat(
 					swi.immersives.map((immersive) => {
-						immersive.site = swi.site
 						immersive['linkLabel'] = swi.linkLabel
 						return immersive
 					})
@@ -230,6 +176,7 @@ export default {
 <style scoped>
 .header-section {
 	text-align: center;
+	margin-top: 2.0rem;
 }
 
 .carousel .subtitle {
@@ -246,10 +193,51 @@ export default {
 	padding: 0 !important;
 }
 
+.background-sceau {
+	background-image: url('/img/sceau_histovery.png');
+	width: 100%;
+	height: auto;
+	background-size: auto 40%;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
 @media screen and (max-width: 768px) {
 	.main-logo {
 		max-width: 60%;
 		height: auto;
+	}
+}
+
+@media screen and (min-width: 321px) and (max-width: 767px) {
+	.carousel,
+	.carousel .cover {
+		height: 24rem;
+	}
+
+	.background-sceau {
+		background-image: url('/img/sceau_histovery.png');
+		width: 100%;
+		height: auto;
+		background-size: auto 20%;
+		background-repeat: no-repeat;
+		background-position: center;
+	}
+}
+
+@media screen and (max-width: 320px) {
+	.carousel,
+	.carousel .cover {
+		height: 24rem;
+	}
+
+	.background-sceau {
+		background-image: url('/img/sceau_histovery.png');
+		width: 100%;
+		height: auto;
+		background-size: auto 10%;
+		background-repeat: no-repeat;
+		background-position: center;
 	}
 }
 </style>

@@ -1,3 +1,4 @@
+import is from 'is_js'
 
 export let utilsMixin = {
 	computed: {
@@ -36,5 +37,16 @@ export let utilsMixin = {
 			}
 			return language
 		},
-	}
+		isFirefox() {
+			return is.firefox()
+		},
+		isSafariOrIOS() {
+			return is.ios() || is.safari()
+		},
+	},
+	methods: {
+		goBack() {
+			window.history.back()
+		}
+	},
 }

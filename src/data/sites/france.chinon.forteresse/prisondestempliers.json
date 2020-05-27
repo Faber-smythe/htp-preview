@@ -23,7 +23,7 @@
             "uniqueID": "prisondestempliers.scenelayer.new_layer1",
             "localizedTimestampTitle": "${today}",
             "cartelDescription": {
-                "title": "${CubemapTitle_Imm_PrisonTempliers}",
+                "title": "${CubemapTitle_Imm_PrisonTempliers_Today}",
                 "subtitle": "",
                 "description": "${CubemapDesc_Imm_PrisonTempliers}"
             },

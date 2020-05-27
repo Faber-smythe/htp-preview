@@ -67,6 +67,21 @@ a:hover,
 	color: gray;
 }
 
+.carousel .carousel-indicator .indicator-item .indicator-style {
+	display: block;
+    border: 1px solid white !important;
+    background: rgba(0, 0, 0, 0.0) !important;
+    outline: none;
+    -webkit-transition: 150ms ease-out;
+    transition: 150ms ease-out;
+}
+
+.carousel .carousel-indicator .indicator-item.is-active .indicator-style {
+	background: white !important;
+    border: 1px solid white;
+}
+
+
 .home-footer {
 	background-color: black;
 	padding: 3rem 1.5rem 6rem;
@@ -89,4 +104,9 @@ a:hover,
 	height: auto;
 }
 
+@media screen and (max-width: 767px) {
+	.header-intro h1 {
+		font-size: 2rem;
+	}
+}
 </style>

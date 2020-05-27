@@ -12,10 +12,11 @@
 
 		<template slot="end">
 			<b-navbar-item href="/">
-				{{ $t('home') }}
+				<img src="/img/logos/logo_histopad.png" alt="Logo HistoPad" />
 			</b-navbar-item>
-			<b-navbar-dropdown :label="$t('augmented_visits')">
+			<b-navbar-dropdown :label="$t('augmented_visits')" :right="true" :hoverable="true">
 				<b-navbar-item
+					:id="'augmented-visit-dropdown'"
 					:href="`/${partner.linkLabel}`"
 					v-for="partner in partners"
 					:key="partner.site"

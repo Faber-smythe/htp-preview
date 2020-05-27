@@ -23,7 +23,7 @@
             "uniqueID": "tourdumoulin.scenelayer.new_layer1",
             "localizedTimestampTitle": "${today}",
             "cartelDescription": {
-                "title": "${CubemapTitle_Imm_TourMoulin}",
+                "title": "${CubemapTitle_Imm_TourMoulin_Today}",
                 "subtitle": "",
                 "description": "${CubemapDesc_Imm_TourMoulin}"
             },
