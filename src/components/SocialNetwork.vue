@@ -29,7 +29,7 @@ export default {
 
 <style scoped>
 .social-network img {
-	width: 2.5rem;
+	width: 2.0rem;
 	margin: 0.4em;
 }
 </style>

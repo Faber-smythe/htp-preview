@@ -32,6 +32,15 @@
 	font-size: 2rem;
 }
 
+.header-section {
+	text-align: center;
+	padding-top: 4rem;
+}
+
+.header-section h1 {
+	color: white;
+}
+
 .home-section .container {
 	max-width: 75rem !important;
 }
@@ -83,23 +92,6 @@ a:hover,
 .carousel .carousel-indicator .indicator-item.is-active .indicator-style {
 	background: white !important;
 	border: 1px solid white;
-}
-
-.home-footer {
-	background-color: black;
-	padding: 3rem 1.5rem 6rem;
-	display: block;
-	color: white;
-}
-
-.home-footer a,
-.modal a {
-	color: white;
-}
-
-.home-footer a:hover,
-.modal a:hover {
-	color: lightgray;
 }
 
 .main-logo {

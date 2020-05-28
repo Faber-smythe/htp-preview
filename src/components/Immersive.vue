@@ -509,7 +509,8 @@ export default {
 			this.closeUpImages = []
 
 			closeUps.forEach((closeUp) => {
-				let url = `/assets/immersives/${this.site}/closeups/${closeUp.contentList[0].value}.jpg`
+				let url = `/assets/immersives/${this.selectedImmersive.site}/closeups/${closeUp.contentList[0].value}.jpg`
+				console.log('URL', url)
 				let closeUpImage = new Image()
 				closeUpImage.onload = () => {
 					image.src = this.src
@@ -778,7 +779,7 @@ export default {
 							this.closeUpTitle = closeUp.cartelDescription.title
 								.replace('${', '')
 								.replace('}', '')
-							this.closeUpImage = `/assets/immersives/${this.site}/closeups/${file}.jpg`
+							this.closeUpImage = `/assets/immersives/${this.selectedImmersive.site}/closeups/${file}.jpg`
 							this.isModalCloseUpVisible = true
 						}
 					} else if (this.focusedHotspot.type == 'TextHotspot') {

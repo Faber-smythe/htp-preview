@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid">
 		<NavigationBar />
-		<section class="section header-section">
+		<section class="header-section">
 			<h1 class="title title-font">
 				<img
 					class="main-logo"
@@ -9,91 +9,103 @@
 					alt="HistoPad"
 				/>
 			</h1>
-			<h3>
-				{{ $t('welcome_message') }}
-			</h3>
 		</section>
 
-		<b-carousel v-if="immersives.length > 0" :has-drag="true">
-			<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
-				<span class="image">
-					<div
-						class="hero-body has-text-centered"
-						:style="
-							`background-image: url(${coverURL(
-								immersive
-							)}); height: 70vh; width:100%; background-size:cover;`
-						"
-					>
-						<h3 class="subtitle title-font">
-							<a
-								target="_blank"
-								rel="noopener noreferrer"
-								:href="$t(`${immersive.site}.url`)"
-								>{{ $t(immersive.site) }}</a
-							>
-						</h3>
-						<h1 class="title title-font">
-							<a
-								:href="`/preview/${immersive.site}/immersive/${immersive.id}`"
-								>{{ $t(immersive.name) }}</a
-							>
-						</h1>
-					</div>
-				</span>
-			</b-carousel-item>
-		</b-carousel>
-
-		<footer class="footer">
-			<div class="content has-text-centered">
-				<p>HistoPad Teaser - version {{ pkgVersion }}</p>
-				<p>
-					Copyright société
-					<strong><a href="https://www.histovery.com">Histovery</a></strong>
-					2020
-				</p>
-			</div>
-		</footer>
-
-		<b-modal :active.sync="isImmersivesSelectionActive">
-			<div class="tile is-ancestor" v-if="selectedSite">
+		<div class="container-fluid header-section header-image-section" v-if="availabeImmersives.length > 0">
+			<div
+				class="cover"
+				:style="`background-image: url(${randomImage()}); 
+				width:100%;
+				background-size:cover;
+				background-position: center;
+				box-shadow: inset 0px 0px 100vw 48rem rgba(67,57,16,0.33);
+				display: table;`"
+			>
 				<div
-					class="tite is-parent"
-					v-for="immersive in selectedSite.immersives"
-					:key="immersive.name"
+					style="display: table-cell; vertical-align: middle; text-align:center;"
 				>
-					<article class="tile is-child box">
-						<p class="title">
-							<a
-								:href="
-									`/preview/${selectedSite.site}/immersive/${immersive.id}`
-								"
-								>{{ $t(immersive.name) }}</a
-							>
-						</p>
-						<p class="subtitle">With an image</p>
-						<figure class="image is-4by3">
-							<img src="https://bulma.io/images/placeholders/640x480.png" />
-						</figure>
-					</article>
+					<h1
+						class="title title-font"
+						style="padding-right: 6rem; padding-left: 6rem;"
+					>
+						Découvrez près de 15 monuments historiques et musées grâce à la
+						visite augmentée HistoPad !
+					</h1>
+				</div>
+				<div style="position: absolute; left: 50%;  bottom: -8rem;">
+					<div style="position: relative; left: -50%;">
+						<button class="button is-large background-button" slot="trigger">
+							<template>
+								<b-icon icon="chevron-down"></b-icon>
+							</template>
+						</button>
+					</div>
 				</div>
 			</div>
-		</b-modal>
+		</div>
+
+		<section class="home-section header-intro title-font">
+			<div class="container">
+				<h1>Nos visites augmentées</h1>
+			</div>
+		</section>
+
+		<section class="home-section header-intro title-font">
+			<div class="columns" v-for="(row, index) in rows" :key="index">
+				<div class="column is-4" style="cursor: pointer;" v-for="site in row" :key="site.site">
+					<div
+						class="site-tile"
+						:style="`background-image: url(${coverURL(site)}); 
+							width: 100%;
+							background-size:cover;
+							background-position: center;
+							display: table;`"
+					>
+						<div
+							class="content-site-tile"
+							@click="onSiteClick(site)"
+						>
+							<h2>{{ $t(site.site) }}</h2>
+							<b-icon
+								pack="far"
+								icon="play-circle"
+								size="is-large"
+								type="is-white"
+								v-if="site.interact"
+							>
+							</b-icon>
+							<h3 v-if="!site.interact">Prochainement</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="home-section header-intro title-font">
+			<div class="container">
+				<h1>Voyage immersif</h1>
+				<h1>Voyage interactif</h1>
+				<h1>Voyage validé par les historiens</h1>
+				<h1>L'<strong>HistoPad</strong>, <span><i>Voyage dans le temps</i></span></h1>
+			</div>
+		</section>
+
+		<section class="home-section social-network">
+			<SocialNetwork />
+		</section>
+
+		<Footer />
 	</div>
 </template>
 
 <script>
 import sites from '../data/sites.json'
-import geoData from '../data/geo.json'
-import mapboxgl from 'mapbox-gl'
-import LanguageSwitcher from '../components/LanguageSwitcher'
+import SocialNetwork from '../components/SocialNetwork'
 import NavigationBar from '../components/NavigationBar'
+import Footer from '../components/Footer'
 import { utilsMixin } from '../utils/mixins'
 
 import pkg from '../../package.json'
-
-mapboxgl.accessToken =
-	'pk.eyJ1IjoidGl3ZW5jZSIsImEiOiJjazlpNms1dXgwMGwxM3FxY2gwZzZqeXB3In0.AxKj_fU8XeDD0ru_uCSCHw'
 
 export default {
 	name: 'Home',
@@ -103,8 +115,8 @@ export default {
 	},
 	components: {
 		NavigationBar,
-		// eslint-disable-next-line vue/no-unused-components
-		LanguageSwitcher,
+		SocialNetwork,
+		Footer	
 	},
 	data() {
 		return {
@@ -116,6 +128,9 @@ export default {
 			activeTab: 0,
 			mapLoaded: false,
 			immersives: [],
+			displayedSites: [],
+			rows: [],
+			availabeImmersives: []
 		}
 	},
 	computed: {
@@ -124,146 +139,57 @@ export default {
 		},
 	},
 	mounted() {
-		console.log('Saved locale Home.vue', this.$i18n.locale)
-
-		this.initCarousel()
-		if (this.activeTab == 1) {
-			this.initMap()
-		}
+		this.initGrid()
 	},
 	methods: {
-		initCarousel() {
-			let siteWithImmersives = sites.filter((site) => {
-				return site.immersives && site.immersives.length > 0
+		initGrid() {
+			let sitesToDisplay = sites.filter((site) => {
+				return site.count == 1
 			})
 
-			this.immersives = []
-			siteWithImmersives.forEach((swi) => {
-				this.immersives = this.immersives.concat(
-					swi.immersives.map((immersive) => {
-						immersive.site = swi.site
-						return immersive
-					})
-				)
+			let sitesWithImmersives = sites.filter(site => {
+				return site.count == 1 && site.interact && site.immersives.length > 0
 			})
+
+			sitesWithImmersives.forEach((site) => {
+				this.availabeImmersives = this.availabeImmersives.concat(site.immersives)
+			});
+
+			this.rows = this.chunkArray(sitesToDisplay, 3)
 		},
-		initMap() {
-			setTimeout(() => {
-				this.loadMap().then(() => {
-					this.mapLoaded = true
-					this.addGeoJSONData()
-				})
-			}, 200)
+		chunkArray(arr, length) {
+			let chunks = [],
+				i = 0,
+				n = arr.length
+
+			while (i < n) {
+				chunks.push(arr.slice(i, (i += length)))
+			}
+
+			return chunks
 		},
-		loadMap() {
-			return new Promise((resolve) => {
-				this.map = new mapboxgl.Map({
-					container: 'mapglContainer',
-					style: 'mapbox://styles/mapbox/streets-v11',
-					center: [0.9848193, 47.4135606],
-					zoom: 8,
-					maxZoom: 22,
-					minZoom: 5,
-				})
-
-				this.map.on('style.load', () => {
-					resolve()
-				})
-			})
-		},
-		addGeoJSONData() {
-			let that = this
-
-			this.map.on('load', function() {
-				that.map.addSource('places', {
-					type: 'geojson',
-					data: geoData,
-				})
-
-				that.map.addLayer({
-					id: 'places',
-					type: 'symbol',
-					source: 'places',
-					layout: {
-						'icon-image': '{icon}-15',
-						'icon-allow-overlap': false,
-					},
-				})
-
-				let popup = new mapboxgl.Popup({
-					closeButton: false,
-					closeOnClick: false,
-				})
-
-				that.map.on('mouseenter', 'places', (e) => {
-					that.map.getCanvas().style.cursor = 'pointer'
-
-					let coordinates = e.features[0].geometry.coordinates.slice()
-					let description = e.features[0].properties.description
-
-					while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-						coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
-					}
-
-					popup
-						.setLngLat(coordinates)
-						.setHTML(description)
-						.addTo(that.map)
-				})
-
-				that.map.on('mouseleave', 'places', () => {
-					that.map.getCanvas().style.cursor = ''
-					popup.remove()
-				})
-
-				that.map.on('click', 'places', (e) => {
-					let siteID = e.features[0].properties.id
-
-					let site = sites.find((s) => {
-						return s.site == siteID
-					})
-
-					if (site && site.immersives && site.immersives.length > 0) {
-						that.selectedSite = site
-						that.isImmersivesSelectionActive = true
-					}
-					/*if (e.features[0].properties.id == 'france.amboise.chateau') {
-						that.$router.push(`/preview/${e.features[0].properties.id}`)
-					} else {
-						that.isImmersivesSelectionActive = true
-					}*/
-				})
-			})
-		},
-		loadMarkers() {
-			this.markers = []
-			this.popups = []
-			sites.forEach((site) => {
-				let popup = new mapboxgl.Popup({ offset: 25 }).setText(
-					this.$t(site.site)
-				)
-				this.markers.push(
-					new mapboxgl.Marker()
-						.setLngLat(site.lngLat)
-						.setPopup(popup)
-						.addTo(this.map)
-				)
-				this.popups.push(popup)
-			})
-		},
-		onTabChange() {
-			if (!this.mapLoaded) {
-				this.initMap()
+		onSiteClick(site) {
+			console.log('Click on site', site)
+			if (site.interact) {
+				if (site.linkLabel == 'chinon' || site.linkLabel == 'loches') {
+					this.$router.push('/chinon-loches')
+				} else {
+					this.$router.push(`/${site.linkLabel}`)
+				}
 			}
 		},
-		getImgUrl(value) {
-			return `https://picsum.photos/id/43${value}/1230/500`
-		},
 		// eslint-disable-next-line no-unused-vars
-		coverURL(immersive) {
+		coverURL(site) {
 			//return `/img/immersives/${immersive.name}.jpg`
-			return `/img/placeholder.jpg`
+			return `/img/sites/${site.linkLabel}.jpg`
 		},
+		randomImage() {
+			//return '/img/immersives/Cellier.jpg'
+
+			let index = Math.floor(Math.random() * this.availabeImmersives.length - 1)
+			return `/img/immersives/${this.availabeImmersives[index].id}.jpg`
+
+		}
 	},
 }
 </script>
@@ -272,13 +198,14 @@ export default {
 .header-section {
 	text-align: center;
 }
-.map {
-	width: 100%;
-	height: 100%;
+
+.header-image-section {
+	padding-top: 3rem;
+	padding-bottom: 3rem;
 }
 
-.carousel .subtitle {
-	color: white;
+.cover {
+	height: 48rem;
 }
 
 a {
@@ -287,6 +214,10 @@ a {
 
 a:hover {
 	color: gainsboro;
+}
+
+span i {
+	font-family: 'EB Garamond', serif;
 }
 
 .footer a,
@@ -304,7 +235,36 @@ a:hover {
 	height: auto;
 }
 
+.background-button,
+.background-button:hover,
+.background-button:focus {
+	background: rgba(0, 0, 0, 0);
+	color: white;
+	border-color: transparent;
+}
+
+.site-tile {
+	min-height: 25rem;
+	color: white;
+}
+
+.content-site-tile {
+	display: table-cell; 
+	vertical-align: middle; 
+	text-align:center;
+	opacity: 0;
+}
+
+.content-site-tile:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+	opacity: 1;
+}
+
 @media screen and (max-width: 768px) {
+	.cover {
+		height: 24rem;
+	}
+
 	.main-logo {
 		max-width: 60%;
 		height: auto;

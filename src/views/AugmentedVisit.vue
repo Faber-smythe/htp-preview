@@ -99,15 +99,7 @@
 			<SocialNetwork />
 		</section>
 
-		<footer class="home-footer">
-			<div class="content has-text-centered">
-				<p>
-					HistoPad Teaser - version {{ pkgVersion }} - Copyright société
-					<strong><a href="https://www.histovery.com">Histovery</a></strong>
-					2020
-				</p>
-			</div>
-		</footer>
+		<Footer/>
 	</div>
 </template>
 
@@ -115,11 +107,10 @@
 import sites from '../data/sites.json'
 import NavigationBar from '../components/NavigationBar'
 import SocialNetwork from '../components/SocialNetwork'
+import Footer from '../components/Footer'
 import SitePromo from '../components/SitePromo'
 
 import { utilsMixin } from '../utils/mixins'
-
-import pkg from '../../package.json'
 
 export default {
 	name: 'AugmentedVisit',
@@ -128,6 +119,7 @@ export default {
 		NavigationBar,
 		SocialNetwork,
 		SitePromo,
+		Footer
 	},
 	data() {
 		return {
@@ -141,11 +133,6 @@ export default {
 			linkLabel: this.$route.params.linkLabel,
 			isPromoVisible: false,
 		}
-	},
-	computed: {
-		pkgVersion() {
-			return pkg.version
-		},
 	},
 	mounted() {
 		this.initCarousel()
@@ -186,10 +173,7 @@ export default {
 </script>
 
 <style scoped>
-.header-section {
-	text-align: center;
-	padding-top: 4rem;
-}
+
 
 .carousel .subtitle {
 	color: white;
