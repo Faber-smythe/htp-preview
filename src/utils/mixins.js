@@ -2,6 +2,9 @@ import is from 'is_js'
 
 export let utilsMixin = {
 	computed: {
+		todayYear() {
+			return new Date().getFullYear()
+		},
 		isSmartPhone() {
 			let toMatch = [
 				/Android/i,

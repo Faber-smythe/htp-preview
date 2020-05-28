@@ -21,7 +21,7 @@
         },
         {
             "uniqueID": "courchateau.scenelayer.present",
-            "localizedTimestampTitle": "#TODAY_YEAR",
+            "localizedTimestampTitle": "${today}",
             "cartelDescription": {
                 "title": "${PlaceTitle_Map_CourChateau}",
                 "subtitle": "",

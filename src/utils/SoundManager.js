@@ -38,7 +38,6 @@ export class SoundManager {
 	 */
 	loadSound(soundFile) {
 		return new Promise((resolve) => {
-			console.log('PLAY SOUND LOL', soundFile.volume)
 			let sound = new Howl({
 				src: [soundFile.url],
 				volume: soundFile.volume,

@@ -33,7 +33,7 @@ export default {
 	mixins: [utilsMixin],
 	data() {
 		return {
-			languages: ['en', 'fr'],
+			languages: ['fr', 'en', 'de'],
 			selectedLanguage: 'fr',
 		}
 	},

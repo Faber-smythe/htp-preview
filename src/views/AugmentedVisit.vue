@@ -30,26 +30,23 @@
 			<b-carousel
 				v-if="immersives.length > 0"
 				:has-drag="true"
-				:autoplay="false"
+				:autoplay="true"
 			>
 				<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
 					<span class="image">
 						<div
 							class="hero-body has-text-centered cover"
+							@click="onCarouselClick(immersive)"
 							:style="
 								`background-image: url(${coverURL(immersive)}); width:100%; 
 								background-size:cover;
 								background-position: center;
-								box-shadow: inset 0px 0px 70px 30px rgba(0,0,0,0.8);`
+								box-shadow: inset 0px 0px 70px 30px rgba(0,0,0,0.8);
+								cursor: pointer;`
 							"
 						>
 							<h3 class="subtitle title-font">
-								<a
-									target="_blank"
-									rel="noopener noreferrer"
-									:href="$t(`${immersive.site}.url`)"
-									>{{ $t(immersive.site) }}</a
-								>
+								{{ $t(immersive.site) }}
 							</h3>
 							<h1 class="title title-font">
 								<a
@@ -59,6 +56,16 @@
 									>{{ $t(immersive.name) }}</a
 								>
 							</h1>
+							<div style="position: absolute; left: 50%;  bottom: 4rem;">
+								<div style="position: relative; left: -50%;">
+									<b-button
+										type="is-white"
+										outlined
+										@click="onCarouselClick(immersive)"
+										>{{ $t('enter_history').toUpperCase() }}</b-button
+									>
+								</div>
+							</div>
 						</div>
 					</span>
 				</b-carousel-item>
@@ -120,7 +127,7 @@ export default {
 	components: {
 		NavigationBar,
 		SocialNetwork,
-		SitePromo
+		SitePromo,
 	},
 	data() {
 		return {
@@ -169,6 +176,11 @@ export default {
 			return `/img/immersives/${immersive.id}.jpg`
 			//return `/img/carrousel_place_holder.jpg`
 		},
+		onCarouselClick(immersive) {
+			this.$router.push(
+				`/teaser/${immersive.linkLabel}/immersive/${immersive.id}`
+			)
+		},
 	},
 }
 </script>
@@ -176,7 +188,7 @@ export default {
 <style scoped>
 .header-section {
 	text-align: center;
-	margin-top: 2.0rem;
+	margin-top: 2rem;
 }
 
 .carousel .subtitle {

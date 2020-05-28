@@ -8,17 +8,32 @@
 			<div class="columns">
 				<div class="column">
 					<h2 class="title-font header-title">
-						<b-button
-							class="background-button"
-							icon-left="long-arrow-alt-left"
-							@click="goBack()"						
-						>
-						</b-button>
 						<span>&nbsp;&nbsp;&nbsp;{{ immersiveTitle }}</span>
 					</h2>
 				</div>
 			</div>
+
+			<!-- Top left back button -->
+			<b-button
+				class="background-button is-large"
+				icon-left="long-arrow-alt-left"
+				style="position: absolute; top: -0.1em; left: 0.5em;"
+				@click="goBack()"						
+			>
+			</b-button>
+
+			<!-- Top right header logo -->
+			<a href="/">
+				<img
+					v-if="!isSmartPhone"
+					src="/img/logos/logo_histopad_white.png"
+					alt="Logo HistoPad"
+					style="width:5em; position: absolute; top: 0.8em; right: 1.5em;"
+				/>
+			</a>
 		</div>
+
+		
 
 		<!-- Custom tooltip -->
 		<div class="custom-tooltip" ref="tooltip" id="tooltip">
@@ -28,11 +43,11 @@
 		<!-- Footer -->
 		<div class="player-footer">
 			<!-- Slider labels left and right-->
-			<span class="left-slider-tooltip noselect">{{
+			<span class="slider-tooltip left-slider-tooltip noselect" @click="onSliderTooltipClick(0)">{{
 				$t(sliderTooltipsLabel[0])
 			}}</span>
-			<span class="right-slider-tooltip noselect">{{
-				$t(sliderTooltipsLabel[1])
+			<span class="slider-tooltip right-slider-tooltip noselect" @click="onSliderTooltipClick(1)">{{
+				sliderTooltipsLabel[1] == 'today' ? todayYear : $t(sliderTooltipsLabel[1]) 
 			}}</span>
 
 			<!-- Rooms dropdown -->
@@ -58,7 +73,7 @@
 					:key="immersive.id"
 					@click="onImmersiveChange(immersive)"
 				>
-					{{ $t(immersive.name) }}
+					<strong>{{ $t(immersive.name) }}</strong> - {{ $t(immersive.site) }}
 				</b-dropdown-item>
 			</b-dropdown>
 
@@ -136,19 +151,7 @@
 			</v-popover>
 		</div>
 
-		<!-- Top left header logo -->
-		<a href="/">
-			<img
-				v-if="!isSmartPhone"
-				src="/img/logos/logo_histopad_white.png"
-				alt="Logo HistoPad"
-				:style="
-					!isSmartPhone
-						? 'width:5em; position: fixed; margin:1.5em;'
-						: 'width:5em; position: fixed; margin:1.5em; bottom: 0em;'
-				"
-			/>
-		</a>
+		
 
 		<!-- Modal for close up display -->
 		<b-modal :active.sync="isModalCloseUpVisible">
@@ -175,6 +178,8 @@
 import Vue from 'vue'
 import * as THREE from 'three'
 
+import SpriteText from 'three-spritetext'
+
 import TWEEN from '@tweenjs/tween.js'
 import Bluebird from 'bluebird'
 import { HotspotManager } from '../utils/HotspotManager'
@@ -188,7 +193,6 @@ import { utilsMixin } from '../utils/mixins'
 import sites from '../data/sites.json'
 
 import VTooltip from 'v-tooltip'
-import { Vector3 } from 'three'
 
 Vue.use(VTooltip)
 
@@ -204,6 +208,7 @@ export default {
 	},
 	data() {
 		return {
+			selectedImmersive: null,
 			isEnabled: false,
 			width: window.innerWidth,
 			height: window.innerHeight,
@@ -585,30 +590,29 @@ export default {
 				})
 				.then(() => {
 					//Load texture for time spiral
-					this.textureLoader.load('/img/time_spirale.png', (texture) => {
-						this.timeSpiralMaterial = new THREE.SpriteMaterial({
+					this.textureLoader.load(`/img/spirales/${this.selectedImmersive.id}.png`, (texture) => {
+
+						this.timeSpiralMaterial = new THREE.MeshBasicMaterial({
 							map: texture,
-							opacity: 1,
 							transparent: true,
-							depthWrite: true,
-							rotation: this.$i18n.locale !== 'fr' ? Math.PI : 0,
+							side: THREE.DoubleSide,
+							opacity: 1
 						})
-						this.timeSpiral = new THREE.Sprite(this.timeSpiralMaterial)
-						this.timeSpiral.scale.set(300, 300, 300)
-						this.timeSpiral.position.copy(new Vector3(0, -400, 0))
-						this.timeSpiral.renderOrder =
-							this.meshes.length + this.hotspots.length + 10
+						this.timeSpiralMaterial.needsUpdate = true
 
-						this.scene.add(this.timeSpiral)
+						let plane = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), this.timeSpiralMaterial)
+						plane.overdraw = true
+						plane.rotateX(-Math.PI / 2)
+						plane.rotateZ(Math.PI / 2)
+						plane.position.set(0, -400, 0)
+						this.scene.add(plane)
 
-						/*let spritey = this.makeTextSprite(' World! ', {
-							fontsize: 32,
-							fontface: 'Poppins',
-							backgroundColor: { r: 0, g: 0, b: 0, a: 0.0 },
-						})
-						spritey.position.set(0, -400, 0)
-						spritey.renderOrder = this.meshes.length + this.hotspots.length + 11
-						this.scene.add(spritey)*/
+						this.spriteSpiralText = new SpriteText(this.$t('spiral_label'), 10)
+						this.spriteSpiralText.color = 'white'
+						this.spriteSpiralText.backgroundColor = 'rgba(0,0,0,0.0)';
+						this.spriteSpiralText.fontFace = 'Poppins'
+						this.spriteSpiralText.position.set(0, -350, 0)
+						this.scene.add(this.spriteSpiralText)
 					})
 					this.displayLoading(false)
 				})
@@ -841,7 +845,8 @@ export default {
 
 			this.meshes[0].material.opacity = 1 - opacity
 			this.meshes[1].material.opacity = 0 + opacity
-			this.timeSpiral.material.opacity = 0 + opacity
+			this.timeSpiralMaterial.opacity = 0 + opacity
+			this.spriteSpiralText.material.opacity = 0 + opacity
 
 			this.selectedMesh = opacity > 0.5 ? this.meshes[1] : this.meshes[0]
 
@@ -956,101 +961,6 @@ export default {
 			this.camera.position.set(0, 0, 10)
 			this.loadImmersive()
 		},
-		makeTextSprite(message, parameters) {
-			if (parameters === undefined) parameters = {}
-
-			let fontface = parameters['fontface'] ? parameters['fontface'] : 'Arial'
-
-			let fontsize = parameters['fontsize'] ? parameters['fontsize'] : 18
-
-			let borderThickness = parameters['borderThickness']
-				? parameters['borderThickness']
-				: 4
-
-			let borderColor = parameters['borderColor']
-				? parameters['borderColor']
-				: { r: 0, g: 0, b: 0, a: 1.0 }
-
-			let backgroundColor = parameters['backgroundColor']
-				? parameters['backgroundColor']
-				: { r: 255, g: 255, b: 255, a: 1.0 }
-
-			//var spriteAlignment = THREE.SpriteAlignment.topLeft
-
-			let canvas = document.createElement('canvas')
-			let context = canvas.getContext('2d')
-			context.textAlign = ''
-			context.font = 'Bold ' + fontsize + 'px ' + fontface
-
-			// get size data (height depends only on font size)
-			let metrics = context.measureText(message)
-			let textWidth = metrics.width
-
-			// background color
-			context.fillStyle =
-				'rgba(' +
-				backgroundColor.r +
-				',' +
-				backgroundColor.g +
-				',' +
-				backgroundColor.b +
-				',' +
-				backgroundColor.a +
-				')'
-			// border color
-			context.strokeStyle =
-				'rgba(' +
-				borderColor.r +
-				',' +
-				borderColor.g +
-				',' +
-				borderColor.b +
-				',' +
-				borderColor.a +
-				')'
-
-			context.lineWidth = borderThickness
-			this.roundRect(
-				context,
-				borderThickness / 2,
-				borderThickness / 2,
-				textWidth + borderThickness,
-				fontsize * 1.4 + borderThickness,
-				6
-			)
-			// 1.4 is extra height factor for text below baseline: g,j,p,q.
-
-			// text color
-			context.fillStyle = 'rgba(255, 255, 255, 1.0)'
-
-			context.fillText(message, borderThickness, fontsize + borderThickness)
-
-			// canvas contents will be used for a texture
-			let texture = new THREE.Texture(canvas)
-			texture.needsUpdate = true
-
-			let spriteMaterial = new THREE.SpriteMaterial({
-				map: texture,
-			})
-			let sprite = new THREE.Sprite(spriteMaterial)
-			sprite.scale.set(100, 50, 1.0)
-			return sprite
-		},
-		roundRect(ctx, x, y, w, h, r) {
-			ctx.beginPath()
-			ctx.moveTo(x + r, y)
-			ctx.lineTo(x + w - r, y)
-			ctx.quadraticCurveTo(x + w, y, x + w, y + r)
-			ctx.lineTo(x + w, y + h - r)
-			ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
-			ctx.lineTo(x + r, y + h)
-			ctx.quadraticCurveTo(x, y + h, x, y + h - r)
-			ctx.lineTo(x, y + r)
-			ctx.quadraticCurveTo(x, y, x + r, y)
-			ctx.closePath()
-			ctx.fill()
-			ctx.stroke()
-		},
 		onSoundPopoverClick() {
 			if (this.isSafariOrIOS) {
 				setTimeout(() => {
@@ -1065,6 +975,10 @@ export default {
 				this.toggleTooltip('hide')
 			}
 		},
+		onSliderTooltipClick(index) {
+			this.draggingValue = index == 1 ? 100 : 0
+			this.onSliderDragging()
+		}
 	},
 }
 </script>
@@ -1140,10 +1054,10 @@ export default {
 	background: linear-gradient(
 		180deg,
 		rgba(0, 0, 0, 1) 0%,
-		rgba(0, 0, 0, 0) 100%,
-		rgba(0, 0, 0, 0) 100%
+		rgba(0, 0, 0, 0.5) 25%,
+		rgba(0, 0, 0, 0) 80%
 	);
-	opacity: 0.8;
+	opacity: 0.9;
 	padding: 0.7em;
 	color: white;
 	text-align: center;
@@ -1276,6 +1190,9 @@ input[type='range'].custom-slider:focus::-webkit-slider-runnable-track {
 }
 
 /** Slider tooltips */
+.slider-tooltip {
+	cursor: pointer;
+}
 
 .left-slider-tooltip {
 	font-size: 0.8em;
