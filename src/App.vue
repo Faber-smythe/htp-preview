@@ -29,7 +29,11 @@
 }
 
 .header-intro h1 {
-	font-size: 2.5rem;
+	font-size: 2rem;
+}
+
+.home-section .container {
+	max-width: 75rem !important;
 }
 
 .header-intro h2 {
@@ -41,7 +45,7 @@
 }
 
 .home-section {
-	padding: 1.5rem;
+	padding: 3rem;
 }
 
 #nav {
@@ -69,18 +73,17 @@ a:hover,
 
 .carousel .carousel-indicator .indicator-item .indicator-style {
 	display: block;
-    border: 1px solid white !important;
-    background: rgba(0, 0, 0, 0.0) !important;
-    outline: none;
-    -webkit-transition: 150ms ease-out;
-    transition: 150ms ease-out;
+	border: 1px solid white !important;
+	background: rgba(0, 0, 0, 0) !important;
+	outline: none;
+	-webkit-transition: 150ms ease-out;
+	transition: 150ms ease-out;
 }
 
 .carousel .carousel-indicator .indicator-item.is-active .indicator-style {
 	background: white !important;
-    border: 1px solid white;
+	border: 1px solid white;
 }
-
 
 .home-footer {
 	background-color: black;
@@ -100,13 +103,18 @@ a:hover,
 }
 
 .main-logo {
-	max-width: 25%;
+	max-width: 30%;
 	height: auto;
 }
 
 @media screen and (max-width: 767px) {
 	.header-intro h1 {
 		font-size: 2rem;
+	}
+
+	.main-logo {
+		max-width: 60%;
+		height: auto;
 	}
 }
 </style>

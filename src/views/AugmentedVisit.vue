@@ -1,7 +1,7 @@
 <template>
 	<div class="container-fluid">
 		<NavigationBar />
-		<section class="home-section header-section">
+		<section class="header-section">
 			<h1 class="title title-font">
 				<img
 					class="main-logo"
@@ -81,7 +81,7 @@
 					<h2>
 						{{ $t('infos_histovery') }}
 					</h2>
-					<br />
+					<br /><br/>
 					<h2>
 						{{ $t('infos_histovery_2') }}
 					</h2>
@@ -188,7 +188,7 @@ export default {
 <style scoped>
 .header-section {
 	text-align: center;
-	margin-top: 2rem;
+	padding-top: 4rem;
 }
 
 .carousel .subtitle {
@@ -214,12 +214,7 @@ export default {
 	background-position: center;
 }
 
-@media screen and (max-width: 768px) {
-	.main-logo {
-		max-width: 60%;
-		height: auto;
-	}
-}
+
 
 @media screen and (min-width: 321px) and (max-width: 767px) {
 	.carousel,

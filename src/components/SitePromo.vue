@@ -11,7 +11,7 @@
                         color: white; 
                         text-align: center;"
 				>
-					<h2 style="font-size: 2rem; padding: 2rem;">
+					<h2 style="font-size: 1.5rem; padding: 2rem;">
 						Faire parler
 						<span><i>les collections</i></span
 						>.
@@ -26,7 +26,7 @@
 					<div
 						style="background-image: url(/img/partners/donjon_de_loches.jpg); 
                             width:100%; 
-                            min-height: 482px; 
+                            min-height: 494px; 
                             background-size:cover; 
                             background-position: center;"
 					></div>
@@ -61,7 +61,7 @@
 							text-align:center;"
 					>
 						<h2
-							style="font-size: 2rem; 
+							style="font-size: 1.5rem; 
                             padding: 2rem;"
 						>
 							Partir à
