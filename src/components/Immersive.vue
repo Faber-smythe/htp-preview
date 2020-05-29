@@ -338,7 +338,9 @@ export default {
 				.find((s) => {
 					return s.site == this.site
 				}).immersives
-			
+		
+			console.log(`../data/sites/${this.selectedImmersive.site}/${this.selectedImmersive.file}`)
+
 			this.immersiveScene = JSON.parse(
 				JSON.stringify(
 					require(`../data/sites/${this.selectedImmersive.site}/${this.selectedImmersive.file}`)
@@ -601,7 +603,7 @@ export default {
 						})
 						this.timeSpiralMaterial.needsUpdate = true
 
-						let plane = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), this.timeSpiralMaterial)
+						let plane = new THREE.Mesh(new THREE.PlaneGeometry(850, 850), this.timeSpiralMaterial)
 						plane.overdraw = true
 						plane.rotateX(-Math.PI / 2)
 						plane.rotateZ(Math.PI / 2)
@@ -846,9 +848,11 @@ export default {
 
 			this.meshes[0].material.opacity = 1 - opacity
 			this.meshes[1].material.opacity = 0 + opacity
-			this.timeSpiralMaterial.opacity = 0 + opacity
-			this.spriteSpiralText.material.opacity = 0 + opacity
-
+			if (this.timeSpiralMaterial && this.spriteSpiralText.material) {
+				this.timeSpiralMaterial.opacity = 0 + opacity
+				this.spriteSpiralText.material.opacity = 0 + opacity
+			}
+			
 			this.selectedMesh = opacity > 0.5 ? this.meshes[1] : this.meshes[0]
 
 			if (this.previousMeshId !== this.selectedMesh.uuid) {

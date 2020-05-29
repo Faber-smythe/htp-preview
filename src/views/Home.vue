@@ -1,82 +1,51 @@
 <template>
 	<div class="container-fluid">
 		<NavigationBar />
-		<section class="header-section">
-			<h1 class="title title-font">
-				<img
-					class="main-logo"
-					src="/img/logos/logo_histopad.png"
-					alt="HistoPad"
-				/>
-			</h1>
-		</section>
 
-		<div class="container-fluid header-section header-image-section" v-if="availabeImmersives.length > 0">
+		<div
+			class="container-fluid header-image-section"
+		>
 			<div
 				class="cover"
-				:style="`background-image: url(${randomImage()}); 
-				width:100%;
-				background-size:cover;
-				background-position: center;
-				box-shadow: inset 0px 0px 100vw 48rem rgba(67,57,16,0.33);
-				display: table;`"
+				:style="
+					`background-image: url(${randomImage()}); 
+					position: relative;
+					width:100%;
+					background-size:cover;
+					background-position: center;
+					box-shadow: inset 0px 0px 100vw 48rem rgba(67,57,16,0.33);`
+				"
 			>
 				<div
-					style="display: table-cell; vertical-align: middle; text-align:center;"
+					style="position: absolute; top: 50%; ms-transform: translateY(-50%); transform: translateY(-50%); margin: 0 2.5em 0 2.5em;"
 				>
-					<h1
-						class="title title-font"
-						style="padding-right: 6rem; padding-left: 6rem;"
-					>
-						Découvrez près de 15 monuments historiques et musées grâce à la
-						visite augmentée HistoPad !
+					<h1 class="title title-font">
+						{{ $t('discover_augmented_visits') }}
 					</h1>
-				</div>
-				<div style="position: absolute; left: 50%;  bottom: -8rem;">
-					<div style="position: relative; left: -50%;">
-						<button class="button is-large background-button" slot="trigger">
-							<template>
-								<b-icon icon="chevron-down"></b-icon>
-							</template>
-						</button>
-					</div>
+					<a href="#" v-scroll-to="'#augmentedvisits'"
+						><img
+							src="/img/arrow-down.png"
+							style="width: 60px; padding-top: 2em;"
+					/></a>
 				</div>
 			</div>
 		</div>
 
-		<section class="home-section header-intro title-font">
+		<section class="home-section header-intro title-font" id="augmentedvisits">
 			<div class="container">
-				<h1>Nos visites augmentées</h1>
+				<h1>{{ $t('our_augmented_visits') }}</h1>
 			</div>
 		</section>
 
 		<section class="home-section header-intro title-font">
 			<div class="columns" v-for="(row, index) in rows" :key="index">
-				<div class="column is-4" style="cursor: pointer;" v-for="site in row" :key="site.site">
-					<div
-						class="site-tile"
-						:style="`background-image: url(${coverURL(site)}); 
-							width: 100%;
-							background-size:cover;
-							background-position: center;
-							display: table;`"
-					>
-						<div
-							class="content-site-tile"
-							@click="onSiteClick(site)"
-						>
-							<h2>{{ $t(site.site) }}</h2>
-							<b-icon
-								pack="far"
-								icon="play-circle"
-								size="is-large"
-								type="is-white"
-								v-if="site.interact"
-							>
-							</b-icon>
-							<h3 v-if="!site.interact">Prochainement</h3>
-						</div>
-					</div>
+				<div
+					class="column is-4"
+					style="cursor: pointer;"
+					v-for="site in row"
+					:key="site.site"
+				>
+					<SiteTile :site="site" />
 				</div>
 			</div>
 		</section>
@@ -86,7 +55,9 @@
 				<h1>Voyage immersif</h1>
 				<h1>Voyage interactif</h1>
 				<h1>Voyage validé par les historiens</h1>
-				<h1>L'<strong>HistoPad</strong>, <span><i>Voyage dans le temps</i></span></h1>
+				<h1>
+					L'<strong>HistoPad</strong>, <span><i>Voyage dans le temps</i></span>
+				</h1>
 			</div>
 		</section>
 
@@ -99,13 +70,29 @@
 </template>
 
 <script>
+import Vue from 'vue'
+import VueScrollTo from 'vue-scrollto'
+
 import sites from '../data/sites.json'
 import SocialNetwork from '../components/SocialNetwork'
 import NavigationBar from '../components/NavigationBar'
+import SiteTile from '../components/SiteTile'
 import Footer from '../components/Footer'
 import { utilsMixin } from '../utils/mixins'
 
-import pkg from '../../package.json'
+Vue.use(VueScrollTo, {
+	container: 'body',
+	duration: 500,
+	easing: 'ease',
+	offset: 0,
+	force: true,
+	cancelable: true,
+	onStart: false,
+	onDone: false,
+	onCancel: false,
+	x: false,
+	y: true,
+})
 
 export default {
 	name: 'Home',
@@ -116,7 +103,8 @@ export default {
 	components: {
 		NavigationBar,
 		SocialNetwork,
-		Footer	
+		SiteTile,
+		Footer,
 	},
 	data() {
 		return {
@@ -130,13 +118,9 @@ export default {
 			immersives: [],
 			displayedSites: [],
 			rows: [],
-			availabeImmersives: []
+			availabeImmersives: [],
+			isHover: false,
 		}
-	},
-	computed: {
-		pkgVersion() {
-			return pkg.version
-		},
 	},
 	mounted() {
 		this.initGrid()
@@ -144,16 +128,18 @@ export default {
 	methods: {
 		initGrid() {
 			let sitesToDisplay = sites.filter((site) => {
-				return site.count == 1
+				return site.count >= 1 && site.home
 			})
 
-			let sitesWithImmersives = sites.filter(site => {
+			let sitesWithImmersives = sites.filter((site) => {
 				return site.count == 1 && site.interact && site.immersives.length > 0
 			})
 
 			sitesWithImmersives.forEach((site) => {
-				this.availabeImmersives = this.availabeImmersives.concat(site.immersives)
-			});
+				this.availabeImmersives = this.availabeImmersives.concat(
+					site.immersives
+				)
+			})
 
 			this.rows = this.chunkArray(sitesToDisplay, 3)
 		},
@@ -168,28 +154,13 @@ export default {
 
 			return chunks
 		},
-		onSiteClick(site) {
-			console.log('Click on site', site)
-			if (site.interact) {
-				if (site.linkLabel == 'chinon' || site.linkLabel == 'loches') {
-					this.$router.push('/chinon-loches')
-				} else {
-					this.$router.push(`/${site.linkLabel}`)
-				}
-			}
-		},
-		// eslint-disable-next-line no-unused-vars
-		coverURL(site) {
-			//return `/img/immersives/${immersive.name}.jpg`
-			return `/img/sites/${site.linkLabel}.jpg`
-		},
+
 		randomImage() {
-			//return '/img/immersives/Cellier.jpg'
+			return '/img/immersives/Cellier.jpg'
 
-			let index = Math.floor(Math.random() * this.availabeImmersives.length - 1)
-			return `/img/immersives/${this.availabeImmersives[index].id}.jpg`
-
-		}
+			/*let index = Math.floor(Math.random() * this.availabeImmersives.length - 1)
+			return `/img/immersives/${this.availabeImmersives[index].id}.jpg`*/
+		},
 	},
 }
 </script>
@@ -200,12 +171,17 @@ export default {
 }
 
 .header-image-section {
-	padding-top: 3rem;
+	text-align: center;
+	margin-top: -3.3em;
 	padding-bottom: 3rem;
 }
 
+.header-image-section h1 {
+	color: white;
+}
+
 .cover {
-	height: 48rem;
+	height: 102vh;
 }
 
 a {
@@ -231,7 +207,7 @@ span i {
 }
 
 .main-logo {
-	max-width: 25%;
+	max-width: 30%;
 	height: auto;
 }
 
@@ -243,26 +219,9 @@ span i {
 	border-color: transparent;
 }
 
-.site-tile {
-	min-height: 25rem;
-	color: white;
-}
-
-.content-site-tile {
-	display: table-cell; 
-	vertical-align: middle; 
-	text-align:center;
-	opacity: 0;
-}
-
-.content-site-tile:hover {
-	background-color: rgba(0, 0, 0, 0.3);
-	opacity: 1;
-}
-
 @media screen and (max-width: 768px) {
-	.cover {
-		height: 24rem;
+	.cover h1 {
+		font-size: 1.3rem;
 	}
 
 	.main-logo {

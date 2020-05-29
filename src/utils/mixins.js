@@ -22,6 +22,9 @@ export let utilsMixin = {
 
 			return match
 		},
+		isMobile() {
+			return is.mobile() || is.tablet()
+		},
 		isLandscape() {
 			let isLandscape = window.innerHeight < window.innerWidth
 			console.log('isLandscape', isLandscape)
@@ -40,6 +43,7 @@ export let utilsMixin = {
 			}
 			return language
 		},
+
 		isFirefox() {
 			return is.firefox()
 		},

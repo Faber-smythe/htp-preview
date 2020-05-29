@@ -1,185 +1,11 @@
 [
     {
-        "name": "Donjon de Loches",
-        "site": "france.loches.donjon",
-        "linkLabel": "loches",
-        "display": false,
-        "interact": true,
-        "count": 1,
-        "lngLat": [
-            0.9943971,
-            47.1249142
-        ],
-        "immersives": [
-            {
-                "site": "france.loches.donjon",
-                "id": "CourChateau",
-                "name": "CubemapTitle_Imm_CourChateau_Home",
-                "file": "courchateau.json"
-            },
-            {
-                "site": "france.loches.donjon",
-                "id": "Cellier",
-                "name": "CubemapTitle_Imm_DonjonCellier_Home",
-                "file": "cellier.json"
-            },
-            {
-                "site": "france.loches.donjon",
-                "id": "Carriere",
-                "name": "CubemapTitle_Imm_Carriere_Home",
-                "file": "carriere.json"
-            }
-        ]
-    },
-    {
-        "name": "Forteresse royale de Chinon",
-        "site": "france.chinon.forteresse",
-        "linkLabel": "chinon",
-        "display": false,
-        "interact": true,
-        "count": 1,
-        "lngLat": [
-            0.2334263,
-            47.1681036
-        ],
-        "immersives": [
-            {
-                "site": "france.chinon.forteresse",
-                "id": "TourArtillerie",
-                "name": "CubemapTitle_Imm_MagasinArtillerie_Home",
-                "file": "tourartillerie.json"
-            },
-            {
-                "site": "france.chinon.forteresse",
-                "id": "TourDuMoulin",
-                "name": "CubemapTitle_Imm_TourMoulin_Home",
-                "file": "tourdumoulin.json"
-            },
-            {
-                "site": "france.chinon.forteresse",
-                "id": "PrisonDesTempliers",
-                "name": "CubemapTitle_Imm_PrisonTempliers_Home",
-                "file": "prisondestempliers.json"
-            }
-        ]
-    },
-    {
-        "name": "Chateau royale d'Amboise",
-        "site": "france.amboise.chateau",
-        "linkLabel": "amboise",
-        "display": false,
-        "interact": false,
-        "count": 1,
-        "lngLat": [
-            0.9848193,
-            47.4135606
-        ],
-        "immersives": []
-    },
-    {
-        "name": "Paris-Versailles Tour",
-        "site": "france.paris.pcv-versailles",
-        "linkLabel": "paris-versailles-tour",
-        "display": false,
-        "interact": false,
-        "count": 1,
-        "lngLat": [
-            0.9848193,
-            47.4135606
-        ],
-        "immersives": []
-    },
-    {
-        "name": "Abbaye de Sénanque",
-        "site": "france.gordes.senanque",
-        "linkLabel": "senanque",
-        "display": false,
-        "interact": false,
-        "count": 1,
-        "lngLat": [
-            0.9848193,
-            47.4135606
-        ],
-        "immersives": []
-    },
-    {
-        "name": "Pic du Midi",
-        "site": "france.la-mongie.pic-du-midi",
-        "linkLabel": "pic-du-midi",
-        "display": false,
-        "interact": false,
-        "count": 1,
-        "lngLat": [
-            0.9848193,
-            47.4135606
-        ],
-        "immersives": []
-    },
-    {
-        "name": "Chateau royale de Blois",
-        "site": "france.blois.chateau",
-        "linkLabel": "blois",
-        "display": false,
-        "interact": false,
-        "count": 1,
-        "lngLat": [
-            1.330551,
-            47.585558
-        ]
-    },
-    {
-        "name": "Palais des Papes d'Avignon",
-        "site": "france.avignon.palais-des-papes",
-        "linkLabel": "palais-des-papes",
-        "display": false,
-        "interact": false,
-        "count": 1,
-        "lngLat": [
-            1.330551,
-            47.585558
-        ]
-    },
-    {
-        "name": "Palais de la conciergerie",
-        "site": "france.paris.conciergerie",
-        "linkLabel": "conciergerie",
-        "display": false,
-        "interact": false,
-        "count": 1,
-        "lngLat": [
-            1.330551,
-            47.585558
-        ]
-    },
-    {
-        "name": "Chateau de Chambord",
-        "site": "france.chambord.chateau",
-        "linkLabel": "chambord",
-        "display": false,
-        "interact": false,
-        "count": 1,
-        "lngLat": [
-            1.517229,
-            47.616278
-        ]
-    },
-    {
-        "name": "Chateau d'Albrechtsburg",
-        "site": "allemagne.albrechtsburg.chateau",
-        "linkLabel": "albrechtsburg",
-        "display": false,
-        "interact": false,
-        "count": 1,
-        "lngLat": [
-            1.517229,
-            47.616278
-        ]
-    },
-    {
         "name": "Forteresse royale de Chinon & Donjon de Loches",
         "linkLabel": "chinon-loches",
         "site": "chinon-loches",
         "display": true,
+        "interact": true,
+        "home": true,
         "count": 2,
         "lngLat": [
             0.2334263,
@@ -222,6 +48,200 @@
                 "name": "CubemapTitle_Imm_Carriere_Home",
                 "file": "carriere.json"
             }
+        ]
+    },
+    {
+        "name": "Donjon de Loches",
+        "site": "france.loches.donjon",
+        "linkLabel": "loches",
+        "display": false,
+        "interact": true,
+        "home": false,
+        "count": 1,
+        "lngLat": [
+            0.9943971,
+            47.1249142
+        ],
+        "immersives": [
+            {
+                "site": "france.loches.donjon",
+                "id": "CourChateau",
+                "name": "CubemapTitle_Imm_CourChateau_Home",
+                "file": "courchateau.json"
+            },
+            {
+                "site": "france.loches.donjon",
+                "id": "Cellier",
+                "name": "CubemapTitle_Imm_DonjonCellier_Home",
+                "file": "cellier.json"
+            },
+            {
+                "site": "france.loches.donjon",
+                "id": "Carriere",
+                "name": "CubemapTitle_Imm_Carriere_Home",
+                "file": "carriere.json"
+            }
+        ]
+    },
+    {
+        "name": "Forteresse royale de Chinon",
+        "site": "france.chinon.forteresse",
+        "linkLabel": "chinon",
+        "display": false,
+        "interact": true,
+        "home": false,
+        "count": 1,
+        "lngLat": [
+            0.2334263,
+            47.1681036
+        ],
+        "immersives": [
+            {
+                "site": "france.chinon.forteresse",
+                "id": "TourArtillerie",
+                "name": "CubemapTitle_Imm_MagasinArtillerie_Home",
+                "file": "tourartillerie.json"
+            },
+            {
+                "site": "france.chinon.forteresse",
+                "id": "TourDuMoulin",
+                "name": "CubemapTitle_Imm_TourMoulin_Home",
+                "file": "tourdumoulin.json"
+            },
+            {
+                "site": "france.chinon.forteresse",
+                "id": "PrisonDesTempliers",
+                "name": "CubemapTitle_Imm_PrisonTempliers_Home",
+                "file": "prisondestempliers.json"
+            }
+        ]
+    },
+    {
+        "name": "Chateau royale d'Amboise",
+        "site": "france.amboise.chateau",
+        "linkLabel": "amboise",
+        "display": false,
+        "interact": false,
+        "home": true,
+        "count": 1,
+        "lngLat": [
+            0.9848193,
+            47.4135606
+        ],
+        "immersives": []
+    },
+    {
+        "name": "Paris-Versailles Tour",
+        "site": "france.paris.pcv-versailles",
+        "linkLabel": "paris-versailles-tour",
+        "display": false,
+        "interact": false,
+        "home": true,
+        "count": 1,
+        "lngLat": [
+            0.9848193,
+            47.4135606
+        ],
+        "immersives": [
+            {
+                "site": "france.paris.pcv-versailles",
+                "id": "SalonApollon",
+                "name": "Title_VA_Apollon_Home",
+                "file": "salonapollon.json"
+            }
+        ]
+    },
+    {
+        "name": "Abbaye de Sénanque",
+        "site": "france.gordes.senanque",
+        "linkLabel": "senanque",
+        "display": false,
+        "interact": false,
+        "home": true,
+        "count": 1,
+        "lngLat": [
+            0.9848193,
+            47.4135606
+        ],
+        "immersives": []
+    },
+    {
+        "name": "Pic du Midi",
+        "site": "france.la-mongie.pic-du-midi",
+        "linkLabel": "pic-du-midi",
+        "display": false,
+        "interact": false,
+        "home": true,
+        "count": 1,
+        "lngLat": [
+            0.9848193,
+            47.4135606
+        ],
+        "immersives": []
+    },
+    {
+        "name": "Chateau royale de Blois",
+        "site": "france.blois.chateau",
+        "linkLabel": "blois",
+        "display": false,
+        "interact": false,
+        "home": true,
+        "count": 1,
+        "lngLat": [
+            1.330551,
+            47.585558
+        ]
+    },
+    {
+        "name": "Palais des Papes d'Avignon",
+        "site": "france.avignon.palais-des-papes",
+        "linkLabel": "palais-des-papes",
+        "display": false,
+        "interact": false,
+        "home": true,
+        "count": 1,
+        "lngLat": [
+            1.330551,
+            47.585558
+        ]
+    },
+    {
+        "name": "Palais de la conciergerie",
+        "site": "france.paris.conciergerie",
+        "linkLabel": "conciergerie",
+        "display": false,
+        "interact": false,
+        "home": true,
+        "count": 1,
+        "lngLat": [
+            1.330551,
+            47.585558
+        ]
+    },
+    {
+        "name": "Chateau de Chambord",
+        "site": "france.chambord.chateau",
+        "linkLabel": "chambord",
+        "display": false,
+        "interact": false,
+        "home": true,
+        "count": 1,
+        "lngLat": [
+            1.517229,
+            47.616278
+        ]
+    },
+    {
+        "name": "Chateau d'Albrechtsburg",
+        "site": "allemagne.albrechtsburg.chateau",
+        "linkLabel": "albrechtsburg",
+        "display": false,
+        "interact": false,
+        "home": true,
+        "count": 1,
+        "lngLat": [
+            1.517229,
+            47.616278
         ]
     }
 ]

@@ -1,36 +1,16 @@
 <template>
 	<div class="container-fluid">
 		<NavigationBar />
-		<section class="header-section">
-			<h1 class="title title-font">
-				<img
-					class="main-logo"
-					src="/img/logos/logo_histopad.png"
-					alt="HistoPad"
-				/>
-			</h1>
-		</section>
 
-		<section class="home-section">
-			<div class="container">
-				<div class="header-intro title-font">
-					<h1>
-						{{ $t('intro') }}
-					</h1>
-					<br />
-
-					<h3>
-						{{ $t('intro_2') }}
-					</h3>
-				</div>
-			</div>
-		</section>
-
-		<div class="container-fluid" style="margin-top: 1rem; margin-bottom: 1rem;">
+		<div
+			class="container-fluid"
+			style="margin-top: -3.3em; margin-bottom: 1rem;"
+		>
 			<b-carousel
 				v-if="immersives.length > 0"
 				:has-drag="true"
 				:autoplay="true"
+				:pause-hover="false"
 			>
 				<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
 					<span class="image">
@@ -41,35 +21,76 @@
 								`background-image: url(${coverURL(immersive)}); width:100%; 
 								background-size:cover;
 								background-position: center;
-								box-shadow: inset 0px 0px 70px 30px rgba(0,0,0,0.8);
-								cursor: pointer;`
+								box-shadow: inset 0px 0px 140px 60px rgba(0,0,0,0.8);
+								cursor: pointer;
+								position: relative;
+								color:white;`
 							"
 						>
-							<h3 class="subtitle title-font">
-								{{ $t(immersive.site) }}
-							</h3>
-							<h1 class="title title-font">
-								<a
-									:href="
-										`/teaser/${immersive.linkLabel}/immersive/${immersive.id}`
-									"
-									>{{ $t(immersive.name) }}</a
-								>
-							</h1>
-							<div style="position: absolute; left: 50%;  bottom: 4rem;">
-								<div style="position: relative; left: -50%;">
-									<b-button
-										type="is-white"
-										outlined
-										@click="onCarouselClick(immersive)"
-										>{{ $t('enter_history').toUpperCase() }}</b-button
+							<div v-if="isSmartPhone">
+								<br />
+								<br />
+								<h3 class="subtitle title-font">
+									{{ $t(immersive.site) }}
+								</h3>
+								<h1 class="title title-font">
+									<a
+										:href="
+											`/teaser/${immersive.linkLabel}/immersive/${immersive.id}`
+										"
+										>{{ $t(immersive.name) }}</a
 									>
+								</h1>
+								<span class="title-font"
+									><img
+										src="/img/play.png"
+										style="max-width: 60px; display: inherit;"
+									/><br />Entrer dans l'histoire</span
+								>
+							</div>
+							<div v-if="!isSmartPhone">
+								<br />
+								<br />
+								<h3 class="subtitle title-font">
+									{{ $t(immersive.site) }}
+								</h3>
+								<h1 class="title title-font">
+									<a
+										:href="
+											`/teaser/${immersive.linkLabel}/immersive/${immersive.id}`
+										"
+										>{{ $t(immersive.name) }}</a
+									>
+								</h1>
+
+								<div
+									style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%"
+								>
+									<div
+										class="title-font"
+										style="text-align: center; color: white;"
+									>
+										<span style="font-size: 1.5rem;"
+											><img
+												src="/img/play.png"
+												style="max-width: 60px; display: inherit;"
+											/><br />Entrer dans l'histoire</span
+										>
+									</div>
 								</div>
 							</div>
 						</div>
 					</span>
 				</b-carousel-item>
 			</b-carousel>
+		</div>
+
+		<div class="container">
+			<div class="header-intro title-font">
+				<h3 class="title-font">
+					{{ $t('intro_2') }}
+				</h3>
+			</div>
 		</div>
 
 		<section
@@ -81,7 +102,7 @@
 					<h2>
 						{{ $t('infos_histovery') }}
 					</h2>
-					<br /><br/>
+					<br /><br />
 					<h2>
 						{{ $t('infos_histovery_2') }}
 					</h2>
@@ -99,7 +120,7 @@
 			<SocialNetwork />
 		</section>
 
-		<Footer/>
+		<Footer />
 	</div>
 </template>
 
@@ -119,7 +140,7 @@ export default {
 		NavigationBar,
 		SocialNetwork,
 		SitePromo,
-		Footer
+		Footer,
 	},
 	data() {
 		return {
@@ -173,15 +194,13 @@ export default {
 </script>
 
 <style scoped>
-
-
 .carousel .subtitle {
 	color: white;
 }
 
 .carousel,
 .carousel .cover {
-	height: 48rem;
+	height: 100vh;
 }
 
 .no-margin {
@@ -198,14 +217,7 @@ export default {
 	background-position: center;
 }
 
-
-
 @media screen and (min-width: 321px) and (max-width: 767px) {
-	.carousel,
-	.carousel .cover {
-		height: 24rem;
-	}
-
 	.background-sceau {
 		background-image: url('/img/sceau_histovery.png');
 		width: 100%;
@@ -217,11 +229,6 @@ export default {
 }
 
 @media screen and (max-width: 320px) {
-	.carousel,
-	.carousel .cover {
-		height: 24rem;
-	}
-
 	.background-sceau {
 		background-image: url('/img/sceau_histovery.png');
 		width: 100%;

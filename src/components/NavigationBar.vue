@@ -1,20 +1,19 @@
 <template>
-	<b-navbar>
+	<b-navbar :transparent="true" class="is-dark">
 		<template slot="brand">
-			<!--<b-navbar-item tag="router-link" :to="{ path: '/' }">
-				<img
-					src="/img/logos/logo_histopad.png"
-					alt="Lightweight UI components for Vue.js based on Bulma"
-				/>
-			</b-navbar-item>-->
+			<b-navbar-item tag="router-link" :to="{ path: '/' }">
+				<img src="/img/logos/logo_histopad_white.png" alt="Logo HistoPad" />
+			</b-navbar-item>
 		</template>
 		<template slot="start"> </template>
 
 		<template slot="end">
-			<b-navbar-item href="/">
-				<img src="/img/logos/logo_histopad.png" alt="Logo HistoPad" />
-			</b-navbar-item>
-			<b-navbar-dropdown :label="$t('augmented_visits')" :right="true" :hoverable="true">
+			<b-navbar-dropdown
+				:label="$t('augmented_visits')"
+				:right="true"
+				:hoverable="true"
+				:arrowless="true"
+			>
 				<b-navbar-item
 					:id="'augmented-visit-dropdown'"
 					:href="`/${partner.linkLabel}`"
@@ -53,3 +52,12 @@ export default {
 	},
 }
 </script>
+<style scoped>
+nav.navbar {
+	background: transparent;
+}
+
+.navbar-link.is-arrowless a {
+	color: white;
+}
+</style>
