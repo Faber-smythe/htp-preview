@@ -19,15 +19,10 @@
 							@click="onCarouselClick(immersive)"
 							:style="
 								`background-image: url(${coverURL(immersive)}); width:100%; 
-								background-size:cover;
-								background-position: center;
-								box-shadow: inset 0px 0px 140px 60px rgba(0,0,0,0.8);
-								cursor: pointer;
-								position: relative;
-								color:white;`
+								`
 							"
 						>
-							<div v-if="isSmartPhone">
+							<div v-if="isSmartPhone && isLandscape">
 								<br />
 								<br />
 								<h3 class="subtitle title-font">
@@ -42,13 +37,12 @@
 									>
 								</h1>
 								<span class="title-font"
-									><img
-										src="/img/play.png"
-										style="max-width: 60px; display: inherit;"
-									/><br />Entrer dans l'histoire</span
+									><img src="/img/play.png" class="play-btn" /><br />{{
+										$t('enter_history')
+									}}</span
 								>
 							</div>
-							<div v-if="!isSmartPhone">
+							<div v-if="!isSmartPhone || !isLandscape">
 								<br />
 								<br />
 								<h3 class="subtitle title-font">
@@ -71,10 +65,9 @@
 										style="text-align: center; color: white;"
 									>
 										<span style="font-size: 1.5rem;"
-											><img
-												src="/img/play.png"
-												style="max-width: 60px; display: inherit;"
-											/><br />Entrer dans l'histoire</span
+											><img src="/img/play.png" class="play-btn" /><br />{{
+												$t('enter_history')
+											}}</span
 										>
 									</div>
 								</div>
@@ -198,9 +191,18 @@ export default {
 	color: white;
 }
 
-.carousel,
-.carousel .cover {
+.carousel {
 	height: 100vh;
+}
+
+.cover {
+	height: 100vh;
+	background-size: cover;
+	background-position: center;
+	box-shadow: inset 0px 0px 140px 60px rgba(0, 0, 0, 0.8);
+	cursor: pointer;
+	position: relative;
+	color: white;
 }
 
 .no-margin {
@@ -215,6 +217,18 @@ export default {
 	background-size: auto 40%;
 	background-repeat: no-repeat;
 	background-position: center;
+}
+
+.play-btn {
+	width: 3.75rem;
+	display: inherit;
+	opacity: 0.85;
+	transition: ease-in-out 0.3s;
+}
+
+.play-btn:hover {
+	opacity: 1;
+	width: 5rem;
 }
 
 @media screen and (min-width: 321px) and (max-width: 767px) {

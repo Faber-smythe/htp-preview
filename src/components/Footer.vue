@@ -2,7 +2,7 @@
 	<footer class="home-footer">
 		<div class="content has-text-centered">
 			<p>
-				HistoPad Teaser - version {{ pkgVersion }} - Copyright société
+				HistoPad Teaser - version {{ pkgVersion }} - Copyright
 				<strong><a href="https://www.histovery.com">Histovery</a></strong>
 				2020
 			</p>

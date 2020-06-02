@@ -47,6 +47,12 @@
                 "id": "Carriere",
                 "name": "CubemapTitle_Imm_Carriere_Home",
                 "file": "carriere.json"
+            },
+            {
+                "site": "france.chinon.forteresse",
+                "id": "Cuisine",
+                "name": "CubemapTitle_Imm_Cuisine",
+                "file": "cuisine.json"
             }
         ]
     },
@@ -113,6 +119,12 @@
                 "id": "PrisonDesTempliers",
                 "name": "CubemapTitle_Imm_PrisonTempliers_Home",
                 "file": "prisondestempliers.json"
+            },
+            {
+                "site": "france.chinon.forteresse",
+                "id": "Cuisine",
+                "name": "CubemapTitle_Imm_Cuisine",
+                "file": "cuisine.json"
             }
         ]
     },
@@ -145,9 +157,9 @@
         "immersives": [
             {
                 "site": "france.paris.pcv-versailles",
-                "id": "SalonApollon",
+                "id": "SallonApollon",
                 "name": "Title_VA_Apollon_Home",
-                "file": "salonapollon.json"
+                "file": "sallonapollon.json"
             }
         ]
     },

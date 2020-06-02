@@ -69,7 +69,7 @@
 			<div class="content has-text-centered">
 				<p>HistoPad Teaser - version {{ pkgVersion }}</p>
 				<p>
-					Copyright société
+					Copyright
 					<strong><a href="https://www.histovery.com">Histovery</a></strong>
 					2020
 				</p>

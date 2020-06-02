@@ -10,17 +10,8 @@
 			@click="onSiteClick()"
 		>
 			<h2>{{ $t(site.site) }}</h2>
-
-			<!--<b-icon
-				pack="far"
-				icon="play-circle"
-				size="is-large"
-				type="is-white"
-				v-if="site.interact"
-			>
-			</b-icon>-->
 			<h3 v-if="site.interact">{{ $t('count_augmented_visits', [site.immersives.length]) }}</h3>
-			<h3 v-if="!site.interact">Prochainement</h3>
+			<h3 v-if="!site.interact">{{ $t('coming_soon') }}</h3>
 		</div>
 	</div>
 </template>
@@ -72,6 +63,15 @@ export default {
 	display: table;
 }
 
+.site-tile h2 {
+	font-size: 1.8rem;
+}
+
+.site-tile h3 {
+	font-size: 1rem;
+}
+
+
 .content-site-tile-mobile {
 	display: table-cell;
 	vertical-align: middle;
@@ -85,6 +85,7 @@ export default {
 	vertical-align: middle;
 	text-align: center;
 	opacity: 0;
+	transition: ease-in-out 0.3s;
 }
 
 .content-site-tile:hover {

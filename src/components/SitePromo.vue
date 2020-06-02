@@ -11,11 +11,7 @@
                         color: white; 
                         text-align: center;"
 				>
-					<h2 style="font-size: 1.5rem; padding: 2rem;">
-						Faire parler
-						<span><i>les collections</i></span
-						>.
-					</h2>
+					<h2 class="promo-font" v-html="$t('collections')"></h2>
 				</div>
 			</div>
 			<div
@@ -60,14 +56,7 @@
 							min-height: 244px;
 							text-align:center;"
 					>
-						<h2
-							style="font-size: 1.5rem; 
-                            padding: 2rem;"
-						>
-							Partir à
-							<span><i>la chasse aux trésors</i></span
-							>.
-						</h2>
+						<h2 class="promo-font" v-html="$t('treasure_hunt')"></h2>
 					</div>
 				</div>
 				<div
@@ -87,7 +76,12 @@
 </template>
 
 <style scoped>
-h2 span i {
-	font-family: 'EB Garamond', serif;
+.promo-font {
+	font-size: 1.5rem;
+	padding: 2rem;
+}
+
+h2 i {
+	font-family: 'EB Garamond', serif !important;
 }
 </style>

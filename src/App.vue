@@ -104,6 +104,10 @@ a:hover,
 		font-size: 2rem;
 	}
 
+	.header-intro h2 {
+		font-size: 1.1rem;
+	}
+
 	.main-logo {
 		max-width: 60%;
 		height: auto;

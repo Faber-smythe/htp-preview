@@ -27,7 +27,6 @@ export let utilsMixin = {
 		},
 		isLandscape() {
 			let isLandscape = window.innerHeight < window.innerWidth
-			console.log('isLandscape', isLandscape)
 			return isLandscape
 		},
 		navigatorLanguage() {

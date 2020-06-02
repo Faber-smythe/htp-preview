@@ -8,7 +8,7 @@
 			<div class="columns">
 				<div class="column">
 					<h2 class="title-font header-title">
-						<span>&nbsp;&nbsp;&nbsp;{{ immersiveTitle }}</span>
+						<span style="max-width: 80%">{{ immersiveTitle }}</span>
 					</h2>
 				</div>
 			</div>
@@ -17,8 +17,8 @@
 			<b-button
 				class="background-button is-large"
 				icon-left="long-arrow-alt-left"
-				style="position: absolute; top: -0.1em; left: 0.5em;"
-				@click="goBack()"						
+				style="position: absolute; left: 0.5em; top:35%; transform:translateY(-50%);"
+				@click="goBack()"
 			>
 			</b-button>
 
@@ -28,12 +28,10 @@
 					v-if="!isSmartPhone"
 					src="/img/logos/logo_histopad_white.png"
 					alt="Logo HistoPad"
-					style="width:5em; position: absolute; top: 0.8em; right: 1.5em;"
+					style="width:5em; position: absolute; right: 1.5em; top:35%; transform:translateY(-50%);"
 				/>
 			</a>
 		</div>
-
-		
 
 		<!-- Custom tooltip -->
 		<div class="custom-tooltip" ref="tooltip" id="tooltip">
@@ -43,12 +41,20 @@
 		<!-- Footer -->
 		<div class="player-footer">
 			<!-- Slider labels left and right-->
-			<span class="slider-tooltip left-slider-tooltip noselect" @click="onSliderTooltipClick(0)">{{
-				$t(sliderTooltipsLabel[0])
-			}}</span>
-			<span class="slider-tooltip right-slider-tooltip noselect" @click="onSliderTooltipClick(1)">{{
-				sliderTooltipsLabel[1] == 'today' ? todayYear : $t(sliderTooltipsLabel[1]) 
-			}}</span>
+			<span
+				class="slider-tooltip left-slider-tooltip noselect"
+				@click="onSliderTooltipClick(0)"
+				>{{ $t(sliderTooltipsLabel[0]) }}</span
+			>
+			<span
+				class="slider-tooltip right-slider-tooltip noselect"
+				@click="onSliderTooltipClick(1)"
+				>{{
+					sliderTooltipsLabel[1] == 'today'
+						? todayYear
+						: $t(sliderTooltipsLabel[1])
+				}}</span
+			>
 
 			<!-- Rooms dropdown -->
 			<b-dropdown
@@ -150,8 +156,6 @@
 				</template>
 			</v-popover>
 		</div>
-
-		
 
 		<!-- Modal for close up display -->
 		<b-modal :active.sync="isModalCloseUpVisible">
@@ -258,6 +262,7 @@ export default {
 			dy: 0.0,
 			touchZoomDistanceEnd: 0.0,
 			touchZoomDistanceStart: 0.0,
+			isDestroyed: false,
 		}
 	},
 	mounted() {
@@ -270,7 +275,7 @@ export default {
 	},
 	beforeDestroy() {
 		this.unloadImmersive()
-		if (this.controls) this.controls.dispose()
+		this.isDestroyed = true
 	},
 	computed: {
 		focusedContent() {
@@ -333,13 +338,13 @@ export default {
 	},
 	methods: {
 		loadImmersive() {
+			this.immersives = sites.find((s) => {
+				return s.site == this.site
+			}).immersives
 
-			this.immersives = sites
-				.find((s) => {
-					return s.site == this.site
-				}).immersives
-		
-			console.log(`../data/sites/${this.selectedImmersive.site}/${this.selectedImmersive.file}`)
+			console.log(
+				`../data/sites/${this.selectedImmersive.site}/${this.selectedImmersive.file}`
+			)
 
 			this.immersiveScene = JSON.parse(
 				JSON.stringify(
@@ -372,7 +377,6 @@ export default {
 					return immersive.id !== this.immersiveScene.name
 				})
 
-		
 			this.init()
 		},
 		unloadImmersive() {
@@ -390,16 +394,27 @@ export default {
 					this.scene.remove(this.scene.children[0])
 				}
 
-				this.timeSpiralMaterial.dispose()
+				if (this.timeSpiralMaterial) {
+					this.timeSpiralMaterial.dispose()
+				}
 
 				this.scene.dispose()
 				this.renderer.renderLists.dispose()
 
 				//Removing geometry, textures, and materials
-				this.geometry.dispose()
-				this.textures.forEach((texture) => {
-					texture.dispose()
-				})
+				if (this.geometry) {
+					this.geometry.dispose()
+				}
+
+				if (this.textures) {
+					this.textures.forEach((texture) => {
+						texture.dispose()
+					})
+				}
+			}
+
+			if (this.controls) {
+				this.controls.dispose()
 			}
 
 			this.soundManager.unloadSounds()
@@ -460,21 +475,24 @@ export default {
 
 			this.el.addEventListener('click', this.onClick, false)
 			this.el.addEventListener('touchstart', this.onClick, false)
-			this.el.addEventListener('wheel', this.onDocumentMouseWheel, false)
+			//this.el.addEventListener('wheel', this.onDocumentMouseWheel, false)
 		},
 		initAmbient() {
 			return new Promise((resolve, reject) => {
 				let soundFiles = this.immersiveScene.layers.filter((layer) => {
-					return (
-						layer.ambianceSound 
-					)
+					return layer.ambianceSound
 				})
 
 				soundFiles = soundFiles.map((soundFile) => {
-					let soundURL = soundFile.ambianceSound.fileName !== '' ? `/assets/immersives/${this.selectedImmersive.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`
-						: `/assets/sounds/default.mp3`
+					let soundURL =
+						soundFile.ambianceSound.fileName !== ''
+							? `/assets/immersives/${this.selectedImmersive.site}/sounds/${soundFile.ambianceSound.fileName}.mp3`
+							: `/assets/immersives/france.loches.donjon/sounds/Amb_Loches_3D.mp3`
 
-					soundFile.ambianceSound.volume = soundFile.ambianceSound.fileName !== '' ? soundFile.ambianceSound.volume : 0.05
+					soundFile.ambianceSound.volume =
+						soundFile.ambianceSound.fileName !== ''
+							? soundFile.ambianceSound.volume
+							: 0.4
 
 					return {
 						url: soundURL,
@@ -483,14 +501,20 @@ export default {
 				})
 
 				if (soundFiles && soundFiles.length > 0) {
-					this.soundVolume = soundFiles[soundFiles.length - 1].volume * 100					
+					this.soundVolume = soundFiles[soundFiles.length - 1].volume * 100
 				}
 
 				this.soundManager
 					.init(soundFiles)
 					.then(() => {
+						console.log('TO PLAY', this.isDestroyed)
+						if (this.isDestroyed) {
+							throw Error('Immersive is unloaded')
+						}
 						this.soundManager.playSoundAtIndex(this.meshes.length - 1)
-						this.soundManager.setVolume(soundFiles[soundFiles.length - 1].volume)
+						this.soundManager.setVolume(
+							soundFiles[soundFiles.length - 1].volume
+						)
 						resolve(true)
 					})
 					.catch((error) => {
@@ -588,35 +612,43 @@ export default {
 					this.updateHotspotsOpacity()
 					this.renderer.compile(this.scene, this.camera)
 					this.initSlider()
-				
+
 					return this.initAmbient()
 				})
 				.then(() => {
 					//Load texture for time spiral
-					this.textureLoader.load(`/img/spirales/${this.selectedImmersive.id}.png`, (texture) => {
+					this.textureLoader.load(
+						`/img/spirales/${this.selectedImmersive.id}.png`,
+						(texture) => {
+							this.timeSpiralMaterial = new THREE.MeshBasicMaterial({
+								map: texture,
+								transparent: true,
+								side: THREE.DoubleSide,
+								opacity: 1,
+							})
+							this.timeSpiralMaterial.needsUpdate = true
 
-						this.timeSpiralMaterial = new THREE.MeshBasicMaterial({
-							map: texture,
-							transparent: true,
-							side: THREE.DoubleSide,
-							opacity: 1
-						})
-						this.timeSpiralMaterial.needsUpdate = true
+							this.timeSpiral = new THREE.Mesh(
+								new THREE.PlaneGeometry(850, 850),
+								this.timeSpiralMaterial
+							)
+							this.timeSpiral.overdraw = true
+							this.timeSpiral.rotateX(-Math.PI / 2)
+							this.timeSpiral.rotateZ(Math.PI / 2)
+							this.timeSpiral.position.set(0, -400, 0)
+							this.scene.add(this.timeSpiral)
 
-						let plane = new THREE.Mesh(new THREE.PlaneGeometry(850, 850), this.timeSpiralMaterial)
-						plane.overdraw = true
-						plane.rotateX(-Math.PI / 2)
-						plane.rotateZ(Math.PI / 2)
-						plane.position.set(0, -400, 0)
-						this.scene.add(plane)
-
-						this.spriteSpiralText = new SpriteText(this.$t('spiral_label'), 10)
-						this.spriteSpiralText.color = 'white'
-						this.spriteSpiralText.backgroundColor = 'rgba(0,0,0,0.0)';
-						this.spriteSpiralText.fontFace = 'Poppins'
-						this.spriteSpiralText.position.set(0, -350, 0)
-						this.scene.add(this.spriteSpiralText)
-					})
+							this.spriteSpiralText = new SpriteText(
+								this.$t('spiral_label'),
+								10
+							)
+							this.spriteSpiralText.color = 'white'
+							this.spriteSpiralText.backgroundColor = 'rgba(0,0,0,0.0)'
+							this.spriteSpiralText.fontFace = 'Poppins'
+							this.spriteSpiralText.position.set(0, -350, 0)
+							this.scene.add(this.spriteSpiralText)
+						}
+					)
 					this.displayLoading(false)
 				})
 				.catch((error) => {
@@ -647,25 +679,26 @@ export default {
 			this.camera.aspect = this.el.clientWidth / this.el.clientHeight
 			this.renderer.setSize(this.el.clientWidth, this.el.clientHeight)
 			this.camera.updateProjectionMatrix()
+			this.toggleTooltip('hide')
 		},
 		onPointerStart(event) {
 			event.preventDefault()
 			this.isUserInteracting = true
-			if (event.touches && event.touches.length == 2) {
+			/*if (event.touches && event.touches.length == 2) {
 				this.controls.enableRotate = false
 				this.dx = event.touches[0].pageX - event.touches[1].pageX
 				this.dy = event.touches[0].pageY - event.touches[1].pageY
 				this.touchZoomDistanceEnd = Math.sqrt(
 					this.dx * this.dx + this.dy * this.dy
 				)
-			}
+			}*/
 		},
 		onPointerMove(event) {
 			event.preventDefault()
 			if (this.isUserInteracting) {
 				this.toggleTooltip('hide')
 			}
-			if (event.touches && event.touches.length == 2) {
+			/*if (event.touches && event.touches.length == 2) {
 				this.dx = event.touches[0].pageX - event.touches[1].pageX
 				this.dy = event.touches[0].pageY - event.touches[1].pageY
 				this.touchZoomDistanceEnd = Math.sqrt(
@@ -681,7 +714,7 @@ export default {
 				}
 			} else {
 				this.controls.enableRotate = true
-			}
+			}*/
 		},
 		onPointerUp() {
 			this.isUserInteracting = false
@@ -785,63 +818,92 @@ export default {
 							this.isModalCloseUpVisible = true
 						}
 					} else if (this.focusedHotspot.type == 'TextHotspot') {
-						//Getting spherical coordinates of the targeted hotspots
-						let spherical = new THREE.Spherical().setFromCartesianCoords(
-							intersect.point.x,
-							intersect.point.y,
-							intersect.point.z
-						)
-
-						//Calculating camera position (opposite from targeted hotspot position)
-						//Polar coordinates
-						let phi = Math.PI - spherical.phi
-						let theta = Math.PI + spherical.theta
-						//Cartesian coordinates
-						let targetPosition = new THREE.Vector3().setFromSphericalCoords(
-							10,
-							phi,
-							theta
-						)
-
-						let that = this
-
-						//From and to positions according to clicked hotspot
-						let fromPosition = {
-							x: this.camera.position.x,
-							y: this.camera.position.y,
-							z: this.camera.position.z,
-						}
-
-						let to = {
-							x: targetPosition.x,
-							y: targetPosition.y,
-							z: targetPosition.z,
-						}
-						//Tweening animation for camera position
-						new TWEEN.Tween(fromPosition)
-							.to(to, 200)
-							.easing(TWEEN.Easing.Quadratic.InOut)
-							.onUpdate(function(event) {
-								if (that.camera && event) {
-									that.camera.position.x = event.x
-									that.camera.position.y = event.y
-									that.camera.position.z = event.z
-								}
-							})
-							.onComplete(function() {
+						if (this.isSmartPhone) {
+							this.centerCameraPositionOnPoint(intersect)
+						} else {
+							setTimeout(() => {
 								//Display hotspot's tooltip when animation is completed
-								that.toggleTooltip('show')
-								let tooltipRect = that.tooltip.getBoundingClientRect()
-								let top = domRect.height / 2 - tooltipRect.height - 20
-								let left = domRect.width / 2 - domRect.x - 150
-								that.tooltip.style.top = `${top}px`
-								that.tooltip.style.left = `${left}px`
-								that.tooltip.style.opacity = 1
-							})
-							.start()
+								this.toggleTooltip('show')
+								let tooltipRect = this.tooltip.getBoundingClientRect()
+								let top = clientY - tooltipRect.height - 20
+								let left = clientX - domRect.x - tooltipRect.width / 2
+
+								if (
+									tooltipRect.width / 2 + clientX > this.el.clientWidth ||
+									left < 0 ||
+									tooltipRect.height / 2 + clientY > this.el.clientHeight ||
+									top < 0
+								) {
+									console.log('IS OUT OF BOUND', tooltipRect)
+									this.centerCameraPositionOnPoint(intersect)
+								} else {
+									this.tooltip.style.top = `${top}px`
+									this.tooltip.style.left = `${left}px`
+									this.tooltip.style.opacity = 1
+								}
+							}, 100)
+						}
 					}
 				}
 			})
+		},
+		centerCameraPositionOnPoint(intersect) {
+			let domRect = this.el.getBoundingClientRect()
+			//Getting spherical coordinates of the targeted hotspots
+			let spherical = new THREE.Spherical().setFromCartesianCoords(
+				intersect.point.x,
+				intersect.point.y,
+				intersect.point.z
+			)
+
+			//Calculating camera position (opposite from targeted hotspot position)
+			//Polar coordinates
+			let phi = Math.PI - spherical.phi
+			let theta = Math.PI + spherical.theta
+			//Cartesian coordinates
+			let targetPosition = new THREE.Vector3().setFromSphericalCoords(
+				10,
+				phi,
+				theta
+			)
+
+			let that = this
+
+			//From and to positions according to clicked hotspot
+			let fromPosition = {
+				x: this.camera.position.x,
+				y: this.camera.position.y,
+				z: this.camera.position.z,
+			}
+
+			let to = {
+				x: targetPosition.x,
+				y: targetPosition.y,
+				z: targetPosition.z,
+			}
+
+			//Tweening animation for camera position
+			new TWEEN.Tween(fromPosition)
+				.to(to, 400)
+				.easing(TWEEN.Easing.Quadratic.InOut)
+				.onUpdate(function(event) {
+					if (that.camera && event) {
+						that.camera.position.x = event.x
+						that.camera.position.y = event.y
+						that.camera.position.z = event.z
+					}
+				})
+				.onComplete(function() {
+					//Display hotspot's tooltip when animation is completed
+					that.toggleTooltip('show')
+					let tooltipRect = that.tooltip.getBoundingClientRect()
+					let top = domRect.height / 2 - tooltipRect.height - 20
+					let left = domRect.width / 2 - domRect.x - tooltipRect.width / 2
+					that.tooltip.style.top = `${top}px`
+					that.tooltip.style.left = `${left}px`
+					that.tooltip.style.opacity = 1
+				})
+				.start()
 		},
 		onSliderDragging() {
 			let opacity = this.draggingValue / 100
@@ -852,7 +914,7 @@ export default {
 				this.timeSpiralMaterial.opacity = 0 + opacity
 				this.spriteSpiralText.material.opacity = 0 + opacity
 			}
-			
+
 			this.selectedMesh = opacity > 0.5 ? this.meshes[1] : this.meshes[0]
 
 			if (this.previousMeshId !== this.selectedMesh.uuid) {
@@ -860,8 +922,12 @@ export default {
 				this.updateHotspotsOpacity()
 				this.previousMeshId = this.selectedMesh.uuid
 
-				this.soundVolume = this.immersiveScene.layers[opacity > 0.5 ? 1 : 0].ambianceSound.volume * 100
+				this.soundVolume =
+					this.immersiveScene.layers[opacity > 0.5 ? 1 : 0].ambianceSound
+						.volume * 100
+				
 				this.soundManager.playSoundAtIndex(opacity > 0.5 ? 1 : 0)
+				
 			}
 		},
 		onTooltipFormat(value) {
@@ -983,7 +1049,7 @@ export default {
 		onSliderTooltipClick(index) {
 			this.draggingValue = index == 1 ? 100 : 0
 			this.onSliderDragging()
-		}
+		},
 	},
 }
 </script>
@@ -992,7 +1058,7 @@ export default {
 <style scoped>
 .scene {
 	width: 100% !important;
-	height: 100% !important;
+	height: 100vh !important;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -1035,19 +1101,6 @@ export default {
 	background: rgba(0, 0, 0, 0);
 	color: white;
 	border-color: transparent;
-}
-
-.custom-tooltip {
-	position: absolute;
-	width: 300px;
-	padding: 5px;
-	z-index: 5;
-	left: 50px;
-	border-radius: 3px;
-	font-size: 0.75rem;
-	background-color: black;
-	color: white;
-	display: none;
 }
 
 .header-immersive {
@@ -1096,6 +1149,18 @@ export default {
 	position: fixed;
 	bottom: 0.8em;
 	right: 1.5em;
+}
+
+.custom-tooltip {
+	position: absolute;
+	width: 28.125rem;
+	padding: 7px;
+	z-index: 5;
+	left: 0;
+	border-radius: 3px;
+	background-color: black;
+	color: white;
+	display: none;
 }
 
 .tooltiptext {
@@ -1375,6 +1440,10 @@ input[type='range'].custom-slider:focus::-ms-fill-upper {
 }
 
 @media screen and (max-width: 501px) {
+	.custom-tooltip {
+		width: 18.75rem;
+	}
+
 	.left-slider-tooltip {
 		font-size: 0.8em;
 		position: absolute;

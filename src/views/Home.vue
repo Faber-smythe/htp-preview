@@ -2,30 +2,14 @@
 	<div class="container-fluid">
 		<NavigationBar />
 
-		<div
-			class="container-fluid header-image-section"
-		>
-			<div
-				class="cover"
-				:style="
-					`background-image: url(${randomImage()}); 
-					position: relative;
-					width:100%;
-					background-size:cover;
-					background-position: center;
-					box-shadow: inset 0px 0px 100vw 48rem rgba(67,57,16,0.33);`
-				"
-			>
-				<div
-					style="position: absolute; top: 50%; ms-transform: translateY(-50%); transform: translateY(-50%); margin: 0 2.5em 0 2.5em;"
-				>
+		<div class="container-fluid header-image-section">
+			<div class="cover" :style="`background-image: url(${randomImage()});`">
+				<div class="cover-title">
 					<h1 class="title title-font">
 						{{ $t('discover_augmented_visits') }}
 					</h1>
 					<a href="#" v-scroll-to="'#augmentedvisits'"
-						><img
-							src="/img/arrow-down.png"
-							style="width: 60px; padding-top: 2em;"
+						><img src="/img/arrow-down.png" class="arrow-down"
 					/></a>
 				</div>
 			</div>
@@ -52,12 +36,10 @@
 
 		<section class="home-section header-intro title-font">
 			<div class="container">
-				<h1>Voyage immersif</h1>
-				<h1>Voyage interactif</h1>
-				<h1>Voyage validé par les historiens</h1>
-				<h1>
-					L'<strong>HistoPad</strong>, <span><i>Voyage dans le temps</i></span>
-				</h1>
+				<h1>{{ $t('immersive_journey') }}</h1>
+				<h1>{{ $t('interactive_journey') }}</h1>
+				<h1>{{ $t('validated_by_historians') }}</h1>
+				<h1 v-html="$t('histopad_travel')"></h1>
 			</div>
 		</section>
 
@@ -182,6 +164,15 @@ export default {
 
 .cover {
 	height: 102vh;
+	position: relative;
+	width: 100%;
+	background-size: cover;
+	background-position: center;
+	box-shadow: inset 0px 0px 100vw 48rem rgba(67, 57, 16, 0.33), inset 0px 0px 120px 60px rgba(0, 0, 0, 0.7);
+}
+
+.cover h1 {
+	font-size: 2.3rem;
 }
 
 a {
@@ -190,6 +181,28 @@ a {
 
 a:hover {
 	color: gainsboro;
+}
+
+.cover-title {
+	position: absolute;
+	top: 50%;
+	ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	left: 50%;
+	min-width: 90%;
+}
+
+.arrow-down {
+	width: 4.375rem;
+	padding-top: 2em;
+	opacity: 0.9;
+	transition: ease-in 0.2s;
+}
+
+.arrow-down:hover {
+	width: 5rem;
+	opacity: 1;
+	transform: translateY(10px);
 }
 
 span i {
@@ -219,9 +232,14 @@ span i {
 	border-color: transparent;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
 	.cover h1 {
 		font-size: 1.3rem;
+	}
+
+	.arrow-down {
+		width: 3.4375rem;
+		padding-top: 2em;
 	}
 
 	.main-logo {
