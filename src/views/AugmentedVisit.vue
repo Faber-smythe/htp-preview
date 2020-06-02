@@ -91,14 +91,16 @@
 			style="margin-top: 4rem; margin-bottom: 4rem;"
 		>
 			<div class="container">
-				<div class="header-intro title-font background-sceau">
-					<h2>
-						{{ $t('infos_histovery') }}
-					</h2>
-					<br /><br />
-					<h2>
-						{{ $t('infos_histovery_2') }}
-					</h2>
+				<div class="header-intro background-sceau">
+					<div class="title-font">
+						<h2>
+							{{ $t('infos_histovery') }}
+						</h2>
+						<br /><br />
+						<h2>
+							{{ $t('infos_histovery_2') }}
+						</h2>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -210,13 +212,19 @@ export default {
 	padding: 0 !important;
 }
 
-.background-sceau {
+.background-sceau::after {
+	content: '';
 	background-image: url('/img/sceau_histovery.png');
-	width: 100%;
-	height: auto;
 	background-size: auto 40%;
 	background-repeat: no-repeat;
 	background-position: center;
+	opacity: 0.3;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	position: absolute;
+	z-index: -1;
 }
 
 .play-btn {
@@ -233,23 +241,13 @@ export default {
 
 @media screen and (min-width: 321px) and (max-width: 767px) {
 	.background-sceau {
-		background-image: url('/img/sceau_histovery.png');
-		width: 100%;
-		height: auto;
 		background-size: auto 20%;
-		background-repeat: no-repeat;
-		background-position: center;
 	}
 }
 
 @media screen and (max-width: 320px) {
 	.background-sceau {
-		background-image: url('/img/sceau_histovery.png');
-		width: 100%;
-		height: auto;
 		background-size: auto 10%;
-		background-repeat: no-repeat;
-		background-position: center;
 	}
 }
 </style>

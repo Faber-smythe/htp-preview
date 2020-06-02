@@ -1,28 +1,53 @@
 <template>
-	<b-dropdown aria-role="list" position="is-bottom-left">
-		<p class="tag" slot="trigger" role="button" style="cursor: pointer;">
-			<img
-				:src="`/img/flags/${selectedLanguage}.svg`"
-				:alt="selectedLanguage"
-				style="width: 1em; height: 1em; margin-right: 0.5em;"
-			/>
-			<span v-if="!isSmartPhone">
-			&nbsp;{{ $t(`language.${selectedLanguage}`) }}</span>
-		</p>
+	<div>
+		<div>
+			<b-dropdown aria-role="list" position="is-bottom-left" v-if="!isMobile">
+				<p class="tag" slot="trigger" role="button" style="cursor: pointer;">
+					<img
+						:src="`/img/flags/${selectedLanguage}.svg`"
+						:alt="selectedLanguage"
+						style="width: 1em; height: 1em; margin-right: 0.5em;"
+					/>
+					<span v-if="!isSmartPhone">
+						&nbsp;{{ $t(`language.${selectedLanguage}`) }}</span
+					>
+				</p>
 
-		<b-dropdown-item
-			aria-role="listitem"
-			v-for="language in languages"
-			:key="language"
-			@click="onLanguageChange(language)"
+				<b-dropdown-item
+					aria-role="listitem"
+					v-for="language in languages"
+					:key="language"
+					@click="onLanguageChange(language)"
+				>
+					<img
+						:src="`/img/flags/${language}.svg`"
+						:alt="language"
+						style="width: 1em; height: 1em; margin-right: 0.5em;"
+					/>{{ $t(`language.${language}`) }}
+				</b-dropdown-item>
+			</b-dropdown>
+		</div>
+		<b-navbar-dropdown
+			v-if="isMobile"
+			:label="$t(`language.${selectedLanguage}`)"
+			:right="true"
+			:hoverable="true"
+			:arrowless="true"
 		>
-			<img
-				:src="`/img/flags/${language}.svg`"
-				:alt="language"
-				style="width: 1em; height: 1em; margin-right: 0.5em;"
-			/>{{ $t(`language.${language}`) }}
-		</b-dropdown-item>
-	</b-dropdown>
+			<b-navbar-item
+				aria-role="listitem"
+				v-for="language in languages"
+				:key="language"
+				@click="onLanguageChange(language)"
+			>
+				<img
+					:src="`/img/flags/${language}.svg`"
+					:alt="language"
+					style="width: 1em; height: 1em; margin-right: 0.5em;"
+				/>{{ $t(`language.${language}`) }}
+			</b-navbar-item>
+		</b-navbar-dropdown>
+	</div>
 </template>
 
 <script>

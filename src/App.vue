@@ -20,7 +20,6 @@
 
 .title-font {
 	font-family: Poppins, Helvetica, Arial, sans-serif;
-	opacity: 1 !important;
 }
 
 .header-intro {

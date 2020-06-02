@@ -59,7 +59,7 @@ export class SoundManager {
 		}
 		if (index < this.sounds.length) {
 			this.soundIndex = index
-			this.sounds[this.soundIndex].volume(this.sounds[this.soundIndex].volume)
+			this.sounds[this.soundIndex].volume(this.volume)
 			this.sounds[this.soundIndex].mute(this.muted)
 			this.sounds[this.soundIndex].play()
 		}

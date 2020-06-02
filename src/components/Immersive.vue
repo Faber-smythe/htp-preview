@@ -275,6 +275,9 @@ export default {
 	},
 	beforeDestroy() {
 		this.unloadImmersive()
+		if (this.controls) {
+			this.controls.dispose()
+		}
 		this.isDestroyed = true
 	},
 	computed: {
@@ -342,10 +345,6 @@ export default {
 				return s.site == this.site
 			}).immersives
 
-			console.log(
-				`../data/sites/${this.selectedImmersive.site}/${this.selectedImmersive.file}`
-			)
-
 			this.immersiveScene = JSON.parse(
 				JSON.stringify(
 					require(`../data/sites/${this.selectedImmersive.site}/${this.selectedImmersive.file}`)
@@ -411,10 +410,6 @@ export default {
 						texture.dispose()
 					})
 				}
-			}
-
-			if (this.controls) {
-				this.controls.dispose()
 			}
 
 			this.soundManager.unloadSounds()
@@ -507,7 +502,6 @@ export default {
 				this.soundManager
 					.init(soundFiles)
 					.then(() => {
-						console.log('TO PLAY', this.isDestroyed)
 						if (this.isDestroyed) {
 							throw Error('Immersive is unloaded')
 						}
@@ -536,7 +530,6 @@ export default {
 
 			closeUps.forEach((closeUp) => {
 				let url = `/assets/immersives/${this.selectedImmersive.site}/closeups/${closeUp.contentList[0].value}.jpg`
-				console.log('URL', url)
 				let closeUpImage = new Image()
 				closeUpImage.onload = () => {
 					image.src = this.src
@@ -834,7 +827,6 @@ export default {
 									tooltipRect.height / 2 + clientY > this.el.clientHeight ||
 									top < 0
 								) {
-									console.log('IS OUT OF BOUND', tooltipRect)
 									this.centerCameraPositionOnPoint(intersect)
 								} else {
 									this.tooltip.style.top = `${top}px`
@@ -922,12 +914,8 @@ export default {
 				this.updateHotspotsOpacity()
 				this.previousMeshId = this.selectedMesh.uuid
 
-				this.soundVolume =
-					this.immersiveScene.layers[opacity > 0.5 ? 1 : 0].ambianceSound
-						.volume * 100
-				
+				this.soundManager.setVolume(this.soundVolume / 100)
 				this.soundManager.playSoundAtIndex(opacity > 0.5 ? 1 : 0)
-				
 			}
 		},
 		onTooltipFormat(value) {
