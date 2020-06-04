@@ -168,7 +168,8 @@ export default {
 	width: 100%;
 	background-size: cover;
 	background-position: center;
-	box-shadow: inset 0px 0px 100vw 48rem rgba(67, 57, 16, 0.33), inset 0px 0px 120px 60px rgba(0, 0, 0, 0.7);
+	box-shadow: inset 0px 0px 100vw 48rem rgba(67, 57, 16, 0.33),
+		inset 0px 0px 120px 60px rgba(0, 0, 0, 0.7);
 }
 
 .cover h1 {
@@ -235,6 +236,11 @@ span i {
 @media screen and (max-width: 767px) {
 	.cover h1 {
 		font-size: 1.3rem;
+	}
+
+	.cover {
+		box-shadow: inset 0px 0px 100vw 100vh rgba(67, 57, 16, 0.33),
+			inset 0px 0px 100px 50px rgba(0, 0, 0, 0.8);
 	}
 
 	.arrow-down {

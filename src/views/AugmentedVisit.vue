@@ -106,7 +106,7 @@
 		</section>
 
 		<section class="container-fluid">
-			<SitePromo />
+			<SitePromo :linkLabel="linkLabel"/>
 		</section>
 
 		<br /><br />
@@ -247,11 +247,20 @@ export default {
 	.background-sceau {
 		background-size: auto 20%;
 	}
+
+	.cover {
+		box-shadow: inset 0px 0px 80px 35px rgba(0, 0, 0, 0.8);
+	}
 }
 
 @media screen and (max-width: 320px) {
 	.background-sceau {
 		background-size: auto 10%;
 	}
+
+	.cover {
+		box-shadow: inset 0px 0px 80px 35px rgba(0, 0, 0, 0.8);
+	}
+
 }
 </style>

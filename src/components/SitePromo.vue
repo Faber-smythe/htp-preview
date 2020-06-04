@@ -20,11 +20,13 @@
 			>
 				<div class="container">
 					<div
-						style="background-image: url(/img/partners/donjon_de_loches.jpg); 
+						:style="
+							`background-image: url(/img/partners/${linkLabel}-1.jpg); 
                             width:100%; 
-                            min-height: 494px; 
+                            min-height: 644px; 
                             background-size:cover; 
-                            background-position: center;"
+                            background-position: center;`
+						"
 					></div>
 				</div>
 			</div>
@@ -38,10 +40,12 @@
 				style="margin: 0 !important; padding: 0 0 0 0 !important;"
 			>
 				<div
-					style="background-image: url(/img/partners/forteresse_royale_chinon.jpg); 
-                        width:100%; min-height: 350px;
+					:style="
+						`background-image: url(/img/partners/${linkLabel}-2.jpg); 
+                        width:100%; min-height: 500px;
 						background-size:cover;
-						background-position: center;"
+						background-position: center;`
+					"
 				></div>
 			</div>
 			<div class="tile is-parent" style="padding: 0 !important;">
@@ -74,6 +78,15 @@
 		</div>
 	</div>
 </template>
+
+<script>
+export default {
+	name: 'SitePromo',
+	props: {
+		linkLabel: String,
+	},
+}
+</script>
 
 <style scoped>
 .promo-font {
