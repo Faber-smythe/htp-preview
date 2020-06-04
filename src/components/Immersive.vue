@@ -1046,7 +1046,7 @@ export default {
 <style scoped>
 .scene {
 	width: 100% !important;
-	height: 100vh !important;
+	height: 100% !important;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -1249,25 +1249,24 @@ input[type='range'].custom-slider:focus::-webkit-slider-runnable-track {
 
 /** Slider tooltips */
 .slider-tooltip {
+	font-size: 1em;
 	cursor: pointer;
 }
 
 .left-slider-tooltip {
-	font-size: 0.8em;
 	position: absolute;
 	bottom: 0.4em;
-	left: 31%;
+	left: 32%;
 	text-align: center;
-	width: 100px;
+	width: 5rem;
 }
 
 .right-slider-tooltip {
-	font-size: 0.8em;
 	position: absolute;
 	bottom: 0.4em;
-	right: 31%;
+	right: 32%;
 	text-align: center;
-	width: 100px;
+	width: 5rem;
 }
 
 .background-slider {
@@ -1383,7 +1382,6 @@ input[type='range'].custom-slider:focus::-ms-fill-upper {
 
 @media screen and (min-width: 501px) and (max-width: 823px) {
 	.left-slider-tooltip {
-		font-size: 0.8em;
 		position: absolute;
 		bottom: 0.4em;
 		left: 20%;
@@ -1392,7 +1390,6 @@ input[type='range'].custom-slider:focus::-ms-fill-upper {
 	}
 
 	.right-slider-tooltip {
-		font-size: 0.8em;
 		position: absolute;
 		bottom: 0.4em;
 		right: 20%;
@@ -1433,19 +1430,17 @@ input[type='range'].custom-slider:focus::-ms-fill-upper {
 	}
 
 	.left-slider-tooltip {
-		font-size: 0.8em;
 		position: absolute;
 		bottom: 0.4em;
-		left: 17%;
+		left: 15%;
 		text-align: center;
 		width: 100px;
 	}
 
 	.right-slider-tooltip {
-		font-size: 0.8em;
 		position: absolute;
 		bottom: 0.4em;
-		right: 17%;
+		right: 15%;
 		text-align: center;
 		width: 100px;
 	}

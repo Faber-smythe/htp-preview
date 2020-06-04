@@ -11,6 +11,8 @@
 				:has-drag="true"
 				:autoplay="true"
 				:pause-hover="false"
+				:icon-size="'is-large'"
+				:indicator-custom-size="'is-large'"
 			>
 				<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
 					<span class="image">
@@ -106,7 +108,7 @@
 		</section>
 
 		<section class="container-fluid">
-			<SitePromo :linkLabel="linkLabel"/>
+			<SitePromo :linkLabel="linkLabel" />
 		</section>
 
 		<br /><br />
@@ -261,6 +263,5 @@ export default {
 	.cover {
 		box-shadow: inset 0px 0px 80px 35px rgba(0, 0, 0, 0.8);
 	}
-
 }
 </style>
