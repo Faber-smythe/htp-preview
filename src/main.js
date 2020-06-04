@@ -7,6 +7,7 @@ import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
 import VueI18n from 'vue-i18n'
 import { languages, defaultLocale } from './i18n'
+import VueAnalytics from 'vue-analytics'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 // internal icons
@@ -28,6 +29,12 @@ Vue.config.productionTip = false
 Vue.use(Buefy, {
 	defaultIconComponent: 'vue-fontawesome',
 	defaultIconPack: 'fas',
+})
+
+//Google analytics
+Vue.use(VueAnalytics, {
+	id: 'UA-131094576-2',
+	router,
 })
 
 //I18n

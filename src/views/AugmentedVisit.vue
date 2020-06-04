@@ -193,8 +193,12 @@ export default {
 	color: white;
 }
 
-.carousel {
-	height: 100vh;
+.carousel,
+.carousel .carousel-items,
+.carousel .carousel-items .carousel-item {
+	width: 100%;
+	height: auto;
+	margin: 0 auto;
 }
 
 .cover {

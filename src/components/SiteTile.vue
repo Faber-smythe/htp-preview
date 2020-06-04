@@ -10,7 +10,9 @@
 			@click="onSiteClick()"
 		>
 			<h2>{{ $t(site.site) }}</h2>
-			<h3 v-if="site.interact">{{ $t('count_augmented_visits', [site.immersives.length]) }}</h3>
+			<h3 v-if="site.interact">
+				{{ $t('count_augmented_visits', [site.immersives.length]) }}
+			</h3>
 			<h3 v-if="!site.interact">{{ $t('coming_soon') }}</h3>
 		</div>
 	</div>
@@ -33,14 +35,7 @@ export default {
 	methods: {
 		onSiteClick() {
 			if (this.site.interact) {
-				if (
-					this.site.linkLabel == 'chinon' ||
-					this.site.linkLabel == 'loches'
-				) {
-					this.$router.push('/chinon-loches')
-				} else {
-					this.$router.push(`/${this.site.linkLabel}`)
-				}
+				this.$router.push(`/${this.site.linkLabel}`)
 			}
 		},
 		coverURL() {
@@ -70,7 +65,6 @@ export default {
 .site-tile h3 {
 	font-size: 1rem;
 }
-
 
 .content-site-tile-mobile {
 	display: table-cell;
