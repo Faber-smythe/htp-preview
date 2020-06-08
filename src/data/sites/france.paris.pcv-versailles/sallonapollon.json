@@ -23,7 +23,7 @@
             "uniqueID": "salonapollon.scenelayer.today",
             "localizedTimestampTitle": "#TODAY_YEAR",
             "cartelDescription": {
-                "title": "${Title_VA_Apollon}",
+                "title": "${Title_VA_Apollon_Today}",
                 "subtitle": "",
                 "description": ""
             },

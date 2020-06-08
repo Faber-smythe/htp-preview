@@ -11,22 +11,16 @@
 				:has-drag="true"
 				:autoplay="true"
 				:pause-hover="false"
-				:icon-size="'is-large'"
-				:indicator-custom-size="'is-large'"
 			>
 				<b-carousel-item v-for="(immersive, i) in immersives" :key="i">
-					<span class="image">
-						<div
-							class="hero-body has-text-centered cover"
-							@click="onCarouselClick(immersive)"
-							:style="
-								`background-image: url(${coverURL(immersive)}); width:100%; 
-								`
-							"
-						>
-							<div v-if="isSmartPhone && isLandscape">
-								<br />
-								<br />
+					<div class="cover" @click="onCarouselClick(immersive)">
+						<div class="img-shadow">
+							<img :src="`${coverURL(immersive)}`" />
+						</div>
+						<div v-if="!isSmartPhone">
+							<div
+								style="position: absolute; left: 50%; top: 10%; transform: translateX(-50%); text-align: center;"
+							>
 								<h3 class="subtitle title-font">
 									{{ $t(immersive.site) }}
 								</h3>
@@ -38,44 +32,37 @@
 										>{{ $t(immersive.name) }}</a
 									>
 								</h1>
-								<span class="title-font"
-									><img src="/img/play.png" class="play-btn" /><br />{{
-										$t('enter_history')
-									}}</span
-								>
 							</div>
-							<div v-if="!isSmartPhone || !isLandscape">
-								<br />
-								<br />
-								<h3 class="subtitle title-font">
-									{{ $t(immersive.site) }}
-								</h3>
-								<h1 class="title title-font">
-									<a
-										:href="
-											`/teaser/${immersive.linkLabel}/immersive/${immersive.id}`
-										"
-										>{{ $t(immersive.name) }}</a
-									>
-								</h1>
-
-								<div
-									style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%"
+							<div
+								style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center;"
+							>
+								<span class="title-font"
+									><img src="/img/play.png" class="play-btn" /><br />
+									{{ $t('enter_history') }}</span
 								>
-									<div
-										class="title-font"
-										style="text-align: center; color: white;"
-									>
-										<span style="font-size: 1.5rem;"
-											><img src="/img/play.png" class="play-btn" /><br />{{
-												$t('enter_history')
-											}}</span
-										>
-									</div>
-								</div>
 							</div>
 						</div>
-					</span>
+						<div
+							v-if="isSmartPhone"
+							style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center;"
+						>
+							<!--<h3 class="title-font">
+								{{ $t(immersive.site) }}
+							</h3>-->
+							<h1 class="title-font">
+								<br />
+								<a
+									:href="
+										`/teaser/${immersive.linkLabel}/immersive/${immersive.id}`
+									"
+									>{{ $t(immersive.name) }}</a
+								>
+							</h1>
+							<span class="title-font"
+								><img src="/img/play.png" class="play-btn" /><br />
+							</span>
+						</div>
+					</div>
 				</b-carousel-item>
 			</b-carousel>
 		</div>
@@ -204,13 +191,23 @@ export default {
 }
 
 .cover {
-	height: 100vh;
-	background-size: cover;
-	background-position: center;
-	box-shadow: inset 0px 0px 140px 60px rgba(0, 0, 0, 0.8);
+	width: 100%;
+	height: 100%;
 	cursor: pointer;
 	position: relative;
 	color: white;
+	display: block;
+}
+
+.img-shadow {
+	box-shadow: inset 0px 0px 100vw 48rem rgba(0, 0, 0, 0.3),
+		inset 0px 0px 140px 60px rgba(0, 0, 0, 0.7);
+}
+
+.img-shadow img {
+	display: block;
+	position: relative;
+	z-index: -1;
 }
 
 .no-margin {
@@ -245,23 +242,33 @@ export default {
 	width: 5rem;
 }
 
+@media screen and (max-width: 767px) {
+	.img-shadow {
+		box-shadow: inset 0px 0px 70px 30px rgba(0, 0, 0, 0.7);
+	}
+	.cover h3 {
+		font-size: 0.7rem;
+	}
+
+	.cover h1 {
+		font-size: 1rem;
+		margin-bottom: 0.2rem;
+	}
+
+	.play-btn {
+		width: 2rem;
+	}
+}
+
 @media screen and (min-width: 321px) and (max-width: 767px) {
 	.background-sceau {
 		background-size: auto 20%;
-	}
-
-	.cover {
-		box-shadow: inset 0px 0px 80px 35px rgba(0, 0, 0, 0.8);
 	}
 }
 
 @media screen and (max-width: 320px) {
 	.background-sceau {
 		background-size: auto 10%;
-	}
-
-	.cover {
-		box-shadow: inset 0px 0px 80px 35px rgba(0, 0, 0, 0.8);
 	}
 }
 </style>

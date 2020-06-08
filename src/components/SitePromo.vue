@@ -94,7 +94,8 @@ export default {
 	padding: 2rem;
 }
 
-h2 i {
+.promo-font span {
 	font-family: 'EB Garamond', serif !important;
+	font-size: 1.8rem !important;
 }
 </style>
