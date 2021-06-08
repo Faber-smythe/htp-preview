@@ -13,4 +13,4 @@ pages:
     - cd ..
     - firebase deploy --token $FIREBASE_TOKEN
   only:
-    - master
+    - 1.2
