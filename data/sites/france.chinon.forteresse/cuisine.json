@@ -1,0 +1,378 @@
+﻿{
+  "name": "Cuisine",
+  "layers": [
+    {
+      "uniqueID": "cuisine.scenelayer.new_layer0",
+      "localizedTimestampTitle": "imm_cuisine_label_15thcentury",
+      "cartelDescription": {
+        "title": "imm_cuisine_title_15th"
+      },
+      "ambianceSound": {
+        "fileName": "Amb_Kitchen",
+        "volume": 1.0
+      },
+      "triggerType": "",
+      "filtersOut": [],
+      "filtersIn": []
+    },
+    {
+      "uniqueID": "cuisine.scenelayer.new_layer1",
+      "localizedTimestampTitle": "imm_cuisine_label_today",
+      "cartelDescription": {
+        "title": "imm_cuisine_title_today"
+      },
+      "skyboxMaterial": "cuisine",
+      "ambianceSound": {
+        "fileName": "",
+        "volume": 0.0
+      },
+      "triggerType": "",
+      "filtersOut": [],
+      "filtersIn": []
+    }
+  ],
+  "history": "iim_cuisine_history",
+  "hotspots": [
+    {
+      "uniqueID": "cuisine.texthotspot.hotspotimmcuisinegardemanger",
+      "type": "TextHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Text",
+          "value": "Hotspot_Imm_Cuisine_GardeManger",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": -3356.627197265625,
+        "y": 105.2508544921875
+      }
+    },
+    {
+      "uniqueID": "cuisine.texthotspot.hotspotimmcuisinemarsouin",
+      "type": "TextHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Text",
+          "value": "Hotspot_Imm_Cuisine_Marsouin",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": -2666.627197265625,
+        "y": 1045.2508544921875
+      }
+    },
+    {
+      "uniqueID": "cuisine.texthotspot.hotspotimmcuisinepanierpoissons",
+      "type": "TextHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Text",
+          "value": "Hotspot_Imm_Cuisine_PanierPoissons",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": -1666.6273193359375,
+        "y": 635.2508544921875
+      }
+    },
+    {
+      "uniqueID": "cuisine.texthotspot.hotspotimmcuisinetonneaupoissons",
+      "type": "TextHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Text",
+          "value": "Hotspot_Imm_Cuisine_TonneauPoissons",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": -636.6273193359375,
+        "y": 955.2508544921875
+      }
+    },
+    {
+      "uniqueID": "cuisine.texthotspot.hotspotimmcuisinegibier",
+      "type": "TextHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Text",
+          "value": "Hotspot_Imm_Cuisine_Gibier",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": -36.627349853515628,
+        "y": 155.2508544921875
+      }
+    },
+    {
+      "uniqueID": "cuisine.texthotspot.hotspotimmcuisinetonneauxverjus",
+      "type": "TextHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Text",
+          "value": "Hotspot_Imm_Cuisine_TonneauxVerjus",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": 1283.3726806640625,
+        "y": 345.2508544921875
+      }
+    },
+    {
+      "uniqueID": "cuisine.texthotspot.hotspotimmcuisineecrevisses",
+      "type": "TextHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Text",
+          "value": "Hotspot_Imm_Cuisine_Ecrevisses",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": 2163.37255859375,
+        "y": 975.2508544921875
+      }
+    },
+    {
+      "uniqueID": "cuisine.texthotspot.hotspotimmcuisinegrill",
+      "type": "TextHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Text",
+          "value": "Hotspot_Imm_Cuisine_Grill",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": 5963.37353515625,
+        "y": 385.2508544921875
+      }
+    },
+    {
+      "uniqueID": "cuisine.fxhotspot.chimneyfire",
+      "type": "FXHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Prefab",
+          "value": "ChimneyFire",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": 6323.375,
+        "y": 335.252685546875
+      }
+    },
+    {
+      "uniqueID": "cuisine.animhotspot.leaftreasurehider",
+      "type": "AnimHotspot",
+      "zoomLevelDisplayMin": 20.0,
+      "zoomLevelDisplayMax": 60.0,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Prefab",
+          "value": "LeafTreasureHider",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": 2650,
+        "y": 1300
+      }
+    },
+    {
+      "uniqueID": "cuisine.spatialsoundhotspot.sfxoutside",
+      "type": "SpatialSoundHotspot",
+      "zoomLevelDisplayMin": 0.10000000149011612,
+      "zoomLevelDisplayMax": 0.6000000238418579,
+      "content": [],
+      "contentList": [
+        {
+          "type": "Audio",
+          "value": "SFX_Outside",
+          "filtersOut": [],
+          "filtersIn": []
+        },
+        {
+          "type": "VolumeMin",
+          "value": "0.1",
+          "filtersOut": [],
+          "filtersIn": []
+        },
+        {
+          "type": "VolumeMax",
+          "value": "0.6",
+          "filtersOut": [],
+          "filtersIn": []
+        }
+      ],
+      "index": 0,
+      "requiredAssetBundle": "",
+      "displayIndexes": [],
+      "layers": [],
+      "spriteFileName": "",
+      "visitedSpriteFileName": "",
+      "color": "",
+      "navigationType": "",
+      "filtersOut": [],
+      "filtersIn": [],
+      "position": {
+        "x": 3703.37353515625,
+        "y": 45.25177001953125
+      }
+    }
+  ],
+  "treasure": {
+    "name": "imm_cuisine_treasure_name",
+    "layer": 0,
+    "position": {
+      "x": 3547,
+      "y": -1158.5
+    },
+    "description": "imm_cuisine_treasure_description"
+  },
+  "closeUps": []
+}

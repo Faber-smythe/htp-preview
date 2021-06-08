@@ -1,0 +1,44 @@
+{
+  "LanguageSwitcher": {
+    "description": "Auto imported from components/LanguageSwitcher.vue"
+  },
+  "LoadingScreen": {
+    "description": "Auto imported from components/LoadingScreen.vue"
+  },
+  "NavigationBar": {
+    "description": "Auto imported from components/NavigationBar.vue"
+  },
+  "SiteAnimatedSection": {
+    "description": "Auto imported from components/site/AnimatedSection.vue"
+  },
+  "SiteFolioscopie": {
+    "description": "Auto imported from components/site/Folioscopie.vue"
+  },
+  "SiteHeaderSection": {
+    "description": "Auto imported from components/site/HeaderSection.vue"
+  },
+  "SiteVisualAssetBlock": {
+    "description": "Auto imported from components/site/visualAssetSection/VisualAssetBlock.vue"
+  },
+  "SiteVisualAssetScene": {
+    "description": "Auto imported from components/site/visualAssetSection/VisualAssetScene.vue"
+  },
+  "SiteVisualAssetSection": {
+    "description": "Auto imported from components/site/visualAssetSection/VisualAssetSection.vue"
+  },
+  "SiteFooterCarousel": {
+    "description": "Auto imported from components/site/footerSection/FooterCarousel.vue"
+  },
+  "SiteFooterSection": {
+    "description": "Auto imported from components/site/footerSection/FooterSection.vue"
+  },
+  "SiteImmersiveHUD": {
+    "description": "Auto imported from components/site/immersiveSection/ImmersiveHUD.vue"
+  },
+  "SiteImmersiveScene": {
+    "description": "Auto imported from components/site/immersiveSection/ImmersiveScene.vue"
+  },
+  "SiteImmersiveSection": {
+    "description": "Auto imported from components/site/immersiveSection/ImmersiveSection.vue"
+  }
+}
