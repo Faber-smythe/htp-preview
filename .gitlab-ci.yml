@@ -1,0 +1,16 @@
+image: current-alpine3.11
+
+pages:
+  cache:
+    paths:
+      - node_modules/
+
+  script:
+    - npm i firebase-tools -g
+    - cd website
+    - npm install
+    - npm run build
+    - cd ..
+    - firebase deploy --token 1//03A3BvD2HKKbSCgYIARAAGAMSNwF-L9IrbrQB2xc6GJcQHTlrqf6R6ZEZiUxxHHw_Ow_g71gnEXIXLJNWkL0jXk4QdPcT0uekhXk
+  only:
+    - master
