@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders'
 import { Position2 } from '@/types/ImmersiveContent'
 import BabylonCustomLoader from '@/utils/BabylonCustomLoader'
+import { BabylonFileLoaderConfiguration } from 'babylonjs/Loading/Plugins/babylonFileLoader'
 
 const RAD2DEG = 180 / Math.PI
 const DEG2RAD = Math.PI / 180
@@ -51,47 +52,13 @@ export default class BabylonController {
     // Initialize asset manager
     this.am = new BABYLON.AssetsManager(this.scene)
 
-    this.scene.defaultCursor = 'grab'
+    this.scene.defaultCursor = 'all-scroll'
+    // this.scene.defaultCursor = 'col-resize'
 
     // Toggle debuglayer
     if (this.settings.debugLayer) {
       this.scene.debugLayer.show()
     }
-  }
-
-  /**
-   * Return 3D cartesian coordinates for the specific hotspots into the displayed spheremap
-   * @param {Hotspot} hotspot
-   * @param {Number} sphereRadius
-   */
-  generate3DPosition(hotspotPosition: Position2, sphereRadius: number) {
-    /** ------------------------------------------------------------------
-     * Generate polar coordinates according to 2D cartesian coordinates of the specific hotspot
-     * ------------------------------------------------------------------ */
-
-    const longitude = RAD2DEG * (hotspotPosition.x / sphereRadius)
-    const latitude =
-      RAD2DEG *
-      (2 * Math.atan(Math.exp(hotspotPosition.y / sphereRadius)) - Math.PI / 2)
-
-    /** ------------------------------------------------------------------
-     * Generate 3D cartesian coordinates according to polar coordinates (latitude and longitude)
-     * ------------------------------------------------------------------ */
-
-    // First send the point from the origin onto the sphere's wall.
-    // Then we'll rotate the vector from the origin with two angles
-    const origin = new BABYLON.Vector3(0, 0, sphereRadius)
-
-    // Converting to radians and computing the rotation on both planes
-    const phi = latitude * DEG2RAD
-    const theta = (270 - longitude) * DEG2RAD
-
-    // BABYLON can't rotate a Vector3 with Euler, it needs Quaternion.
-    const vecNull = BABYLON.Vector3.Zero() // Quaternion needs a reference to compute
-    const quat = BABYLON.Quaternion.FromEulerAngles(phi, theta, 0) // conversion
-    const cartesianCoordinates = origin.rotateByQuaternionToRef(quat, vecNull)
-
-    return cartesianCoordinates
   }
 
   handleImmersiveClicks() {
@@ -203,5 +170,78 @@ export default class BabylonController {
 
   emptyTooltip() {
     this.tooltip.style.visibility = 'hidden'
+  }
+
+  worldToScreenCoordinates(coordinates: BABYLON.Vector3): BABYLON.Vector2 {
+    const camera = this.scene.cameras[0]
+    const projection = BABYLON.Vector3.Project(
+      coordinates,
+      BABYLON.Matrix.Identity(),
+      this.scene.getTransformMatrix(),
+      camera.viewport.toGlobal(
+        this.canvas.clientWidth,
+        this.canvas.clientHeight
+      )
+    )
+    return new BABYLON.Vector2(projection.x, projection.y)
+  }
+
+  angleBetweenTwoVectors(vec1: BABYLON.Vector3, vec2: BABYLON.Vector3): number {
+
+    // vec.y = 0
+    const normalized1 = BABYLON.Vector3.Normalize(vec1)
+    const normalized2 = BABYLON.Vector3.Normalize(vec2)
+
+    const dotVec = BABYLON.Vector3.Dot(normalized2, normalized1)
+
+    /** arccos of dot vector **/
+    const angleRadians = Math.acos(dotVec) // radians
+    const angleDeegres = this.radiansToDegrees(angleRadians) // deegres
+
+    /** To make angle from 0 to 360 (so the I quadrant != II quadrant and IV quadrant != III quadrant) **/
+    // if (normalizedVec.x < 0) {
+    //   angleDeegres = 360 - angleDeegres
+    // }
+
+    return angleDeegres
+  }
+
+  /**
+   * Return 3D cartesian coordinates for the specific hotspots into the displayed spheremap
+   * @param {Hotspot} hotspot
+   * @param {Number} sphereRadius
+   */
+  generate3DPosition(hotspotPosition: Position2, sphereRadius: number) {
+    /** ------------------------------------------------------------------
+     * Generate polar coordinates according to 2D cartesian coordinates of the specific hotspot
+     * ------------------------------------------------------------------ */
+
+    const longitude = RAD2DEG * (hotspotPosition.x / sphereRadius)
+    const latitude =
+      RAD2DEG *
+      (2 * Math.atan(Math.exp(hotspotPosition.y / sphereRadius)) - Math.PI / 2)
+
+    /** ------------------------------------------------------------------
+     * Generate 3D cartesian coordinates according to polar coordinates (latitude and longitude)
+     * ------------------------------------------------------------------ */
+
+    // First send the point from the origin onto the sphere's wall.
+    // Then we'll rotate the vector from the origin with two angles
+    const origin = new BABYLON.Vector3(0, 0, sphereRadius)
+
+    // Converting to radians and computing the rotation on both planes
+    const phi = latitude * DEG2RAD
+    const theta = (270 - longitude) * DEG2RAD
+
+    // BABYLON can't rotate a Vector3 with Euler, it needs Quaternion.
+    const vecNull = BABYLON.Vector3.Zero() // Quaternion needs a reference to compute
+    const quat = BABYLON.Quaternion.FromEulerAngles(phi, theta, 0) // conversion
+    const cartesianCoordinates = origin.rotateByQuaternionToRef(quat, vecNull)
+
+    return cartesianCoordinates
+  }
+
+  radiansToDegrees(radians) {
+    return radians * (180 / Math.PI)
   }
 }

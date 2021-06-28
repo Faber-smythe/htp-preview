@@ -8,23 +8,20 @@
   "NavigationBar": {
     "description": "Auto imported from components/NavigationBar.vue"
   },
+  "HomeScene": {
+    "description": "Auto imported from components/home/Scene.vue"
+  },
+  "HomeSequence": {
+    "description": "Auto imported from components/home/Sequence.vue"
+  },
   "SiteAnimatedSection": {
     "description": "Auto imported from components/site/AnimatedSection.vue"
   },
-  "SiteFolioscopie": {
-    "description": "Auto imported from components/site/Folioscopie.vue"
+  "SiteFolioscope": {
+    "description": "Auto imported from components/site/Folioscope.vue"
   },
   "SiteHeaderSection": {
     "description": "Auto imported from components/site/HeaderSection.vue"
-  },
-  "SiteVisualAssetBlock": {
-    "description": "Auto imported from components/site/visualAssetSection/VisualAssetBlock.vue"
-  },
-  "SiteVisualAssetScene": {
-    "description": "Auto imported from components/site/visualAssetSection/VisualAssetScene.vue"
-  },
-  "SiteVisualAssetSection": {
-    "description": "Auto imported from components/site/visualAssetSection/VisualAssetSection.vue"
   },
   "SiteFooterCarousel": {
     "description": "Auto imported from components/site/footerSection/FooterCarousel.vue"
@@ -40,5 +37,14 @@
   },
   "SiteImmersiveSection": {
     "description": "Auto imported from components/site/immersiveSection/ImmersiveSection.vue"
+  },
+  "SiteVisualAssetBlock": {
+    "description": "Auto imported from components/site/visualAssetSection/VisualAssetBlock.vue"
+  },
+  "SiteVisualAssetScene": {
+    "description": "Auto imported from components/site/visualAssetSection/VisualAssetScene.vue"
+  },
+  "SiteVisualAssetSection": {
+    "description": "Auto imported from components/site/visualAssetSection/VisualAssetSection.vue"
   }
 }

@@ -1,5 +1,7 @@
 <template>
   <div
+    id="canvasHolder"
+    ref="canvasHolder"
     :style="`
       position: relative;
       height: 100%;
@@ -25,11 +27,12 @@
 // import libs
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 
+import { gsap } from 'gsap'
 import * as BABYLON from 'babylonjs'
 // import types
 import Site from '@/types/Site'
 // import Io from '@/types/Io'
-import ImmersiveContent, { Hotspot } from '@/types/ImmersiveContent'
+import ImmersiveContent from '@/types/ImmersiveContent'
 import InjectedSprite from '@/types/InjectedSprite'
 // import miscellaneous
 import BabylonController from '@/utils/BabylonController'
@@ -41,15 +44,23 @@ export default class ImmersiveScene extends Vue {
   @Prop({ required: true }) readonly loadScreen!: HTMLElement
   @Prop({ type: Object, required: false }) readonly immersive!: ImmersiveContent
   @Prop({ type: Object, required: false }) readonly timeSlideLocation: any
-  // @Prop({ type: Object, required: false })
-  // readonly immersiveContent!: ImmersiveContent
+  @Prop({ type: Number, required: true }) readonly autopilotRatio!: number
+  @Prop({ type: Number, required: true }) readonly cursorX!: number
+  @Prop({ type: Number, required: true }) readonly cursorY!: number
 
   spheres!: BABYLON.Mesh[] // initialized once mounted
   sphereLayerMaterials: BABYLON.StandardMaterial[] = []
   BC!: BabylonController
+  camera!: BABYLON.ArcRotateCamera
   canvasUntouched: boolean = true
   treasureMesh!: BABYLON.AbstractMesh
   treasureHoverFactor: number = 1
+  treasureTriggerSprite!: BABYLON.Sprite
+
+  autopilotMin: number = 0
+  autopilotMax: number = 0.95
+  centerviewPadding: number = 0.075
+  hotspotThreshold: number = 65 // in % of time forward slide
 
   mounted() {
     this.initScene()
@@ -74,7 +85,7 @@ export default class ImmersiveScene extends Vue {
   loadScene() {
     const settings = this.BC.settings
 
-    const camera = new BABYLON.ArcRotateCamera(
+    this.camera = new BABYLON.ArcRotateCamera(
       'immersiveCamera',
       -Math.PI / 2,
       Math.PI / 2,
@@ -82,13 +93,13 @@ export default class ImmersiveScene extends Vue {
       new BABYLON.Vector3(0, 0, 0),
       this.BC.scene
     )
-    camera.fov = settings.fov
-    camera.inertia = settings.inertia
-    camera.attachControl(this.$refs.renderCanvas, true)
-    camera.angularSensibilityX /= -settings.sensitivity * 2
-    camera.angularSensibilityY /= -settings.sensitivity * 2
-    camera.wheelPrecision = 9999
-    camera.panningSensibility = 9999
+    this.camera.fov = settings.fov
+    this.camera.inertia = settings.inertia
+    this.camera.attachControl(this.$refs.renderCanvas, true)
+    this.camera.angularSensibilityX /= -settings.sensitivity * 2
+    this.camera.angularSensibilityY /= -settings.sensitivity * 2
+    this.camera.wheelPrecision = 9999
+    this.camera.panningSensibility = 9999
 
     // create light
     const light = new BABYLON.HemisphericLight(
@@ -102,7 +113,7 @@ export default class ImmersiveScene extends Vue {
     this.initSpheres()
 
     // create the treasure
-    this.initTreasure()
+    // this.initTreasure()
 
     // create hotspots
     this.initHotSpots()
@@ -111,11 +122,17 @@ export default class ImmersiveScene extends Vue {
     // show debug layer if asked
     if (this.BC.settings.debugLayer) this.BC.scene.debugLayer.show()
 
+    // prepare hotspot popping
+    this.initHotspotInserts()
+
+    // Inject autopilot inbetween frames
+    this.registerAutopilot()
+
     // rendering frames
     this.BC.engine.runRenderLoop(() => {
       // this.alphaTimeTransition() // handle visual transition over time slide
-      if (camera.radius < 0.1) camera.radius = 0.1 // prevent center clipping
-      if (this.canvasUntouched) camera.alpha += 0.0005 // slow rotating idle
+      if (this.camera.radius < 0.1) this.camera.radius = 0.1 // prevent center clipping
+      // if (this.canvasUntouched) camera.alpha += 0.0005 // slow rotating idle
       this.BC.scene.render()
     })
   }
@@ -173,16 +190,16 @@ export default class ImmersiveScene extends Vue {
     )
     sm.renderingGroupId = 3
     sm.isPickable = true
-    const triggerSprite = new BABYLON.Sprite(`treasureTriger`, sm)
-    triggerSprite.position = treasurePosition
+    this.treasureTriggerSprite = new BABYLON.Sprite(`treasureTriger`, sm)
+    this.treasureTriggerSprite.position = treasurePosition
     const triggerSize =
       (this.BC.settings.sphereDiameter / 40) * this.BC.settings.hotspotSize * 2
-    triggerSprite.width = triggerSize
-    triggerSprite.height = triggerSize
-    // triggerSprite.useAlphaForPicking = true
-    triggerSprite.isPickable = true
-    triggerSprite.isVisible = false
-    this.BC.setTreasureHover(triggerSprite)
+    this.treasureTriggerSprite.width = triggerSize
+    this.treasureTriggerSprite.height = triggerSize
+    // this.treasureTriggerSprite.useAlphaForPicking = true
+    this.treasureTriggerSprite.isPickable = true
+    this.treasureTriggerSprite.isVisible = false
+    this.BC.setTreasureHover(this.treasureTriggerSprite)
     this.BC.treasureClick = () => {
       this.$emit('found-treasure')
     }
@@ -231,22 +248,18 @@ export default class ImmersiveScene extends Vue {
 
     // filter data for only useful hotspots
     this.immersive.hotspots = this.immersive.hotspots.filter(
-      (hotspot) =>
-        hotspot.type === 'TextHotspot' ||
-        (hotspot.type === 'CloseUpHotspot' && hotspot.contentList.length === 1)
+      (hotspot) => hotspot.type === 'INSERT'
     )
 
     // Display the hotspots
     this.immersive.hotspots.forEach((hotspot, i) => {
       let sprite
       switch (hotspot.type) {
-        case 'TextHotspot':
+        case 'INSERT':
           sprite = new BABYLON.Sprite(`hotspotSprite-${i}`, this.BC.sm1)
           sprite.playAnimation(0, 22, true, 80)
           break
-        case 'CloseUpHotspot':
-          sprite = new BABYLON.Sprite(`hotspotSprite-${i}`, this.BC.sm2)
-          break
+        // handle initialization for other types of Hotspot
       }
       sprite.isPickable = true
       sprite.position = this.BC.generate3DPosition(
@@ -254,8 +267,7 @@ export default class ImmersiveScene extends Vue {
         settings.sphereDiameter / 2
       )
       // inject hotspot data into the sprite
-      const data = this.getHotspotContent(hotspot)
-      sprite.hotspotData = data
+      sprite.hotspotData = hotspot
       // Add sprite hover
       this.BC.setSpriteHover(sprite)
       // Invert the z-axis to fit coordinates
@@ -263,6 +275,32 @@ export default class ImmersiveScene extends Vue {
       // Adjust sprite scale to sphere radius
       sprite.width = (settings.sphereDiameter / 40) * settings.hotspotSize
       sprite.height = (settings.sphereDiameter / 40) * settings.hotspotSize
+    })
+  }
+
+  initHotspotInserts() {
+    const parent = this.$refs.canvasHolder as HTMLElement
+    const injectedSprites = this.BC.sm1.sprites as InjectedSprite[]
+    injectedSprites.forEach((sprite) => {
+      // shell
+      const insert = document.createElement('div')
+      insert.classList.add('insert')
+      // asset
+      const asset = new Image()
+      const source = sprite.hotspotData.visualAsset
+        ? sprite.hotspotData.visualAsset
+        : 'https://f.hellowork.com/blogdumoderateur/2013/02/gif-anime.gif'
+      asset.src = source
+      insert.append(asset)
+      // caption
+      const caption = document.createElement('p')
+      caption.classList.add('caption')
+      caption.innerHTML = this.$t(sprite.hotspotData.value) as string
+      insert.append(caption)
+      // append to document
+      parent.append(insert)
+      // attach to the sprite object
+      sprite.hotspotData.insert = insert
     })
   }
 
@@ -301,53 +339,189 @@ export default class ImmersiveScene extends Vue {
       // hide "Text" hotspots on corresponding layers
       this.BC.sm1.sprites.forEach((sprite) => {
         // Cast is necessary since we injected the sprites with the hotspot
-        const castSprite = sprite as InjectedSprite
-        if (castSprite.hotspotData.index === this.timeSlideLocation.index) {
-          castSprite.width =
-            (this.BC.settings.sphereDiameter / 40) *
-            this.BC.settings.hotspotSize
-          castSprite.height =
-            (this.BC.settings.sphereDiameter / 40) *
-            this.BC.settings.hotspotSize
+        const injectedSprite = sprite as InjectedSprite
+        const size =
+          (this.BC.settings.sphereDiameter / 40) * this.BC.settings.hotspotSize
+        /** below for autopilot and manual threshold **/
+        if (this.timeSlideLocation.value < this.hotspotThreshold) {
+          injectedSprite.width = size
+          injectedSprite.height = size
         } else {
-          castSprite.width = 0
-          castSprite.height = 0
+          injectedSprite.width = 0
+          injectedSprite.height = 0
         }
+        /**  below for more than 2 layers **/
+        // if (injectedSprite.hotspotData.index === this.timeSlideLocation.index) {
+        //   injectedSprite.width =
+        //     (this.BC.settings.sphereDiameter / 40) *
+        //     this.BC.settings.hotspotSize
+        //   injectedSprite.height =
+        //     (this.BC.settings.sphereDiameter / 40) *
+        //     this.BC.settings.hotspotSize
+        // } else {
+        //   injectedSprite.width = 0
+        //   injectedSprite.height = 0
+        // }
       })
 
       // hide "CloseUp" hotspots on corresponding layers
       this.BC.sm2.sprites.forEach((sprite) => {
         // Cast is necessary since we injected the sprites with the hotspot
-        const castSprite = sprite as InjectedSprite
-        if (castSprite.hotspotData.index === this.timeSlideLocation.index) {
-          castSprite.width =
+        const injectedSprite = sprite as InjectedSprite
+        if (injectedSprite.hotspotData.index === this.timeSlideLocation.index) {
+          injectedSprite.width =
             (this.BC.settings.sphereDiameter / 40) *
             this.BC.settings.hotspotSize
-          castSprite.height =
+          injectedSprite.height =
             (this.BC.settings.sphereDiameter / 40) *
             this.BC.settings.hotspotSize
         } else {
-          castSprite.width = 0
-          castSprite.height = 0
+          injectedSprite.width = 0
+          injectedSprite.height = 0
         }
       })
 
       // enable treasure only for appropriate layer
       if (this.timeSlideLocation.index !== this.immersive.treasure.layer) {
-        this.treasureMesh.setEnabled(false)
+        // visible glow effect
+        if (this.treasureMesh) this.treasureMesh.setEnabled(false)
+        // picking trigger
+        if (this.treasureTriggerSprite) {
+          this.treasureTriggerSprite.isPickable = false
+        }
       } else {
-        this.treasureMesh.setEnabled(true)
+        // visible glow effect
+        if (this.treasureMesh) this.treasureMesh.setEnabled(true)
+        // picking trigger
+        if (this.treasureTriggerSprite) {
+          this.treasureTriggerSprite.isPickable = true
+        }
       }
     }
   }
 
-  getHotspotContent(hotspot: Hotspot) {
-    const key = hotspot.contentList[0].value
-    const data: any = { type: hotspot.contentList[0].type }
-    data.value = data.type === 'Text' ? this.$t(key) : key
-    data.index = hotspot.index
-    // console.log(data)
-    return data
+  registerAutopilot() {
+    this.BC.scene.registerBeforeRender(() => {
+      /**
+       * CAMERA TRAVELING AND MOUSE SWAYING
+       */
+      // cursor positions already range from -1 to 1 for viewport limits
+      const { cursorX, cursorY } = this
+      const ratio = this.autopilotRatio
+      let innerRatio
+      // beyond ratio limits
+      if (ratio <= this.autopilotMin) {
+        innerRatio = 0
+      } else if (ratio >= this.autopilotMax) {
+        innerRatio = 1
+      } else {
+        const range = this.autopilotMax - this.autopilotMin
+        innerRatio = (ratio - this.autopilotMin) / range
+      }
+      const originAngle = 3.75
+      const targetAngle = 6.35
+      const alphaSwayReach = Math.PI * 0.05
+      const betaSwayReach = Math.PI * 0.05
+      const cameraAngle = originAngle + (targetAngle - originAngle) * innerRatio
+      this.camera.alpha = cameraAngle - alphaSwayReach * cursorX
+      this.camera.beta = Math.PI / 2 - betaSwayReach * cursorY
+      /**
+       * HOTSPOT ENTERING VIEWFIELD
+       */
+      const sprites = this.BC.sm1.sprites as InjectedSprite[]
+      // has the timeslide reached the past layer ?
+      if (this.timeSlideLocation.value < this.hotspotThreshold) {
+        this.onlySpritesInFront(sprites).forEach((sprite) => {
+          // is the hotspot in center view ?
+          if (this.isInCenterView(sprite.position)) {
+            // is the insert opened yet ?
+            if (!sprite.hotspotData.opened) {
+              this.openHotspot(sprite)
+              sprite.hotspotData.opened = true // toggle
+            } else {
+              // refresh the insert's position on given frame
+              this.updateInsertPosition(sprite)
+            }
+          } else if (sprite.hotspotData.opened) {
+            this.closeHotspot(sprite)
+            sprite.hotspotData.opened = false // toggle
+          }
+        })
+      } else {
+        // close all inserts when leaving the past layer
+        sprites.forEach((sprite) => {
+          if (sprite.hotspotData.opened) {
+            this.closeHotspot(sprite)
+            sprite.hotspotData.opened = false // toggle
+          }
+        })
+      }
+    })
+  }
+
+  onlySpritesInFront(sprites: InjectedSprite[]): InjectedSprite[] {
+    return sprites.filter((sprite) => {
+      const cameraToSpriteAngle = this.BC.angleBetweenTwoVectors(
+        this.camera.position,
+        sprite.position
+      )
+      return cameraToSpriteAngle > 90
+    })
+  }
+
+  isInCenterView(worldPosition: BABYLON.Vector3): Boolean {
+    const screenPosition = this.BC.worldToScreenCoordinates(worldPosition)
+    if (
+      screenPosition.x > window.innerWidth * this.centerviewPadding &&
+      screenPosition.x < window.innerWidth * (1 - this.centerviewPadding) &&
+      screenPosition.y > window.innerHeight * this.centerviewPadding &&
+      screenPosition.y < window.innerHeight * (1 - this.centerviewPadding)
+    ) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  openHotspot(sprite: InjectedSprite) {
+    // sprite.isVisible = true
+    const insert = sprite.hotspotData.insert
+    if (insert) {
+      gsap
+        .timeline()
+        .to(
+          insert,
+          { scale: 1, opacity: 1, display: 'flex', ease: 'back' },
+          0.1
+        )
+    } else {
+      console.error('this hotspot has no insert')
+    }
+  }
+
+  closeHotspot(sprite: InjectedSprite) {
+    // sprite.isVisible = false
+    const insert = sprite.hotspotData.insert
+    if (insert) {
+      gsap
+        .timeline()
+        .to(insert, { scale: 0.75, opacity: 0 }, 0.1)
+        .to(insert, { display: 'none' }, 0.01)
+    } else {
+      console.error('this hotspot has no insert')
+    }
+  }
+
+  updateInsertPosition(sprite: InjectedSprite) {
+    const insert = sprite.hotspotData.insert
+    if (insert) {
+      const rec = insert.getBoundingClientRect()
+      const coord2D = this.BC.worldToScreenCoordinates(sprite.position)
+      insert.style.top = `${coord2D.y - rec.height - 20}px`
+      insert.style.left = `${coord2D.x - rec.width / 2}px`
+    } else {
+      console.error('this hotspot has no insert')
+    }
   }
 
   canvasClick() {
@@ -357,6 +531,9 @@ export default class ImmersiveScene extends Vue {
 </script>
 
 <style>
+#canvasHolder {
+  /* perspective: 800px; */
+}
 .renderCanvas {
   position: absolute;
   height: 100%;
@@ -375,6 +552,7 @@ export default class ImmersiveScene extends Vue {
 #scene-explorer-host {
   /* position: absolute !important; */
   z-index: 999;
+  height: 100%;
 }
 #scene-explorer-host .title,
 #inspector-host .title,
@@ -387,26 +565,47 @@ export default class ImmersiveScene extends Vue {
   margin-bottom: 0px;
 }
 
-#tooltip {
+.insert {
   position: absolute;
-  width: 28.125rem;
-  padding: 7px;
+  width: 25vh;
+  padding: 0px;
   z-index: 5;
   left: 0px;
   top: 0px;
-  border-radius: 3px;
+  border-radius: 5px;
   background-color: rgba(0, 0, 0, 0.7);
   color: white;
-  visibility: hidden;
+  flex-direction: column;
+  transform-origin: bottom;
+  display: none;
+  transform: scale(0.75);
+  /* transition: all 0.1 s ease ; */
 }
-#tooltip::after {
+.insert::after {
   content: ' ';
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
   left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
+  margin-left: -8px;
+  border-width: 8px;
   border-style: solid;
   border-color: black transparent transparent transparent;
+}
+.insert img {
+  max-width: 25vh;
+  max-height: 25vh;
+  width: auto;
+  height: auto;
+  border-radius: 5px 5px 0px 0px;
+  /* transform-origin: bottom; */
+}
+.insert .caption {
+  padding: 5px;
+  font-size: 0.65rem;
+  text-align: center;
+  /* transform-origin: top; */
+}
+.insert.opened {
+  display: flex;
 }
 </style>

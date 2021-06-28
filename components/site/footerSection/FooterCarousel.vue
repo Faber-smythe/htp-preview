@@ -7,9 +7,9 @@
       @mouseover="hoverFreeze = true"
       @mouseleave="hoverFreeze = false"
     >
-      <p>
+      <div>
         <img class="grade" :src="`/img/reviews/${items[0].grade}.png`" alt="" />
-      </p>
+      </div>
       <p>"{{ items[0].text }}"</p>
     </div>
     <div
@@ -19,9 +19,9 @@
       @mouseover="hoverFreeze = true"
       @mouseleave="hoverFreeze = false"
     >
-      <p>
+      <div>
         <img class="grade" :src="`/img/reviews/${items[1].grade}.png`" alt="" />
-      </p>
+      </div>
       <p>"{{ items[1].text }}"</p>
     </div>
     <div
@@ -31,9 +31,9 @@
       @mouseover="hoverFreeze = true"
       @mouseleave="hoverFreeze = false"
     >
-      <p>
+      <div>
         <img class="grade" :src="`/img/reviews/${items[2].grade}.png`" alt="" />
-      </p>
+      </div>
       <p>"{{ items[2].text }}"</p>
     </div>
     <div
@@ -43,9 +43,9 @@
       @mouseover="hoverFreeze = true"
       @mouseleave="hoverFreeze = false"
     >
-      <p>
+      <div>
         <img class="grade" :src="`/img/reviews/${items[3].grade}.png`" alt="" />
-      </p>
+      </div>
       <p>"{{ items[3].text }}"</p>
     </div>
   </div>
@@ -77,7 +77,22 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
       if (!this.hoverFreeze) {
         this.toNext()
       }
-    }, 15000)
+    }, 5000)
+    this.cardScrollInit()
+  }
+
+  cardScrollInit() {
+    Array.from(document.querySelectorAll('.card')).forEach((card) => {
+      card.addEventListener('wheel', (e) => {
+        e.preventDefault()
+        const wheel = e as WheelEvent
+        if (wheel.deltaY < 0) {
+          this.toPrevious()
+        } else {
+          this.toNext()
+        }
+      })
+    })
   }
 
   cardClick(e) {
@@ -104,7 +119,7 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
       this.currentIndex - 2 >= 0
         ? this.currentIndex - 2
         : this.items.length + (this.currentIndex - 2)
-    offscreen.innerHTML = `<p><img class="grade" src="/img/reviews/${this.items[offIndex].grade}.png" alt="" /></p><p>${this.items[offIndex].text}</p>`
+    offscreen.innerHTML = `<p><img class="grade" src="/img/reviews/${this.items[offIndex].grade}.png" alt="" /></p><p>"${this.items[offIndex].text}"</p>`
     this.currentIndex--
     if (this.currentIndex < 0) {
       this.currentIndex = this.items.length - 1
@@ -183,7 +198,6 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
 .card p {
   text-align: center;
   margin-top: 15px;
-  pointer-events: none;
 }
 .prev.card,
 .next.card {
@@ -197,6 +211,10 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
   opacity: 0.8;
   transition: all 0.3s ease;
   transform: scale(0.75);
+}
+.prev > *,
+.next > * {
+  pointer-events: none;
 }
 .prev {
   margin-left: -40vw;

@@ -25,6 +25,7 @@ export default class NavigationBar extends Mixins(UtilMixins) {
     if (this.isFirefox || this.isIe) {
       return 'background-color : rgba(0, 0, 0, 0.2) !important'
     } else {
+      // return 'background-color : rgba(0, 0, 0, 0.1) !important'
       return 'background-color : rgba(0, 0, 0, 0.1) !important; backdrop-filter: blur(10px)'
     }
   }

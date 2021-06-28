@@ -1,83 +1,73 @@
 <template>
-  <section>
-    <canvas id="renderCanvas" ref="renderCanvas"></canvas>
+  <section id="benchHolder">
+    <Sequence :ratio="ratio" />
+    <!-- <Scene :ratio="ratio" /> -->
   </section>
 </template>
 
-<script>
+<script lang="ts">
 // import Vue.js stuff
 import { Component, Vue } from 'vue-property-decorator'
-
-/** -- UMD PACKAGES -- **/
-import {
-  Engine,
-  Scene,
-  ArcRotateCamera,
-  Vector3,
-  HemisphericLight,
-  SceneLoader,
-} from 'babylonjs'
 import 'babylonjs-loaders'
-/** -- ES6 PACKAGES -- **/
-// import {
-//   Engine,
-//   Scene,
-//   ArcRotateCamera,
-//   Vector3,
-//   HemisphericLight,
-//   SceneLoader,
-// } from '@babylonjs/core'
-// import '@babylonjs/loaders/glTF'
+// import components
+import Sequence from '@/components/home/Sequence.vue'
+import Scene from '@/components/home/Scene.vue'
+// miscellaneous
 
-@Component({})
+@Component({
+  components: {
+    Sequence,
+    Scene,
+  },
+})
 export default class Index extends Vue {
-  async mounted() {
-    console.log(SceneLoader.GetPluginForExtension('.glb'))
+  ratio: number = 0
 
-    // initialize engine
-    const engine = new Engine(this.$refs.renderCanvas)
-    engine.setHardwareScalingLevel(1 / window.devicePixelRatio)
+  mounted() {
+    this.getScrollRatio()
+  }
 
-    // initialize scene
-    const scene = new Scene(engine)
-
-    // initialize camera
-    const camera = new ArcRotateCamera(
-      'immersiveCamera',
-      -Math.PI / 2,
-      Math.PI / 2,
-      15,
-      new Vector3(0, 0, 0),
-      scene
-    )
-    camera.attachControl(this.$refs.renderCanvas, true)
-
-    // initialize light
-    const light = new HemisphericLight(
-      'immersiveLight',
-      new Vector3(0, 0, 0),
-      scene
-    )
-    light.intensity = 2
-
-    /** =============================
-     *  -------- ISSUE BELOW --------
-     * ============================= */
-    await SceneLoader.ImportMeshAsync('', '/', 'test.glb', scene)
-
-    // render loop
-    engine.runRenderLoop(() => {
-      scene.render()
+  getScrollRatio() {
+    // set up animation relative to scrollable section
+    window.addEventListener('scroll', () => {
+      this.ratio = window.scrollY / (window.innerHeight * 2)
     })
   }
 }
 </script>
 
 <style>
-#testCanvas {
-  margin-top: 10vh;
-  margin-left: 10vw;
-  height: 80vh;
-  width: 80vw;
+html {
+  overflow: auto !important;
+}
+body {
+  height: 300vh;
+}
+nav {
+  display: none !important;
+}
+#benchHolder {
+  position: fixed;
+  height: 100vh;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  background: rgb(20, 20, 24);
+}
+.benchHalf {
+  width: 99%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.benchHalf:first-of-type {
+  border-bottom: 2px dashed white;
+}
+.benchHalf:last-of-type {
+  border-top: 2px dashed white;
+}
+.benchCanvas {
+  border: 1px solid red;
 }
 </style>

@@ -1,4 +1,5 @@
 import i18n from './i18n'
+import { routes } from './i18n'
 
 export default {
   ssr: false, // fixed this > Reference Error : navigator not defined
@@ -73,6 +74,14 @@ export default {
     [
       'nuxt-i18n',
       {
+        parsePages: false, // Disable babel parsing
+        pages: {
+          '_site/index': {
+            en: '/:site',
+            fr: '/:site',
+            de: '/:site',
+          },
+        },
         detectBrowserLanguage: {
           useCookie: true,
           cookieKey: 'i18n_redirected',
@@ -126,5 +135,8 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     transpile: ['gsap'],
+  },
+  generate: {
+    routes,
   },
 }

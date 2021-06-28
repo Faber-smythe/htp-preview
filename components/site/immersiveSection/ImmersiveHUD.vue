@@ -1,129 +1,16 @@
 <template>
   <div id="HUD_holder">
-    <!-- Top left tutorial button -->
-    <div
-      id="tutorial_button"
-      ref="tutorial_button"
-      class="HUD_element"
-      @click="toggleTutorial"
-    >
-      <b-icon v-if="!tutorialToggled" icon="question-circle"></b-icon>
-    </div>
-    <div
-      id="tutorial_button"
-      ref="tutorial_button"
-      class="HUD_element"
-      @click="toggleTutorial"
-    >
-      <b-icon v-if="tutorialToggled" icon="times"></b-icon>
-    </div>
     <div id="HUD_top">
       <!-- Scene title -->
-      <div class="head" @click="toggleHistory">
+      <div class="head">
         <h2 class="title-font header-title HUD_element">
           <span style="max-width: 80%">{{ title }}</span>
         </h2>
-        <b-icon
-          v-if="!historyToggled"
-          icon="angle-down"
-          class="HUD_element"
-        ></b-icon>
-        <b-icon v-if="historyToggled" icon="times" class="HUD_element"></b-icon>
       </div>
     </div>
-    <div id="historyPanel" ref="historyPanel">
-      <div id="historyHolder" ref="historyHolder">
-        <p v-for="(paragraph, i) in $t(immersive.history)" :key="i">
-          {{ paragraph }}
-        </p>
-      </div>
-    </div>
-    <div
-      id="tutorial"
-      ref="tutorial"
-      style="display: flex; justify-content: center; align-items: center"
-    >
-      <div
-        class="tutorial-block"
-        style="top: 7vh; left: 5vw; flex-direction: column"
-      >
-        <img
-          ref="tutorialArrow"
-          class="tutorial-arrow"
-          src="/img/exit_arrow.png"
-          alt="green arrow pointing to tutorial exit"
-          style=""
-        />
-        <p>{{ $t('Tutorial_Exit_Clue') }}</p>
-      </div>
-      <div class="tutorial-block" style="top: 10vh; right: 50vw">
-        <p>{{ $t('Tutorial_History_Clue') }}</p>
-        <img
-          ref="tutorialArrow"
-          class="tutorial-arrow"
-          src="/img/history_arrow.png"
-          alt="green arrow pointing to the location title"
-        />
-      </div>
-      <div class="tutorial-block" style="bottom: 10vh; left: 50vw">
-        <img
-          ref="tutorialArrow"
-          class="tutorial-arrow"
-          src="/img/slider_arrow.png"
-          alt="green arrow pointing to the time slider"
-        />
-        <p>{{ $t('Tutorial_Slider_Clue') }}</p>
-      </div>
-      <div class="tutorial-block" style="bottom: 50vh; right: 1vw">
-        <p>{{ $t('Tutorial_Scroll_Clue') }}</p>
-        <img
-          ref="tutorialArrow"
-          class="tutorial-arrow"
-          src="/img/scrollbar_arrow.png"
-          alt="green arrow pointing to the scrollbar"
-        />
-      </div>
-      <div
-        v-if="treasureIsFound === 'already found'"
-        class="tutorial-block"
-        style="top: 50vh; left: 4vw; flex-direction: column"
-      >
-        <img
-          ref="tutorialArrow"
-          class="tutorial-arrow"
-          src="/img/exit_arrow.png"
-          alt="green arrow pointing to treasure panel"
-          style=""
-        />
-        <p>{{ $t('Tutorial_Treasure_Clue') }}</p>
-      </div>
-      <!-- <div class="tutorial-block">
-        <p>{{ $t('Tutorial_Immersive_Clue') }}</p>
-      </div> -->
-    </div>
-    <div
-      v-if="immersive.treasure"
-      id="treasurePanel"
-      ref="treasurePanel"
-      class="HUD_element"
-    >
-      <h2
-        ref="congrats"
-        :style="`display: ${
-          treasureIsFound !== 'first time' ? 'none' : 'flex'
-        }`"
-      ></h2>
-      <h3>— {{ treasureData.name }}</h3>
-      <p v-for="(string, i) in treasureData.description" :key="i">
-        {{ string }}
-      </p>
-      <img :src="treasureData.picture" alt="" />
-      <span id="treasureArrow" ref="treasureArrow" @click="toggleTreasure">
-        <b-icon v-if="treasureToggled !== 'true'" icon="angle-left"></b-icon>
-        <b-icon v-if="treasureToggled === 'true'" icon="angle-right"></b-icon>
-      </span>
-    </div>
-    <div v-if="!historyToggled" id="HUD_bottom">
+
+    <!-- time slider -->
+    <div id="HUD_bottom">
       <!-- Time slider -->
       <!-- Slider labels left and right-->
       <span
@@ -203,108 +90,6 @@ export default class ImmersiveHUD extends Mixins(UtilMixins) {
     description: this.$t('imm_cuisine_treasure_description'),
   }
 
-  /**
-   * HISTORY
-   */
-  toggleHistory() {
-    if (this.historyToggled) {
-      this.hideHistoryPanel()
-    } else {
-      this.showHistoryPanel()
-    }
-  }
-
-  hideHistoryPanel() {
-    const panel = this.$refs.historyPanel as HTMLElement
-    panel.style.top = '-100%'
-    this.historyToggled = false
-  }
-
-  showHistoryPanel() {
-    // hide other panels
-    if (this.treasureIsFound !== 'already found') {
-      this.$emit('toggle-treasure', 'fullyHidden')
-    } else {
-      this.$emit('toggle-treasure', 'false')
-    }
-    this.hideTutorial()
-    // show history panels
-    const panel = this.$refs.historyPanel as HTMLElement
-    panel.style.top = '0%'
-    this.historyToggled = true
-  }
-
-  /**
-   * TUTORIAL
-   */
-  toggleTutorial() {
-    if (this.tutorialToggled) {
-      this.hideTutorial()
-    } else {
-      this.showTutorial()
-    }
-  }
-
-  hideTutorial() {
-    const panel = this.$refs.tutorial as HTMLElement
-    panel.style.opacity = '0'
-    this.tutorialToggled = false
-  }
-
-  showTutorial() {
-    // hide other panels
-    this.hideHistoryPanel()
-    this.$emit('toggle-treasure', 'false')
-    // show tutorial panel
-    const panel = this.$refs.tutorial as HTMLElement
-    panel.style.opacity = '1'
-    this.tutorialToggled = true
-  }
-
-  /**
-   * TREASURE
-   */
-  toggleTreasure() {
-    if (this.treasureToggled !== 'true') {
-      this.$emit('toggle-treasure', 'true')
-    } else {
-      this.$emit('toggle-treasure', 'false')
-    }
-  }
-
-  @Watch('treasureToggled')
-  hideTreasure() {
-    if (this.treasureToggled !== 'true') {
-      if (this.treasureIsFound === 'first time') {
-        this.treasureIsFound = 'already found'
-      }
-      const panel = this.$refs.treasurePanel as HTMLElement
-      switch (this.treasureToggled) {
-        case 'false':
-          panel.style.left = '-49%'
-          break
-        case 'fullyHidden':
-          panel.style.left = '-53%'
-          break
-      }
-    }
-  }
-
-  @Watch('treasureToggled')
-  showTreasure() {
-    if (this.treasureToggled === 'true') {
-      if (this.treasureIsFound === 'awaiting') {
-        this.treasureIsFound = 'first time'
-      }
-      // hide other panels
-      this.hideHistoryPanel()
-      this.hideTutorial()
-      // show treasure panel
-      const panel = this.$refs.treasurePanel as HTMLElement
-      panel.style.left = '0%'
-    }
-  }
-
   onSliderTooltipClick(index) {
     const slideValue = (100 / (this.sliderTooltipsLabels.length - 1)) * index
     this.$emit('time-slide', slideValue)
@@ -314,46 +99,6 @@ export default class ImmersiveHUD extends Mixins(UtilMixins) {
     const slideValue = e.target.value
     this.$emit('time-slide', slideValue)
     // console.log(slideValue)
-  }
-
-  onSoundPopoverClick() {
-    if (this.isSafariOrIOS) {
-      setTimeout(() => {
-        this.soundPopoverVisible = !this.soundPopoverVisible
-      }, 100)
-    } else {
-      this.soundPopoverVisible = !this.soundPopoverVisible
-    }
-  }
-
-  onStepVolume(value) {
-    this.soundVolume += value
-    if (this.soundVolume > 100) {
-      this.soundVolume = 100
-    } else if (this.soundVolume < 0) {
-      this.soundVolume = 0
-    }
-    // this.soundManager.setVolume(this.soundVolume / 100)
-    console.log(`Volume set at ${this.soundVolume}`)
-  }
-
-  onDragVolume(e) {
-    this.soundVolume = parseInt(e.target.value)
-    console.log(`Volume set at ${this.soundVolume}`)
-  }
-
-  mounted() {
-    // parse html for the first time congratulations on the treasure discovery
-    const congrats = this.$refs.congrats as HTMLElement
-    congrats.innerHTML = this.$t('Treasure_Congrats') as string
-
-    // initiliaze the smooth scroll for the history panel
-    Scrollbar.init(this.$refs.historyHolder as HTMLElement, {
-      damping: 0.2,
-      delegateTo: document,
-      alwaysShowTracks: true,
-      wheelEventTarget: this.$refs.historyHolder as HTMLElement,
-    })
   }
 }
 </script>

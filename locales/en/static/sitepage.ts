@@ -6,6 +6,7 @@ export default {
   Language_en: 'English',
   Language_de: 'German',
   Home: 'Home',
+  Trailerline: 'Brace yourselves...',
   /**
    * IMMERSIVE HUD
    */

@@ -19,7 +19,7 @@ export default class ScrollController {
     // Setup
     const scroller = document.getElementById('section-holder')!
     const bodyScrollBar = Scrollbar.init(scroller, {
-      damping: 0.1,
+      damping: 0.2,
       delegateTo: document,
       alwaysShowTracks: true,
     })
@@ -50,18 +50,6 @@ export default class ScrollController {
 
   static initHeaderScroller() {
     ScrollController.enableSmoothScroll()
-
-    /*
-    // first title appearance
-    const titleAppear = gsap.timeline()
-    titleAppear.to('h1 .letter', {
-      translateY: '0px',
-      // opacity: 1,
-      stagger: 0.04,
-      duration: 1,
-      ease: 'power2.out',
-    })
-    */
 
     // handle header pinning and fading
     const fadeUpTimeline = gsap.timeline({
@@ -121,112 +109,201 @@ export default class ScrollController {
     })
   }
 
-  static initImmersiveScroller(leaveCallback) {
-    if (
-      document.querySelector('nav.navbar') === null ||
-      document.getElementById('pageUp') === null
-    ) {
-      setTimeout(() => {
-        ScrollController.initImmersiveScroller(leaveCallback)
-      }, 50)
-    } else {
-      // handle pageUp event
-      const scrollBar = ScrollController.enableSmoothScroll()
-      document.getElementById('pageUp')!.addEventListener('click', () => {
-        scrollBar.scrollTo(0, 0, 1500)
-      })
-      // handle the immersive zoom in animation
-      const tweenElem = document.getElementById('immersive-stage')!
-      const tabletTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: '#immersive-section',
-          start: 'center center',
-          // endTrigger: '#sitesGrid',
-          end: `${getVhInPixels() * 3} center`,
-          toggleActions: 'play none reverse none',
-          scrub: true,
-          // markers: true,
-          pin: '#immersive-section',
+  static initFolioscopeScroller(duration) {
+    const scrollbar = ScrollController.enableSmoothScroll()
+
+    const folioSection = document.querySelector('#folioscopeSection')!
+
+    const folioscopeTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: folioSection,
+        start: 'center center',
+        end: `${duration} top`,
+        toggleActions: 'play none reverse none',
+        scrub: true,
+        // markers: true,
+        pin: folioSection,
+      },
+    })
+    folioscopeTimeline
+      .from(
+        '#trailerLogoHolder',
+        {
+          rotation: '180deg',
+          scale: 0.01,
+          opacity: 0,
+          duration: 5,
         },
-      })
-      tabletTimeline.to(
-        'nav.navbar',
+        1
+      )
+      .from(
+        '#trailerBrand span',
         {
           rotationX: '90deg',
-          duration: 0.5,
-          ease: 'expo.in',
+          duration: 3.5,
+        },
+        5
+      )
+      .from(
+        '#trailerBrand',
+        {
+          scale: '0.6',
+          duration: 6,
+        },
+        16
+      )
+
+    return scrollbar
+  }
+
+  static initImmersiveScroller(duration) {
+    const scrollBar = ScrollController.enableSmoothScroll()
+
+    // declaration
+    const immersiveStage = document.getElementById('immersive-stage')!
+
+    // handle pageUp event
+    document.getElementById('pageUp')!.addEventListener('click', () => {
+      scrollBar.scrollTo(0, 0, 1500)
+    })
+
+    // trailer title and line needs to be pinned a bit longer
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: '#immersive-section',
+        start: 'top bottom',
+        end: `${duration} center`,
+        toggleActions: 'play none reverse none',
+        scrub: true,
+        pin: '#trailerBrand',
+      },
+    })
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: '#immersive-section',
+        start: 'top bottom',
+        end: `${duration} center`,
+        toggleActions: 'play none reverse none',
+        scrub: true,
+        pin: '#trailerline',
+      },
+    })
+
+    // title needs to be pinned a bit longer
+    gsap
+      .timeline({
+        scrollTrigger: {
+          trigger: '#immersive-section',
+          start: 'top bottom',
+          end: `top top`,
+          toggleActions: 'play none reverse none',
+          scrub: true,
+          pin: '#trailerBrand',
+        },
+      })
+      .to(
+        '#trailerBrand',
+        {
+          filter: 'blur(20px)',
+          opacity: '0',
         },
         0
       )
-      tabletTimeline
-        .from(
-          tweenElem,
-          {
-            scale: 0.5,
-            duration: 3,
-          },
-          0
-        )
-        .add(() => leaveCallback(true))
-        .from(
-          '#HUD_holder',
-          {
-            opacity: 0,
-            display: 'none',
-            duration: 0.8,
-          },
-          2.8
-        )
-        .to(
-          '#HUD_holder',
-          {
-            opacity: 0,
-            display: 'none',
-            duration: 0.8,
-          },
-          7.2
-        )
-        .add(() => leaveCallback(true))
-        .to(
-          tweenElem,
-          {
-            scale: 0.5,
-            duration: 3.5,
-          },
-          8
-        )
-        .to(
-          'nav.navbar',
-          {
-            rotationX: '0deg',
-            duration: 0.5,
-            ease: 'expo.in',
-          },
-          8
-        )
-        .to(
-          '#pageUp',
-          {
-            bottom: '1rem',
-            duration: 0.5,
-            ease: 'expo.in',
-          },
-          8
-        )
+      .from(
+        '#trailerline',
+        {
+          filter: 'blur(20px)',
+          opacity: '0',
+        },
+        0
+      )
 
-      // handle the treasurePanel hide on immersive leave
-      // gsap.timeline({
-      //   scrollTrigger: {
-      //     trigger: '#immersive-section',
-      //     start: '10% 50%',
-      //     // endTrigger: '#sitesGrid',
-      //     end: `center center`,
-      //     onLeave: () => leaveCallback(true),
-      //     onLeaveBack: () => leaveCallback(true),
-      //     markers: true,
-      //   },
-      // })
-    }
+    // handle the immersive animated narration
+    const immersiveTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#immersive-section',
+        start: 'center center',
+        end: `${duration} top`,
+        toggleActions: 'play none reverse none',
+        scrub: true,
+        // markers: true,
+        pin: '#immersive-section',
+      },
+    })
+
+    immersiveTimeline.to(
+      'nav.navbar',
+      {
+        rotationX: '90deg',
+        duration: 0.5,
+        ease: 'expo.in',
+      },
+      0
+    )
+    immersiveTimeline.to(
+      '#trailerline h2',
+      {
+        opacity: '0',
+        translateX: '20vw',
+        // filter: 'blur(10px)',
+        duration: 2,
+      },
+      0.5
+    )
+    immersiveTimeline.from(
+      immersiveStage,
+      {
+        opacity: 0,
+        duration: 2,
+      },
+      0.3
+    )
+    immersiveTimeline.to(
+      '#trailerBrand',
+      {
+        display: 'none',
+        duration: 0.01,
+      },
+      2
+    )
+    immersiveTimeline.from(
+      '#HUD_holder',
+      {
+        opacity: 0,
+        display: 'none',
+        duration: 0.8,
+      },
+      1.8
+    )
+    immersiveTimeline.to(
+      '#HUD_holder',
+      {
+        opacity: 0,
+        display: 'none',
+        duration: 0.8,
+      },
+      7.2
+    )
+    immersiveTimeline.to(
+      'nav.navbar',
+      {
+        rotationX: '0deg',
+        duration: 0.5,
+        ease: 'expo.in',
+      },
+      8
+    )
+    immersiveTimeline.to(
+      '#pageUp',
+      {
+        bottom: '1rem',
+        duration: 0.5,
+        ease: 'expo.in',
+      },
+      8
+    )
+
+    return scrollBar
   }
 
   static initFooterScroller() {

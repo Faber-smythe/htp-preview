@@ -31,23 +31,13 @@ export interface Position {
 }
 
 export interface Hotspot {
-  uniqueID: string
   type: string
-  zoomLevelDisplayMin: number
-  zoomLevelDisplayMax: number
-  content: any[]
-  contentList: ContentList[]
   index: number
-  requiredAssetBundle: string
-  displayIndexes: any[]
-  layers: any[]
-  spriteFileName: string
-  visitedSpriteFileName: string
-  color: string
-  navigationType: string
-  filtersOut: any[]
-  filtersIn: any[]
   position: Position
+  insert?: HTMLElement
+  visualAsset: string
+  value: string
+  opened: boolean
 }
 
 export interface Position2 {

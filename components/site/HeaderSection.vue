@@ -20,7 +20,7 @@ export default class SitePage extends Vue {
 
   headerBg: string = require(`@/assets/img/sites/${
     this.site!.linkLabel
-  }-header.jpg`)
+  }/header.jpg`)
 
   mounted() {
     const title = this.$refs.title as HTMLElement
@@ -51,6 +51,10 @@ export default class SitePage extends Vue {
 </script>
 
 <style>
+#header-section {
+  position: relative;
+  z-index: 7;
+}
 #header-section h1 {
   position: absolute;
   z-index: 5;

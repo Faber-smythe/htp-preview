@@ -12,7 +12,6 @@
       @time-slide="timeSlide($event)"
     />
     <div id="immersive-stage" ref="immersiveStage">
-      <img id="tabletFrame" ref="frame" :src="frameUri" alt="tablet frame" />
       <ImmersiveScene
         v-if="loadScreen"
         :site="site"
@@ -20,11 +19,15 @@
         :time-slide-location="timeSlideLocation"
         :load-screen="loadScreen"
         :tweening="tweening"
+        :autopilot-ratio="autopilotPosition"
+        :cursor-x="cursorX"
+        :cursor-y="cursorY"
         @found-treasure="toggleTreasurePanel()"
       />
       <!-- this Custom Loadscreen is handled in @utils/BabylonCustomLoader.ts -->
       <LoadingScreen @found-load-screen="(e) => setLoadScreen(e)" />
     </div>
+    <div id="frame"></div>
   </section>
 </template>
 
@@ -60,6 +63,14 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   timeSlidePercent: number = 100
   loading: boolean = false
   treasurePanelToggled: string = 'false'
+
+  autopilotDuration: number = window.innerHeight * 5.5
+  autopilotOffsetTop: number = window.innerHeight * 5
+  autopilotPosition: number = 0
+  autoSlideMin: number = 0.25
+  autoSlideMax: number = 0.8
+  cursorX: number = 0
+  cursorY: number = 0
 
   sliderTooltipsLabels =
     this.immersive &&
@@ -108,42 +119,67 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
     }
   }
 
-  get frameUri() {
-    return require('@/assets/img/tabletFrame.png')
-  }
-
   mounted() {
-    // set stage size with correct screen ratio
-    this.setStageSize()
-
     this.$nextTick(function () {
       // Code that will run only after the
       // entire view has been rendered
-      SC.initImmersiveScroller(() => {
-        this.treasurePanelToggled = 'fullyHidden'
-      })
+      this.initScrollAttempt()
+      this.watchCursorPosition()
     })
   }
 
-  setStageSize() {
-    const stage = this.$refs.immersiveStage as HTMLElement
-    const frame = this.$refs.frame as HTMLElement
-    const ratio = window.innerWidth / window.innerHeight
-    if (ratio < 1.335) {
-      const tabletHeight = window.innerHeight
-      const tabletWidth = tabletHeight * 1.335
-      stage.style.height = `${tabletHeight}px`
-      stage.style.width = `${tabletWidth}px`
-      frame.style.height = '100%'
-      frame.style.transform = 'scale(1.12)'
+  watchCursorPosition() {
+    // const stage = this.$refs.immersiveStage as HTMLElement
+    document.body.addEventListener('mousemove', (e) => {
+      // console.log('x : ', e.clientX, '|| y : ', e.clientY)
+      this.cursorX =
+        (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2)
+      this.cursorY =
+        (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2)
+    })
+  }
+
+  initScrollAttempt() {
+    if (
+      document.querySelector('nav.navbar') === null ||
+      document.querySelector('#trailerBrand') === null ||
+      document.getElementById('pageUp') === null
+    ) {
+      setTimeout(() => {
+        this.initScrollAttempt()
+      }, 50)
     } else {
-      const tabletWidth = window.innerWidth
-      const tabletHeight = tabletWidth / 1.335
-      stage.style.height = `${tabletHeight}px`
-      stage.style.width = `${tabletWidth}px`
-      frame.style.width = '100%'
-      frame.style.transform = 'scale(1.18)'
+      const scrollbar = SC.initImmersiveScroller(this.autopilotDuration)
+      this.autopilotScroll(scrollbar)
     }
+  }
+
+  autopilotScroll(scrollbar) {
+    scrollbar.addListener(() => {
+      if (
+        scrollbar.scrollTop > this.autopilotOffsetTop &&
+        scrollbar.scrollTop < this.autopilotOffsetTop + this.autopilotDuration
+      ) {
+        const relativePosition = scrollbar.scrollTop - this.autopilotOffsetTop
+        const ratio = relativePosition / this.autopilotDuration
+        this.autopilotPosition = ratio
+        this.autoSlide(ratio)
+      }
+    })
+  }
+
+  autoSlide(ratio) {
+    let innerRatio
+    // beyond ratio limits
+    if (ratio <= this.autoSlideMin) {
+      innerRatio = 0
+    } else if (ratio >= this.autoSlideMax) {
+      innerRatio = 1
+    } else {
+      const range = this.autoSlideMax - this.autoSlideMin
+      innerRatio = (ratio - this.autoSlideMin) / range
+    }
+    this.timeSlidePercent = (1 - innerRatio) * 100
   }
 
   timeSlide(percent) {
@@ -165,6 +201,7 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   }
 }
 </script>
+
 <style scoped>
 #immersive-section {
   min-height: 100vh;
@@ -177,12 +214,15 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   align-items: center;
   background: black;
   overflow: hidden;
+  /* border: 1px solid red; */
 }
 #immersive-stage {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
+  width: 100vw;
 }
 .stageError {
   position: absolute;
@@ -195,11 +235,14 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   justify-content: center;
   align-items: center;
 }
-#tabletFrame {
-  position: absolute;
-  z-index: 50;
-  max-width: none;
-  max-height: none;
+#frame {
+  position: fixed;
+  z-index: 999;
   pointer-events: none;
+  top: 7.5vh;
+  left: 7.5vw;
+  width: 85vw;
+  height: 85vh;
+  /* border: 3px dashed red; */
 }
 </style>

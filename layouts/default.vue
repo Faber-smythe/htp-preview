@@ -2,7 +2,8 @@
   <main class="container-fluid">
     <NavigationBar />
 
-    <b-button id="pageUp" icon-left="arrow-circle-up"> </b-button>
+    <b-button id="pageUp" icon-left="arrow-circle-up" title="back to the top">
+    </b-button>
     <nuxt />
   </main>
 </template>

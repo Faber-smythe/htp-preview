@@ -26,7 +26,7 @@ export default class FooterSection extends Vue {
 
   footerBg: string = require(`@/assets/img/sites/${
     this.site!.linkLabel
-  }-footer.jpg`)
+  }/footer.jpg`)
 
   mounted() {
     this.$nextTick(function () {
