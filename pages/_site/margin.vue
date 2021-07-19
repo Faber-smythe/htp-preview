@@ -4,7 +4,7 @@
     <!-- <AnimatedSection v-if="foundSite" :site="site" /> -->
     <Folioscope v-if="foundSite" :site="site" />
     <ImmersiveSection v-if="foundSite" :immersive="immersive" :site="site" />
-    <VisualAssetSection v-if="foundSite" :visuals="visualAssets" :site="site" />
+    <ViewablesSection v-if="foundSite" :visuals="visualAssets" :site="site" />
     <FooterSection v-if="foundSite" :site="site" />
 
     <!-- below is for  -->
@@ -24,26 +24,22 @@ import { gsap } from 'gsap'
 // import components
 import HeaderSection from '@/components/site/HeaderSection.vue'
 import FooterSection from '@/components/site/footerSection/FooterSection.vue'
-import AnimatedSection from '@/components/site/AnimatedSection.vue'
-import Folioscope from '@/components/site/Folioscope.vue'
 import ImmersiveSection from '@/components/site/immersiveSection/ImmersiveSection.vue'
-import VisualAssetSection from '@/components/site/visualAssetSection/VisualAssetSection.vue'
+import ViewablesSection from '@/components/site/viewablesSection/ViewablesSection.vue'
 // import types
 import Site from '@/types/Site'
 import ImmersiveContent from '@/types/ImmersiveContent'
 // miscellaneous
 import { UtilMixins } from '@/utils/mixins'
 import sitesFile from '@/data/sites.json'
-import VisualAsset from '@/types/VisualAsset'
+import Viewable from '@/types/Viewable'
 import SC from '@/utils/ScrollController'
 
 @Component({
   components: {
     HeaderSection,
-    AnimatedSection,
-    Folioscope,
     ImmersiveSection,
-    VisualAssetSection,
+    ViewablesSection,
     FooterSection,
   },
 })
@@ -79,9 +75,9 @@ export default class SitePage extends Mixins(UtilMixins) {
     }
   }
 
-  get visualAssets(): VisualAsset[] {
-    if (this.site && this.site.visualAssets.length) {
-      return this.site.visualAssets as VisualAsset[]
+  get visualAssets(): Viewable[] {
+    if (this.site && this.site.viewables.length) {
+      return this.site.viewables as Viewable[]
     } else {
       return []
     }

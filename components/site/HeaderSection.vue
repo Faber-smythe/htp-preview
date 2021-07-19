@@ -54,6 +54,7 @@ export default class SitePage extends Vue {
 #header-section {
   position: relative;
   z-index: 7;
+  perspective: 100px;
 }
 #header-section h1 {
   position: absolute;
@@ -65,6 +66,7 @@ export default class SitePage extends Vue {
   text-transform: uppercase;
   text-align: center;
   letter-spacing: 0.1em;
+  transform-style: preserve-3d;
 }
 #header-section h1 .letter {
   display: inline-block;

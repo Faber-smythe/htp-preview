@@ -1,11 +1,5 @@
 <template>
-  <main class="container-fluid">
-    <NavigationBar />
-
-    <b-button id="pageUp" icon-left="arrow-circle-up" title="back to the top">
-    </b-button>
-    <nuxt />
-  </main>
+  <nuxt />
 </template>
 
 <script lang="ts">
@@ -36,15 +30,13 @@ main {
   padding: 5px;
   border-radius: 200px;
   border: none;
-  color: white;
+  color: rgba(255, 255, 255, 0.2) !important;
   background: transparent;
   transition: all 0.3s ease;
-  opacity: 0.5;
 }
 
 #pageUp:hover {
-  opacity: 1;
-  background: black;
+  color: rgba(255, 255, 255, 1) !important;
 }
 
 .title-font {

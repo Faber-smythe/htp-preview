@@ -1,41 +1,47 @@
 <template>
   <div id="languageHolder">
-    <div>
-      <b-dropdown
-        v-if="!isMobile"
-        class="languageSwitcherDropdown"
-        aria-role="list"
-        :triggers="['hover']"
-        position="is-bottom-left"
-      >
-        <p slot="trigger" class="tag" role="button" style="cursor: pointer">
-          <span v-if="!isSmartPhone">
-            &nbsp;{{ $t(`Language_${$i18n.locale}`) }}</span
-          >
-        </p>
-        <b-dropdown-item
-          v-for="locale in availableLocales"
-          :key="locale.code"
-          aria-role="listitem"
+    <b-dropdown
+      class="languageSwitcherDropdown"
+      aria-role="list"
+      :triggers="isMobile ? [] : ['hover']"
+      position="is-bottom-left"
+    >
+      <p slot="trigger" class="tag" role="button" style="cursor: pointer">
+        <span v-if="!isSmartPhone">
+          &nbsp;{{ $t(`Language_${$i18n.locale}`) }}</span
         >
-          <nuxt-link :to="switchLocalePath(locale.code)">
-            {{ $t(`Language_${locale.code}`) }}
-          </nuxt-link>
-        </b-dropdown-item>
-      </b-dropdown>
-    </div>
+      </p>
+      <b-dropdown-item
+        v-for="locale in availableLocales"
+        :key="locale.code"
+        aria-role="listitem"
+      >
+        <!-- <nuxt-link :to="switchLocalePath(locale.code)">
+          {{ $t(`Language_${locale.code}`) }}
+        </nuxt-link> -->
+        <a :href="switchLocalePath(locale.code)">{{
+          $t(`Language_${locale.code}`)
+        }}</a>
+      </b-dropdown-item>
+    </b-dropdown>
 
-    <b-navbar-dropdown
+    <!-- <b-dropdown
       v-if="isMobile"
       :label="$t(`Language_.${selectedLanguage}`)"
       :right="true"
       :hoverable="true"
       :arrowless="true"
     >
-      <nuxt-link :to="switchLocalePath(locale.code)">
-        {{ $t(`Language_.${locale.code}`) }}
-      </nuxt-link>
-    </b-navbar-dropdown>
+      <b-dropdown-item
+        v-for="locale in availableLocales"
+        :key="locale.code"
+        aria-role="listitem"
+      >
+        <nuxt-link :to="switchLocalePath(locale.code)">
+          {{ $t(`Language_.${locale.code}`) }}
+        </nuxt-link>
+      </b-dropdown-item>
+    </b-dropdown> -->
   </div>
 </template>
 
@@ -55,10 +61,11 @@ export default class LanguageSwitcher extends Mixins(UtilMixins) {
 </script>
 <style>
 .languageSwitcherDropdown {
-  height: 3.5rem;
+  height: 7vh !important;
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 1px solid red;
 }
 .languageSwitcherDropdown .dropdown-menu {
   min-width: 0px;

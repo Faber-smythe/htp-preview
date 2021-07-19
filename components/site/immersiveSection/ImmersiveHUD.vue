@@ -52,15 +52,13 @@
 
 <script lang="ts">
 // import libs
-import { Component, Mixins, Prop, Vue, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Vue } from 'vue-property-decorator'
 import VTooltip from 'v-tooltip'
-import Scrollbar from 'smooth-scrollbar'
 // import types
 import Site from '@/types/Site'
 import ImmersiveContent from '@/types/ImmersiveContent'
 // miscellaneous
 import { UtilMixins } from '@/utils/mixins'
-import { SoundManager } from '@/utils/SoundManager'
 
 Vue.use(VTooltip)
 
@@ -70,25 +68,12 @@ export default class ImmersiveHUD extends Mixins(UtilMixins) {
   @Prop({ type: Object, required: true }) readonly immersive!: ImmersiveContent
   @Prop({ type: String, required: true }) readonly title!: string
   @Prop({ type: Boolean, required: true }) readonly loading!: boolean
-  @Prop({ type: String, required: true }) readonly treasureToggled!: string
   @Prop({ type: Number, required: true }) readonly timeSlidePercent!: number
   @Prop({ type: Array, required: true })
   readonly sliderTooltipsLabels!: string[]
 
   soundToggle = false
   sites: Site[] = []
-  soundManager = new SoundManager()
-  soundVolume: number = 0
-  soundPopoverVisible: boolean = false
-  historyToggled: boolean = false
-  tutorialToggled: boolean = false
-  treasureIsFound: string = 'awaiting'
-
-  treasureData: Object = {
-    picture: require(`@/assets/resources3d/immersives/${this.site.siteID}/illustrations/treasure.png`),
-    name: this.$t(this.immersive.treasure.name),
-    description: this.$t('imm_cuisine_treasure_description'),
-  }
 
   onSliderTooltipClick(index) {
     const slideValue = (100 / (this.sliderTooltipsLabels.length - 1)) * index
@@ -128,6 +113,7 @@ export default class ImmersiveHUD extends Mixins(UtilMixins) {
 #HUD_top {
   z-index: 3;
   background: linear-gradient(#111, transparent);
+  margin-top: -2px;
 }
 #HUD_top .head {
   display: flex;
@@ -145,19 +131,6 @@ export default class ImmersiveHUD extends Mixins(UtilMixins) {
 #HUD_top .head:hover .icon {
   opacity: 1;
 }
-#tutorial_button {
-  position: absolute;
-  z-index: 6;
-  left: 2vw;
-  top: 1vh;
-  font-size: 2rem;
-  cursor: pointer;
-  transition: all 0.4s ease;
-  opacity: 0.5;
-}
-#tutorial_button:hover {
-  opacity: 1;
-}
 .HUD_element,
 .HUD_element button {
   pointer-events: all;
@@ -171,6 +144,7 @@ export default class ImmersiveHUD extends Mixins(UtilMixins) {
 }
 #HUD_bottom {
   background: linear-gradient(transparent, #111);
+  margin-bottom: -2px;
 }
 #tutorial {
   position: absolute;

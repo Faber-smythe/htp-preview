@@ -15,12 +15,12 @@ import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders'
 
 @Component
-export default class Scene extends Vue {
+export default class Scrolltests extends Vue {
   @Prop({ type: Number, required: true }) readonly ratio!: number
   finishedImport: Boolean = false
   canvas!: HTMLCanvasElement
 
-  scene!: BABYLON.Scene 
+  scene!: BABYLON.Scene
   light!: BABYLON.PointLight
   camera!: BABYLON.ArcRotateCamera
 

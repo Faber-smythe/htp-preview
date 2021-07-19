@@ -5,10 +5,8 @@
       :immersive="immersive"
       :title="immersiveTitle"
       :loading="loading"
-      :treasure-toggled="treasurePanelToggled"
       :slider-tooltips-labels="sliderTooltipsLabels"
       :time-slide-percent="timeSlidePercent"
-      @toggle-treasure="toggleTreasurePanel($event)"
       @time-slide="timeSlide($event)"
     />
     <div id="immersive-stage" ref="immersiveStage">
@@ -18,22 +16,41 @@
         :immersive="immersive"
         :time-slide-location="timeSlideLocation"
         :load-screen="loadScreen"
-        :tweening="tweening"
-        :autopilot-ratio="autopilotPosition"
+        :anim-tablet-separator="scrollAnimSeparators.tabletEnd"
+        :anim-trailer-separator="scrollAnimSeparators.trailerLineEnd"
+        :scroll-anim-ratio="scrollAnimRatio"
         :cursor-x="cursorX"
         :cursor-y="cursorY"
-        @found-treasure="toggleTreasurePanel()"
       />
       <!-- this Custom Loadscreen is handled in @utils/BabylonCustomLoader.ts -->
       <LoadingScreen @found-load-screen="(e) => setLoadScreen(e)" />
     </div>
+    <h2 id="trailerLine">
+      <span id="diveInto">dive into</span>&nbsp;
+      <span id="thePast">the past</span>
+    </h2>
+    <p id="screenText_1" class="screenText">
+      Curabitur sodales vehicula vehicula. Duis quis ipsum aliquam ipsum viverra
+      imperdiet et vitae tellus. Quisque efficitur quam ultricies laoreet
+      tristique. Integer quis ex dolor.
+    </p>
+    <p id="screenText_2" class="screenText">
+      Duis quam ipsum, cursus at ligula tristique, suscipit volutpat dolor.
+      Aenean hendrerit molestie euismod. Nullam at faucibus metus, vitae
+      placerat risus.
+    </p>
+    <p id="screenText_3" class="screenText">
+      Aliquam erat volutpat. Maecenas tempor, justo sed pharetra mattis, ligula
+      risus sagittis elit, ac sodales lorem lorem eget orci. Aliquam id
+      sollicitudin tortor.
+    </p>
     <div id="frame"></div>
   </section>
 </template>
 
 <script lang="ts">
 // Import libs
-import { Component, Prop, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 // Import components
 import ImmersiveHUD from '@/components/site/immersiveSection/ImmersiveHUD.vue'
 import ImmersiveScene from '@/components/site/immersiveSection/ImmersiveScene.vue'
@@ -41,6 +58,7 @@ import LoadingScreen from '@/components/LoadingScreen.vue'
 // Import types
 import Site from '@/types/Site'
 import ImmersiveContent from '@/types/ImmersiveContent'
+import Scrollbar from 'smooth-scrollbar'
 // Miscellaneous
 import { UtilMixins } from '@/utils/mixins'
 import SC from '@/utils/ScrollController'
@@ -54,38 +72,55 @@ import SC from '@/utils/ScrollController'
   },
 })
 export default class ImmersiveSection extends Mixins(UtilMixins) {
-  @Prop({ type: Boolean, required: false }) readonly gsapScroll!: Boolean
   @Prop({ type: Object, required: true }) readonly immersive!: ImmersiveContent
   @Prop({ type: Object, required: true }) readonly site!: Site
 
-  tweening: boolean = false
+  /** REFERENCE PROPERTIES **/
   loadScreen = null
-  timeSlidePercent: number = 100
-  loading: boolean = false
-  treasurePanelToggled: string = 'false'
+  swayedTitles: HTMLElement[] = []
+  swayedScreenTexts: HTMLElement[] = []
 
-  autopilotDuration: number = window.innerHeight * 5.5
-  autopilotOffsetTop: number = window.innerHeight * 5
-  autopilotPosition: number = 0
-  autoSlideMin: number = 0.25
-  autoSlideMax: number = 0.8
+  /** SETTINGS PROPERTIES **/
+  // total duration of the 3D scroll animation (in scrolled pixels )
+  scrollAnimDuration: number = window.innerHeight * 14
+  // shouldn't need editing, it fits HeaderSection's height
+  scrollAnimOffsetTop: number = window.innerHeight
+  scrollAnimSeparators = {
+    // ratio of the total duration deciding the end of to the tablet animation
+    tabletEnd: 0.65,
+    // ratio of the total duration deciding the end of the trailerLine animation
+    trailerLineEnd: 0.75,
+  }
+
+  /** below are the manual magnets :
+   * they hold the location relative to the tablet animation where scroll should snap
+   * to find them, stop on desired frame, go to the AnimationGroup inspector and divide the "To" property by the current frame
+   */
+  tabletMagnets: number[] = [0.254, 0.409, 0.691]
+
+  /** STATE PROPERTIES **/
+  loading: boolean = false
+  onScrollingStop!: ReturnType<typeof setTimeout>
+  timeSlidePercent: number = 100
+  scrollAnimRatio: number = 0
+  // autoslide ratios below decide when the time slide should start listening to the scroll
+  autoSlideMin: number = this.scrollAnimSeparators.trailerLineEnd * 1.05
+  autoSlideMax: number = 0.9
+  // cursor position is [0;0] on viewport center, positive x goes down and positive y goes right
+  // used for 3D swaying across the page
   cursorX: number = 0
   cursorY: number = 0
+  wheelVelocity: number = 0
 
-  sliderTooltipsLabels =
-    this.immersive &&
-    this.immersive.layers.map((layer) => {
-      return layer.localizedTimestampTitle
-    })
+  get sliderTooltipsLabels() {
+    return this.immersive.layers.map((layer) => this.$t(layer.periodLabel))
+  }
 
   get immersiveTitle() {
     return (
       this.immersive &&
       this.timeSlideLocation &&
-      this.$t(
-        this.immersive.layers[this.timeSlideLocation.index].cartelDescription
-          .title
-      )
+      this.$t(this.immersive.layers[this.timeSlideLocation.index].periodTitle)
     )
   }
 
@@ -119,10 +154,36 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
     }
   }
 
+  get scrollMagnets() {
+    const { tabletEnd, trailerLineEnd } = this.scrollAnimSeparators
+    const magnets = {
+      top: 0,
+      screen1:
+        this.scrollAnimOffsetTop +
+        this.scrollAnimDuration * tabletEnd * this.tabletMagnets[0],
+      screen2:
+        this.scrollAnimOffsetTop +
+        this.scrollAnimDuration * tabletEnd * this.tabletMagnets[1],
+      screen3:
+        this.scrollAnimOffsetTop +
+        this.scrollAnimDuration * tabletEnd * this.tabletMagnets[2],
+      trailerLine:
+        this.scrollAnimOffsetTop +
+        this.scrollAnimDuration * tabletEnd +
+        (this.scrollAnimDuration * trailerLineEnd -
+          this.scrollAnimDuration * tabletEnd) /
+          2,
+      immersiveStart:
+        this.scrollAnimOffsetTop + this.scrollAnimDuration * trailerLineEnd,
+    }
+    return magnets
+  }
+
   mounted() {
     this.$nextTick(function () {
       // Code that will run only after the
       // entire view has been rendered
+      this.initText3DSwaying()
       this.initScrollAttempt()
       this.watchCursorPosition()
     })
@@ -139,33 +200,137 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
     })
   }
 
+  initText3DSwaying() {
+    this.swayedTitles.push(
+      document.querySelector('#header-section h1') as HTMLElement
+    )
+    this.swayedTitles.push(
+      document.querySelector('#trailerLine') as HTMLElement
+    )
+    Array.from(document.querySelectorAll('.screenText')).forEach((elem) => {
+      // this.swayedScreenTexts.push(elem as HTMLElement)
+    })
+  }
+
+  @Watch('cursorX')
+  @Watch('cursorY')
+  text3DSway() {
+    this.swayedTitles.forEach((elem) => {
+      const transform = `translateX(${-5 * this.cursorX}px) translateY(${
+        -5 * this.cursorY
+      }px) rotateX(${-0.8 * this.cursorY}deg) rotateY(${0.8 * this.cursorX}deg)`
+      elem.style.transform = transform
+    })
+    this.swayedScreenTexts.forEach((elem) => {
+      const transform = `translateX(${-5 * this.cursorX}px) translateY(${
+        -5 * this.cursorY
+      }px) rotateX(${-0.8 * this.cursorY}deg) rotateY(${
+        -0.8 * this.cursorX
+      }deg)`
+      elem.style.transform = transform
+    })
+  }
+
   initScrollAttempt() {
     if (
+      // have mandatory element been rendered yet ?
       document.querySelector('nav.navbar') === null ||
-      document.querySelector('#trailerBrand') === null ||
+      // document.querySelector('#trailerBrand') === null ||
       document.getElementById('pageUp') === null
     ) {
       setTimeout(() => {
         this.initScrollAttempt()
       }, 50)
     } else {
-      const scrollbar = SC.initImmersiveScroller(this.autopilotDuration)
-      this.autopilotScroll(scrollbar)
+      const scrollbar = SC.initImmersiveScroller(
+        this.scrollAnimDuration,
+        this.scrollAnimSeparators,
+        this.tabletMagnets
+      )
+      this.watchScrolling(scrollbar)
+      SC.enableScrollMagnetMarkers(this.scrollMagnets)
     }
   }
 
-  autopilotScroll(scrollbar) {
+  watchScrolling(scrollbar: Scrollbar) {
+    let lastOffset = 0
+    let lastTime = Date.now()
+
     scrollbar.addListener(() => {
+      // get the progress ratio needed for the scrollanimation
       if (
-        scrollbar.scrollTop > this.autopilotOffsetTop &&
-        scrollbar.scrollTop < this.autopilotOffsetTop + this.autopilotDuration
+        scrollbar.scrollTop > this.scrollAnimOffsetTop &&
+        scrollbar.scrollTop < this.scrollAnimOffsetTop + this.scrollAnimDuration
       ) {
-        const relativePosition = scrollbar.scrollTop - this.autopilotOffsetTop
-        const ratio = relativePosition / this.autopilotDuration
-        this.autopilotPosition = ratio
+        const relativePosition = scrollbar.scrollTop - this.scrollAnimOffsetTop
+        const ratio = relativePosition / this.scrollAnimDuration
+        this.scrollAnimRatio = ratio
         this.autoSlide(ratio)
       }
+
+      // get instant velocity from the smooth scrollbar instance (used for snapping)
+      const current = Date.now()
+      const offset = scrollbar.offset.y
+      let duration = current - lastTime
+
+      if (!duration || offset === lastOffset) return
+
+      if (duration > 100) {
+        duration -= duration - 1
+      }
+
+      this.wheelVelocity = (offset - lastOffset) / duration
+      lastTime = current
+      lastOffset = offset
     })
+
+    // this listener is not on the smooth scrollbar because it has damping, and we want to fire instantly on scroll stop
+    window.addEventListener('wheel', (e) => {
+      if (
+        scrollbar.scrollTop <
+        this.scrollAnimOffsetTop + this.scrollAnimDuration
+      ) {
+        // Clear our timeout throughout the scroll
+        window.clearTimeout(this.onScrollingStop)
+
+        const velocity = Math.abs(this.wheelVelocity)
+        // Set a timeout to run after scrolling ends
+        this.onScrollingStop = setTimeout(() => {
+          this.snapScrolling(scrollbar, e.deltaY > 0)
+        }, 150)
+      }
+    })
+  }
+
+  snapScrolling(scrollbar: Scrollbar, forward: boolean) {
+    if (
+      scrollbar.scrollTop <
+      this.scrollAnimOffsetTop +
+        this.scrollAnimDuration * this.scrollAnimSeparators.trailerLineEnd
+    ) {
+      // console.log(this.scrollMagnets)
+      let magnets = Object.values(this.scrollMagnets)
+      if (forward) {
+        // consider only forward magnets
+        magnets = magnets.filter((mag) => scrollbar.scrollTop - mag <= 0)
+      } else {
+        // consider only backward magnets
+        magnets = magnets.filter((mag) => scrollbar.scrollTop - mag >= 0)
+      }
+      if (magnets.length > 0) {
+        // sort magnets by proximity
+        magnets = magnets.sort(
+          (a, b) =>
+            Math.abs(scrollbar.scrollTop - a) -
+            Math.abs(scrollbar.scrollTop - b)
+        )
+        // compute duration with distance and speed
+        const distance = Math.abs(scrollbar.scrollTop - magnets[0])
+        // scroll to the closest
+        const speed = 0.7
+        scrollbar.scrollTo(0, magnets[0], ((distance / 100) * 100) / speed)
+      }
+    }
   }
 
   autoSlide(ratio) {
@@ -189,16 +354,6 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   setLoadScreen(elem) {
     this.loadScreen = elem
   }
-
-  toggleTreasurePanel(value?) {
-    if (value) {
-      this.treasurePanelToggled = value
-    } else if (this.treasurePanelToggled === 'true') {
-      this.treasurePanelToggled = 'false'
-    } else {
-      this.treasurePanelToggled = 'true'
-    }
-  }
 }
 </script>
 
@@ -215,6 +370,7 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   background: black;
   overflow: hidden;
   /* border: 1px solid red; */
+  perspective: 100px;
 }
 #immersive-stage {
   position: relative;
@@ -235,14 +391,60 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   justify-content: center;
   align-items: center;
 }
+.screenText {
+  position: absolute;
+  opacity: 0;
+  display: none;
+  margin: 35px;
+  color: white;
+  height: 80vh;
+  width: 30vw;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8rem;
+  line-height: 3rem;
+  margin-top: 350px;
+  transform-style: preserve-3d;
+}
+#screenText_1,
+#screenText_2 {
+  left: 0px;
+}
+
+#screenText_3 {
+  right: 0px;
+  text-align: right;
+}
+#trailerLine {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 8vw;
+  color: white;
+  display: none;
+  opacity: 0;
+  transform-style: preserve-3d;
+}
+#trailerLine #diveInto {
+  margin-top: 50vh;
+}
+#trailerLine #thePast {
+  margin-top: -50vh;
+}
 #frame {
   position: fixed;
   z-index: 999;
   pointer-events: none;
-  top: 7.5vh;
-  left: 7.5vw;
-  width: 85vw;
-  height: 85vh;
+  top: 10vh;
+  left: 10vw;
+  width: 80vw;
+  height: 80vh;
   /* border: 3px dashed red; */
 }
 </style>

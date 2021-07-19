@@ -1,143 +1,95 @@
 ﻿{
-  "name": "Cuisine",
+  "name": "Cuisines",
   "layers": [
     {
-      "uniqueID": "cuisine.scenelayer.new_layer0",
-      "localizedTimestampTitle": "imm_cuisine_label_15thcentury",
-      "cartelDescription": {
-        "title": "imm_cuisine_title_15th"
-      },
-      "ambianceSound": {
-        "fileName": "Amb_Kitchen",
-        "volume": 1.0
-      },
-      "triggerType": "",
-      "filtersOut": [],
-      "filtersIn": []
+      "uniqueID": "cuisines_XVe",
+      "periodTitle": "chinon_imm_cuisine_title_15th",
+      "periodLabel": "chinon_imm_cuisine_label_15thcentury"
     },
     {
-      "uniqueID": "cuisine.scenelayer.new_layer1",
-      "localizedTimestampTitle": "imm_cuisine_label_today",
-      "cartelDescription": {
-        "title": "imm_cuisine_title_today"
-      },
-      "skyboxMaterial": "cuisine",
-      "ambianceSound": {
-        "fileName": "",
-        "volume": 0.0
-      },
-      "triggerType": "",
-      "filtersOut": [],
-      "filtersIn": []
+      "uniqueID": "cuisines_aujourdhui",
+      "periodTitle": "chinon_imm_cuisine_title_today",
+      "periodLabel": "chinon_imm_cuisine_label_today"
     }
   ],
-  "history": "iim_cuisine_history",
   "hotspots": [
     {
       "type": "INSERT",
-      "index": 0,
-      "position": {
-        "x": -3356.627197265625,
-        "y": 105.2508544921875
-      },
-      "insert": null,
-      "visualAsset": "",
-      "value": "iim_cuisine_hotspot_gardemanger",
-      "opened": false
-    },
-    {
-      "type": "INSERT",
-      "index": 0,
-      "position": {
-        "x": -2666.627197265625,
-        "y": 1045.2508544921875
-      },
-      "insert": null,
-      "visualAsset": "",
-      "value": "iim_cuisine_hotspot_marsouin",
-      "opened": false
-    },
-    {
-      "type": "INSERT",
-      "index": 0,
+      "layerIndex": 0,
       "position": {
         "x": -1666.6273193359375,
         "y": 635.2508544921875
       },
       "insert": null,
-      "visualAsset": "",
-      "value": "iim_cuisine_hotspot_panierpoissons",
+      "visualAsset": null,
+      "value": "chinon_imm_cuisine_hotspot_panierpoissons",
+      "alt": "chinon_imm_cuisine_hotspot_panierpoissons_alt",
       "opened": false
     },
     {
       "type": "INSERT",
-      "index": 0,
+      "layerIndex": 0,
       "position": {
         "x": -636.6273193359375,
         "y": 955.2508544921875
       },
       "insert": null,
-      "visualAsset": "",
-      "value": "iim_cuisine_hotspot_tonneaupoissons",
+      "visualAsset": "graffiti.jpg",
+      "value": "chinon_imm_cuisine_hotspot_tonneaupoissons",
+      "alt": "chinon_imm_cuisine_hotspot_tonneaupoissons_alt",
       "opened": false
     },
     {
       "type": "INSERT",
-      "index": 0,
+      "layerIndex": 0,
       "position": {
         "x": -36.627349853515628,
         "y": 155.2508544921875
       },
       "insert": null,
-      "visualAsset": "",
-      "value": "iim_cuisine_hotspot_gibier",
+      "visualAsset": "mortier.png",
+      "value": "chinon_imm_cuisine_hotspot_gibier",
+      "alt": "chinon_imm_cuisine_hotspot_gibier_alt",
       "opened": false
     },
     {
       "type": "INSERT",
-      "index": 0,
+      "layerIndex": 0,
       "position": {
         "x": 1283.3726806640625,
         "y": 345.2508544921875
       },
       "insert": null,
-      "visualAsset": "",
-      "value": "iim_cuisine_hotspot_tonneauxverjus",
+      "visualAsset": null,
+      "value": "chinon_imm_cuisine_hotspot_tonneauxverjus",
+      "alt": "chinon_imm_cuisine_hotspot_tonneauxverjus_alt",
       "opened": false
     },
     {
       "type": "INSERT",
-      "index": 0,
+      "layerIndex": 0,
       "position": {
         "x": 2163.37255859375,
         "y": 975.2508544921875
       },
       "insert": null,
-      "visualAsset": "",
-      "value": "iim_cuisine_hotspot_ecrevisses",
+      "visualAsset": null,
+      "value": "chinon_imm_cuisine_hotspot_ecrevisses",
+      "alt": "chinon_imm_cuisine_hotspot_ecrevisses_alt",
       "opened": false
     },
     {
       "type": "INSERT",
-      "index": 0,
+      "layerIndex": 0,
       "position": {
         "x": 5963.37353515625,
         "y": 385.2508544921875
       },
       "insert": null,
-      "visualAsset": "",
-      "value": "iim_cuisine_hotspot_grill",
+      "visualAsset": null,
+      "value": "chinon_imm_cuisine_hotspot_grill",
+      "alt": "chinon_imm_cuisine_hotspot_grill_alt",
       "opened": false
     }
-  ],
-  "treasure": {
-    "name": "imm_cuisine_treasure_name",
-    "layer": 0,
-    "position": {
-      "x": 3547,
-      "y": -1158.5
-    },
-    "description": "imm_cuisine_treasure_description"
-  },
-  "closeUps": []
+  ]
 }

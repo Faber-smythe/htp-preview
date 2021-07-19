@@ -3,12 +3,9 @@
     "name": "Donjon de Loches",
     "siteID": "france.loches.donjon",
     "linkLabel": "loches",
-    "display": true,
-    "interact": true,
-    "home": true,
-    "count": 1,
+    "enabled": false,
     "lngLat": [0.9943971, 47.1249142],
-    "visualAssets": [
+    "viewables": [
       {
         "image": "imagetest.png",
         "size": "large",
@@ -31,55 +28,48 @@
     "name": "Forteresse royale de Chinon",
     "siteID": "france.chinon.forteresse",
     "linkLabel": "chinon",
-    "display": true,
-    "interact": true,
-    "home": true,
-    "trailerLine": "",
-    "count": 1,
+    "ticketLink": "",
+    "enabled": true,
     "lngLat": [0.2334263, 47.1681036],
     "immersive": {
       "siteID": "france.chinon.forteresse",
       "sceneID": "Cuisine",
       "file": "cuisine.json"
     },
-    "visualAssets": [
+    "viewables": [
       {
         "image": "",
         "object": {
           "file": "maquette.glb",
-          "initialZoom": 150,
-          "cameraClamping": true
+          "initialZoom": 2.5,
+          "cameraClamping": "model",
+          "lightIntensity": 1
         },
         "size": "large",
         "order": "textFirst",
-        "title": "This text should be stored in locales for i18n translation.",
-        "text": [
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam scelerisque, ipsum a fringilla auctor, neque enim maximus risus, non vestibulum magna nulla vel ante. Cras enim mi, bibendum sed lacus vel, cursus blandit dolor.",
-          "Curabitur hendrerit, odio id egestas mattis, augue enim tincidunt erat, id ultrices enim est quis dolor. Phasellus fringilla quam massa, sed sodales mi malesuada non. Integer dui nisi, posuere a lorem quis, rutrum efficitur nunc.",
-          "Maecenas felis lectus, dignissim sed rutrum iaculis, aliquet at purus."
-        ]
+        "titleKey": "chinon_viewables_model_title",
+        "textKey": "chinon_viewables_model_arguments" 
       },
       {
         "image": "",
         "object": {
-          "file": "meshes.glb"
+          "file": "bombarde.glb",
+          "initialZoom": 10,
+          "cameraClamping": "quarter",
+          "lightIntensity": 2
         },
         "size": "small",
         "order": "objectFirst",
-        "title": "",
-        "text": [
-          "This Object has no title, but just a description",
-          "Curabitur hendrerit, odio id egestas mattis, augue enim tincidunt erat, id ultrices enim est quis dolor.",
-          "Etiam scelerisque, ipsum a fringilla auctor, neque enim maximus risus, non vestibulum magna nulla vel ante."
-        ]
+        "titleKey": "",
+        "textKey": "chinon_viewables_bombarde_description"
       }
     ],
     "reviews": [
-      { "grade": 1, "text": "lorem ipsum nunquam dormiens titilandus" },
-      { "grade": 2, "text": "nunquam inerta vassum flamens" },
-      { "grade": 3, "text": "lita voram fertae monopiles" },
-      { "grade": 4, "text": "cane tarminem gales virtus" },
-      { "grade": 5, "text": "polis ragonem domina politavis" }
+      { "grade": 1, "textKey": "chinon_footer_review_1" },
+      { "grade": 2, "textKey": "chinon_footer_review_2" },
+      { "grade": 3, "textKey": "chinon_footer_review_3" },
+      { "grade": 4, "textKey": "chinon_footer_review_4" },
+      { "grade": 5, "textKey": "chinon_footer_review_5" }
     ]
   }
 ]

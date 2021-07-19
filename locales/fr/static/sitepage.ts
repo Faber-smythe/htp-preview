@@ -5,21 +5,21 @@ export default {
   Language_fr: 'Français',
   Language_en: 'Anglais',
   Language_de: 'Allemand',
-  home: 'Accueil',
+  Home: 'Accueil',
+  Tickets: 'Tickets',
+  BuyTheTickets: 'Achetez vos billets maintenant',
+
   /**
-   * IMMERSIVE HUD
+   * IMMERSIVE
    */
-  // tutorial
-  Tutorial_Exit_Clue: 'Fermer le tutoriel',
-  Tutorial_History_Clue:
-    'Ouvrez ce panneau déroulant pour en apprendre plus sur ce lieu.',
-  Tutorial_Slider_Clue:
-    'Voyagez dans le temps en faisant défiler la frise chronologique.',
-  Tutorial_Scroll_Clue:
-    'Continuez à faire défiler la page pour découvrir la suite.',
-  Tutorial_Immersive_Clue: 'Tutorial_Immersive_Clue',
-  Tutorial_Treasure_Clue:
-    'Ouvrez ce panneau pour consulter le trésor que vous avez trouvé.',
-  // treasure panel
-  Treasure_Congrats: 'Félicitations&nbsp;!\nVous avez trouvé un trésor&nbsp;!',
+
+  Trailerline: 'Plongez dans le passé',
+
+  /**
+   * FOOTER
+   */
+  BackToTheTop: 'Remonter au début',
+  FooterCallout:
+    'N’hésitez plus ! Offrez-vous un inoubliable voyage dans le temps avec  HistoPad.',
+  FooterBuyHere: 'Achetez vos tickets ici :',
 }

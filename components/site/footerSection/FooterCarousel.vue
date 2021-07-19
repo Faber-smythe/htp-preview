@@ -10,7 +10,7 @@
       <div>
         <img class="grade" :src="`/img/reviews/${items[0].grade}.png`" alt="" />
       </div>
-      <p>"{{ items[0].text }}"</p>
+      <p>"{{ $t(items[0].textKey) }}"</p>
     </div>
     <div
       class="animated prev card"
@@ -22,7 +22,7 @@
       <div>
         <img class="grade" :src="`/img/reviews/${items[1].grade}.png`" alt="" />
       </div>
-      <p>"{{ items[1].text }}"</p>
+      <p>"{{ $t(items[1].textKey) }}"</p>
     </div>
     <div
       class="animated current card"
@@ -34,7 +34,7 @@
       <div>
         <img class="grade" :src="`/img/reviews/${items[2].grade}.png`" alt="" />
       </div>
-      <p>"{{ items[2].text }}"</p>
+      <p>"{{ $t(items[2].textKey) }}"</p>
     </div>
     <div
       class="animated next card"
@@ -46,7 +46,7 @@
       <div>
         <img class="grade" :src="`/img/reviews/${items[3].grade}.png`" alt="" />
       </div>
-      <p>"{{ items[3].text }}"</p>
+      <p>"{{ $t(items[3].textKey) }}"</p>
     </div>
   </div>
 </template>
@@ -61,6 +61,7 @@ import { Review } from '@/types/Site'
 @Component
 export default class FooterCarousel extends Mixins(UtilMixins) {
   @Prop({ type: Array, required: true }) readonly items!: Review[]
+
   currentIndex: number = 2
   hoverFreeze: boolean = false
   carouselInterval!: any
@@ -78,7 +79,7 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
         this.toNext()
       }
     }, 5000)
-    this.cardScrollInit()
+    // this.cardScrollInit()
   }
 
   cardScrollInit() {
@@ -119,7 +120,9 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
       this.currentIndex - 2 >= 0
         ? this.currentIndex - 2
         : this.items.length + (this.currentIndex - 2)
-    offscreen.innerHTML = `<p><img class="grade" src="/img/reviews/${this.items[offIndex].grade}.png" alt="" /></p><p>"${this.items[offIndex].text}"</p>`
+    offscreen.innerHTML = `<p><img class="grade" src="/img/reviews/${
+      this.items[offIndex].grade
+    }.png" alt="" /></p><p>"${this.$t(this.items[offIndex].textKey)}"</p>`
     this.currentIndex--
     if (this.currentIndex < 0) {
       this.currentIndex = this.items.length - 1
@@ -150,7 +153,9 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
       this.currentIndex + 2 < this.items.length
         ? this.currentIndex + 2
         : this.currentIndex + 2 - this.items.length
-    offscreen.innerHTML = `<p><img class="grade" src="/img/reviews/${this.items[offIndex].grade}.png" alt="" /></p><p>"${this.items[offIndex].text}"</p>`
+    offscreen.innerHTML = `<p><img class="grade" src="/img/reviews/${
+      this.items[offIndex].grade
+    }.png" alt="" /></p><p>"${this.$t(this.items[offIndex].textKey)}"</p>`
     this.currentIndex++
     if (this.currentIndex > this.items.length - 1) {
       this.currentIndex = 0
@@ -169,12 +174,13 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
 
 <style>
 #carousel-holder {
-  position: absolute;
+  position: relative;
+  margin-top: 10vh;
   z-index: 5;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 50%;
+  height: 35%;
   width: 100%;
 }
 .card {
@@ -186,8 +192,8 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
   justify-content: center;
   padding: 15px;
   border-radius: 15px;
-  width: 30vw;
-  height: 30vh;
+  width: 25vw;
+  height: 25vh;
   color: white;
   border: 1px solid gray;
   font-size: 1.5rem;
@@ -217,13 +223,13 @@ export default class FooterCarousel extends Mixins(UtilMixins) {
   pointer-events: none;
 }
 .prev {
-  margin-left: -40vw;
+  margin-left: -35vw;
 }
 .animated {
   transition: all 0.8s ease;
 }
 .next {
-  margin-right: -40vw;
+  margin-right: -35vw;
 }
 .offscreen {
   opacity: 0 !important;

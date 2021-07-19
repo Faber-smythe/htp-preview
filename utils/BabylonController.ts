@@ -1,35 +1,27 @@
 import * as BABYLON from 'babylonjs'
 import 'babylonjs-loaders'
-import { Position2 } from '@/types/ImmersiveContent'
+import { Position } from '@/types/ImmersiveContent'
 import BabylonCustomLoader from '@/utils/BabylonCustomLoader'
-import { BabylonFileLoaderConfiguration } from 'babylonjs/Loading/Plugins/babylonFileLoader'
 
 const RAD2DEG = 180 / Math.PI
 const DEG2RAD = Math.PI / 180
 
-const sprite1 = require('@/assets/resources3d/textures/hotspots/animated_sprite_test.png')
-const sprite2 = require('@/assets/resources3d/textures/hotspots/Move/Off/White-2.png')
+const spritePath = require('@/assets/immersives/sprite.png')
 
 export default class BabylonController {
   canvas!: HTMLCanvasElement
   engine!: BABYLON.Engine
   scene!: BABYLON.Scene
-  sm1!: BABYLON.SpriteManager
-  sm2!: BABYLON.SpriteManager
-  am!: BABYLON.AssetsManager
-  textSprite!: BABYLON.Texture
-  closeUpSprite!: BABYLON.Texture
-  tooltip: HTMLElement = document.getElementById('tooltip')!
-  treasureHoverFactor: number = 1
-  treasureClick!: any
+  SM!: BABYLON.SpriteManager
+  AM!: BABYLON.AssetsManager
 
   settings = {
     sphereDiameter: 4096, //! MUST FIT THE TEXTURE AND COORDINATES DIMENSIONS !\\
     debugLayer: false, // Enable for Babylon scene explorer and inspector
-    freeCam: false, // Enable for easier debug and navigation
+    freeCam: false, // Enable for easier navigation
     fov: 1,
-    hotspotSize: 0.8,
-    brightness: 6,
+    hotspotSize: 1.5,
+    brightness: 5,
     sensitivity: 1.7,
     inertia: 0.2,
   }
@@ -41,19 +33,17 @@ export default class BabylonController {
     this.engine.loadingScreen = new BabylonCustomLoader(loadScreen)
     this.engine.setHardwareScalingLevel(1 / window.devicePixelRatio)
     this.scene = new BABYLON.Scene(this.engine)
+
+    // set the canvas background to transparent
+    this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0)
+
     // Initialize sprite managers
-    this.sm1 = new BABYLON.SpriteManager('sm1', sprite1, 32, 90, this.scene)
-    this.sm1.renderingGroupId = 1
-    this.sm1.isPickable = true
-    this.sm2 = new BABYLON.SpriteManager('sm2', sprite2, 8, 90, this.scene)
-    this.sm2.renderingGroupId = 2
-    this.sm2.isPickable = true
+    this.SM = new BABYLON.SpriteManager('sm', spritePath, 32, 128, this.scene)
+    this.SM.renderingGroupId = 1
+    this.SM.isPickable = true
 
     // Initialize asset manager
-    this.am = new BABYLON.AssetsManager(this.scene)
-
-    this.scene.defaultCursor = 'all-scroll'
-    // this.scene.defaultCursor = 'col-resize'
+    this.AM = new BABYLON.AssetsManager(this.scene)
 
     // Toggle debuglayer
     if (this.settings.debugLayer) {
@@ -61,115 +51,26 @@ export default class BabylonController {
     }
   }
 
-  handleImmersiveClicks() {
+  handleImmersiveClicks(meshCallback?: Function, spriteCallback?: Function) {
     // Handle clicking events
-    this.scene.onPointerDown = (event) => {
-      const pickResult = this.scene.pickSprite(
-        this.scene.pointerX,
-        this.scene.pointerY
-      )
-
-      if (pickResult && pickResult.hit && pickResult.pickedSprite) {
-        if (pickResult.pickedSprite.name === 'treasureTriger') {
-          // treasure trigger
-          this.treasureClick()
-        } else {
-          // standard hotspot : display the tooltip
-          this.hotspotClick(pickResult.pickedSprite, {
-            x: event.x,
-            y: event.y,
-          })
+    this.scene.onPointerDown = (event, pickResult) => {
+      if (pickResult) {
+        console.log('picked something :', event)
+        if (pickResult.pickedMesh) {
+          if (meshCallback) {
+            meshCallback()
+          } else {
+            console.log('picked a mesh :', pickResult.pickedMesh.name)
+          }
+        } else if (pickResult.pickedSprite) {
+          if (spriteCallback) {
+            spriteCallback()
+          } else {
+            console.log('picked a sprite :', pickResult.pickedSprite.name)
+          }
         }
-      } else {
-        // empty the tooltip object on clicking elsewhere
-        this.emptyTooltip()
       }
     }
-  }
-
-  setTreasureHover(triggerSprite: BABYLON.Sprite) {
-    triggerSprite.actionManager = new BABYLON.ActionManager(this.scene)
-    // TRIGGER IN
-    triggerSprite.actionManager.registerAction(
-      new BABYLON.ExecuteCodeAction(
-        BABYLON.ActionManager.OnPointerOverTrigger,
-        () => {
-          this.treasureHoverFactor = 3 // multiply animation speed
-          this.scene.hoverCursor = 'pointer'
-        }
-      )
-    )
-    // TRIGGER OUT
-    triggerSprite.actionManager.registerAction(
-      new BABYLON.ExecuteCodeAction(
-        BABYLON.ActionManager.OnPointerOutTrigger,
-        () => {
-          this.treasureHoverFactor = 1 // resume normal animation speed
-        }
-      )
-    )
-  }
-
-  setSpriteHover(sprite: BABYLON.Sprite) {
-    // TRIGGER IN
-    sprite.actionManager = new BABYLON.ActionManager(this.scene)
-    sprite.actionManager.registerAction(
-      new BABYLON.ExecuteCodeAction(
-        BABYLON.ActionManager.OnPointerOverTrigger,
-        () => {
-          sprite.delay = 20 // delay in ms between frames
-          this.scene.hoverCursor = 'pointer'
-        }
-      )
-    )
-
-    // TRIGGER OUT
-    sprite.actionManager.registerAction(
-      new BABYLON.ExecuteCodeAction(
-        BABYLON.ActionManager.OnPointerOutTrigger,
-        () => {
-          sprite.delay = 80 // delay in ms between frames
-        }
-      )
-    )
-  }
-
-  hotspotClick(hotspotSprite, point) {
-    // Hide previous tooltip
-    this.tooltip.style.visibility = 'hidden'
-
-    /** ----------------------------
-     * Can't use state for this html injection,
-     * since we need the bounding rectangle instantly,
-     * and we want to avoid messing with opacity
-     * --------------------------- */
-
-    // TODO handle case : type === 'CloseUp'
-    const text = this.tooltip.querySelector('.tooltiptext')!
-    text.innerHTML = hotspotSprite.hotspotData.value
-
-    // get the rendered dimensions
-    const rec = this.tooltip.getBoundingClientRect()
-    const canvasOffset = {
-      top: this.canvas.getBoundingClientRect().top,
-      left: this.canvas.getBoundingClientRect().left,
-    }
-    // set the correct position
-    this.tooltip.style.left =
-      String(point.x - rec.width / 2 - canvasOffset.left) + 'px'
-    this.tooltip.style.top =
-      String(
-        point.y -
-          rec.height -
-          50 * (this.settings.hotspotSize / 2) -
-          canvasOffset.top
-      ) + 'px'
-
-    this.tooltip.style.visibility = 'visible'
-  }
-
-  emptyTooltip() {
-    this.tooltip.style.visibility = 'hidden'
   }
 
   worldToScreenCoordinates(coordinates: BABYLON.Vector3): BABYLON.Vector2 {
@@ -187,8 +88,6 @@ export default class BabylonController {
   }
 
   angleBetweenTwoVectors(vec1: BABYLON.Vector3, vec2: BABYLON.Vector3): number {
-
-    // vec.y = 0
     const normalized1 = BABYLON.Vector3.Normalize(vec1)
     const normalized2 = BABYLON.Vector3.Normalize(vec2)
 
@@ -198,7 +97,7 @@ export default class BabylonController {
     const angleRadians = Math.acos(dotVec) // radians
     const angleDeegres = this.radiansToDegrees(angleRadians) // deegres
 
-    /** To make angle from 0 to 360 (so the I quadrant != II quadrant and IV quadrant != III quadrant) **/
+    /** To make angle from 0 to 360 (otherwise 45° == -45° and 120° == -120°) **/
     // if (normalizedVec.x < 0) {
     //   angleDeegres = 360 - angleDeegres
     // }
@@ -211,7 +110,7 @@ export default class BabylonController {
    * @param {Hotspot} hotspot
    * @param {Number} sphereRadius
    */
-  generate3DPosition(hotspotPosition: Position2, sphereRadius: number) {
+  generate3DPosition(hotspotPosition: Position, sphereRadius: number) {
     /** ------------------------------------------------------------------
      * Generate polar coordinates according to 2D cartesian coordinates of the specific hotspot
      * ------------------------------------------------------------------ */
@@ -243,5 +142,9 @@ export default class BabylonController {
 
   radiansToDegrees(radians) {
     return radians * (180 / Math.PI)
+  }
+
+  degreesToRadians(degrees) {
+    return degrees / (180 / Math.PI)
   }
 }

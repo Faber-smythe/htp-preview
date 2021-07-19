@@ -11,14 +11,11 @@
   "HomeScene": {
     "description": "Auto imported from components/home/Scene.vue"
   },
+  "HomeScrolltests": {
+    "description": "Auto imported from components/home/Scrolltests.vue"
+  },
   "HomeSequence": {
     "description": "Auto imported from components/home/Sequence.vue"
-  },
-  "SiteAnimatedSection": {
-    "description": "Auto imported from components/site/AnimatedSection.vue"
-  },
-  "SiteFolioscope": {
-    "description": "Auto imported from components/site/Folioscope.vue"
   },
   "SiteHeaderSection": {
     "description": "Auto imported from components/site/HeaderSection.vue"
@@ -38,13 +35,13 @@
   "SiteImmersiveSection": {
     "description": "Auto imported from components/site/immersiveSection/ImmersiveSection.vue"
   },
-  "SiteVisualAssetBlock": {
-    "description": "Auto imported from components/site/visualAssetSection/VisualAssetBlock.vue"
+  "SiteViewablesSectionViewableBlock": {
+    "description": "Auto imported from components/site/viewablesSection/ViewableBlock.vue"
   },
-  "SiteVisualAssetScene": {
-    "description": "Auto imported from components/site/visualAssetSection/VisualAssetScene.vue"
+  "SiteViewablesSectionViewableScene": {
+    "description": "Auto imported from components/site/viewablesSection/ViewableScene.vue"
   },
-  "SiteVisualAssetSection": {
-    "description": "Auto imported from components/site/visualAssetSection/VisualAssetSection.vue"
+  "SiteViewablesSection": {
+    "description": "Auto imported from components/site/viewablesSection/ViewablesSection.vue"
   }
 }

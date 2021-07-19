@@ -1,19 +1,41 @@
 <template>
-  <div id="section-holder" class="container-fluid">
-    <HeaderSection v-if="foundSite" :site="site" />
-    <!-- <AnimatedSection v-if="foundSite" :site="site" /> -->
-    <Folioscope v-if="foundSite" :site="site" />
-    <ImmersiveSection v-if="foundSite" :immersive="immersive" :site="site" />
-    <VisualAssetSection v-if="foundSite" :visuals="visualAssets" :site="site" />
-    <FooterSection v-if="foundSite" :site="site" />
+  <main class="container-fluid">
+    <NavigationBar :ticket-link="site.ticketLink" />
 
-    <!-- below is for  -->
-    <h1 v-if="!foundSite" id="no-site">
-      We haven't found any site called "{{ $route.params.site }}".<br />
-      Check for typos in the url !
-    </h1>
-    <img id="inactiveArrow" ref="inactiveArrow" src="/img/white_arrow.png" />
-  </div>
+    <div id="section-holder" class="container-fluid">
+      <HeaderSection v-if="foundValidSite" :site="site" />
+      <ImmersiveSection
+        v-if="foundValidSite"
+        :immersive="immersive"
+        :site="site"
+      />
+      <!-- <ViewablesSection
+        v-if="foundValidSite"
+        :viewables="viewables"
+        :site="site"
+      /> -->
+      <FooterSection v-if="foundValidSite" :site="site" />
+
+      <!-- below is for  -->
+      <h1 v-if="!foundValidSite" id="no-site">
+        We haven't found any site called "{{ $route.params.site }}".<br />
+        Check for typos in the url !
+      </h1>
+      <img id="inactiveArrow" ref="inactiveArrow" src="/img/white_arrow.png" />
+      <div id="inactiveMouseHolder" ref="inactiveMouseHolder">
+        <div id="inactiveMouse" ref="inactiveMouse">
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <b-button
+      id="pageUp"
+      icon-left="arrow-circle-up"
+      :title="$t('BackToTheTop')"
+    >
+    </b-button>
+  </main>
 </template>
 
 <script lang="ts">
@@ -24,26 +46,22 @@ import { gsap } from 'gsap'
 // import components
 import HeaderSection from '@/components/site/HeaderSection.vue'
 import FooterSection from '@/components/site/footerSection/FooterSection.vue'
-import AnimatedSection from '@/components/site/AnimatedSection.vue'
-import Folioscope from '@/components/site/Folioscope.vue'
 import ImmersiveSection from '@/components/site/immersiveSection/ImmersiveSection.vue'
-import VisualAssetSection from '@/components/site/visualAssetSection/VisualAssetSection.vue'
+import ViewablesSection from '@/components/site/viewablesSection/ViewablesSection.vue'
 // import types
 import Site from '@/types/Site'
 import ImmersiveContent from '@/types/ImmersiveContent'
 // miscellaneous
 import { UtilMixins } from '@/utils/mixins'
 import sitesFile from '@/data/sites.json'
-import VisualAsset from '@/types/VisualAsset'
+import Viewable from '@/types/Viewable'
 import SC from '@/utils/ScrollController'
 
 @Component({
   components: {
     HeaderSection,
-    AnimatedSection,
-    Folioscope,
     ImmersiveSection,
-    VisualAssetSection,
+    ViewablesSection,
     FooterSection,
   },
 })
@@ -51,17 +69,14 @@ export default class SitePage extends Mixins(UtilMixins) {
   scrollbar!: Scrollbar
 
   idleSeconds: number = 0
-  inactive: boolean = false
+  inactive: boolean = true
   inactivityClue: gsap.core.Timeline | null = null
 
-  miniScrollToggle: boolean = false
-  idleBorderBottom!: HTMLElement
-
-  get foundSite(): boolean {
+  get foundValidSite(): boolean {
     return (
       this.site !== null &&
       this.immersive !== null &&
-      this.visualAssets.length !== 0
+      this.viewables.length !== 0
     )
   }
 
@@ -80,9 +95,9 @@ export default class SitePage extends Mixins(UtilMixins) {
     }
   }
 
-  get visualAssets(): VisualAsset[] {
-    if (this.site && this.site.visualAssets.length) {
-      return this.site.visualAssets as VisualAsset[]
+  get viewables(): Viewable[] {
+    if (this.site && this.site.viewables.length) {
+      return this.site.viewables as Viewable[]
     } else {
       return []
     }
@@ -94,21 +109,29 @@ export default class SitePage extends Mixins(UtilMixins) {
     this.$nextTick(() => {
       // Code that will run only after the
       // entire view has been rendered
-      // this.idleBottomBorder =
-      this.idleBorderBottom = document.getElementById(
-        '#immersive-section'
-      ) as HTMLElement
+      // handle pageUp event
+      document.getElementById('pageUp')!.addEventListener('click', () => {
+        this.scrollbar.scrollTo(0, 0, 1500)
+      })
       this.startIdleWatcher()
     })
   }
 
   startIdleWatcher() {
     // count idle duration each tenth of seconds
-    setInterval(() => {}, 100)
+    setInterval(() => {
+      if (this.scrollbar.scrollTop < window.innerHeight * 13) {
+        this.idleSeconds += 0.1
+        if (this.idleSeconds >= 3) {
+          this.becameInactive()
+        }
+      }
+    }, 100)
 
     // reset idle on certain events
-    window.addEventListener('wheel', () => {
-      console.log(this.idleBorderBottom.scrollTop)
+    this.scrollbar.addListener(() => {
+      this.idleSeconds = 0
+      // update inactiveMouse position
       this.nomoreInactive()
     })
   }
@@ -118,22 +141,20 @@ export default class SitePage extends Mixins(UtilMixins) {
       // declaring
       this.inactive = true // toggle
 
-      const inactiveArrow = this.$refs.inactiveArrow as HTMLElement
-      const scroller = this.scrollbar.contentEl as HTMLElement
-      const idleLocation = this.scrollbar.scrollTop
+      const inactiveMouse = this.$refs.inactiveMouse as HTMLElement
+      const inactiveMouseHolder = this.$refs.inactiveMouseHolder as HTMLElement
 
       // position the arrow according to current scroll
-      inactiveArrow.style.display = 'flex'
-      inactiveArrow.style.top = `${
-        window.innerHeight * 0.75 + this.scrollbar.scrollTop
+      inactiveMouse.classList.remove('hidden')
+      inactiveMouseHolder.style.top = `${
+        window.innerHeight * 0.9 + this.scrollbar.scrollTop
       }px`
-      // set origin style to interpolate target style correctly
-      scroller.style.transform = `translate3d(0px, ${-idleLocation}px, 0px)`
+
       // create inactivity animation timeline
       this.inactivityClue = gsap
         .timeline()
         .to(
-          '#inactiveArrow',
+          '#inactiveMouseHolder',
           {
             duration: 1,
             opacity: 1,
@@ -141,33 +162,14 @@ export default class SitePage extends Mixins(UtilMixins) {
           },
           0
         )
-        .to(
-          scroller,
-          {
-            duration: 0.8,
-            marginTop: '-40px',
-            ease: 'power2.out',
-          },
-          1
-        )
-        .to(scroller, {
-          duration: 0.8,
-          marginTop: '0px',
-          ease: 'power2.out',
-        })
         .repeat(-1)
     }
   }
 
   nomoreInactive() {
     if (this.inactive === true) {
-      // declaring
-      const inactiveArrow = this.$refs.inactiveArrow as HTMLElement
-      const scroller = this.scrollbar.contentEl as HTMLElement
-
-      // reset idle clue
-      inactiveArrow.style.opacity = '0'
-      scroller.style.marginTop = '0px'
+      const inactiveMouse = this.$refs.inactiveMouse as HTMLElement
+      inactiveMouse.classList.add('hidden')
 
       this.idleSeconds = 0
       this.inactive = false
@@ -181,6 +183,13 @@ export default class SitePage extends Mixins(UtilMixins) {
 </script>
 
 <style>
+.scroll-magnet-marker {
+  position: absolute;
+  z-index: 999;
+  right: 25px;
+  border-top: 4px solid transparent;
+  padding: 4px;
+}
 #inactiveArrow {
   position: fixed;
   z-index: 999;
@@ -190,6 +199,64 @@ export default class SitePage extends Mixins(UtilMixins) {
   display: none;
   opacity: 0;
   transform: translateY(0px);
+}
+#inactiveMouseHolder {
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 0px;
+  width: 0px;
+  left: 50%;
+  top: 90vh;
+}
+#inactiveMouse {
+  position: absolute;
+  width: 28px;
+  height: 48px;
+  border-radius: 11px 11px 15px 15px;
+  border: 1px solid #fff;
+  box-shadow: inset 10px 20px 120px 60px rgb(0 0 0);
+  transition: all 0.5s ease;
+  pointer-events: none;
+}
+#inactiveMouse.hidden {
+  opacity: 0;
+}
+#inactiveMouse span {
+  display: block;
+  margin: 6px auto;
+  width: 2px;
+  height: 5px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid transparent;
+  animation-duration: 1.5s;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+  animation-name: inactiveRoll;
+}
+@keyframes inactiveRoll {
+  to {
+    margin-top: 100%;
+    opacity: 0;
+  }
+}
+#pageUp {
+  position: fixed;
+  align-self: center;
+  bottom: -3rem;
+  z-index: 10;
+  font-size: 3rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 5px;
+  border-radius: 200px;
+  border: none;
+  color: rgba(255, 255, 255, 0.4) !important;
+  background: transparent;
+  transition: all 0.3s ease;
 }
 section {
   /* border: 1px solid red; */

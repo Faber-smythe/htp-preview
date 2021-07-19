@@ -11,14 +11,14 @@
       align-items: center;
      `"
   >
-    <canvas
-      ref="renderCanvas"
-      class="renderCanvas"
-      @click="canvasClick"
-    ></canvas>
-    <!-- Custom tooltip -->
-    <div id="tooltip" class="custom-tooltip">
-      <span class="tooltiptext noselect"></span>
+    <canvas ref="renderCanvas" class="renderCanvas"></canvas>
+    <div
+      v-for="(hotspot, i) in immersive.hotspots"
+      :key="`hotspot-insert_${i}`"
+      class="insert"
+    >
+      <img :src="getInsertVisualAsset(i)" :alt="$t(hotspot.alt)" />
+      <p class="caption">{{ $t(hotspot.value) }}</p>
     </div>
   </div>
 </template>
@@ -29,9 +29,10 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 
 import { gsap } from 'gsap'
 import * as BABYLON from 'babylonjs'
+import * as LOADERS from 'babylonjs-loaders'
+import * as GUI from 'babylonjs-gui'
 // import types
 import Site from '@/types/Site'
-// import Io from '@/types/Io'
 import ImmersiveContent from '@/types/ImmersiveContent'
 import InjectedSprite from '@/types/InjectedSprite'
 // import miscellaneous
@@ -39,28 +40,38 @@ import BabylonController from '@/utils/BabylonController'
 
 @Component
 export default class ImmersiveScene extends Vue {
-  @Prop({ type: Boolean, required: false }) readonly tweening!: Boolean
   @Prop({ type: Object, required: true }) readonly site!: Site
   @Prop({ required: true }) readonly loadScreen!: HTMLElement
   @Prop({ type: Object, required: false }) readonly immersive!: ImmersiveContent
   @Prop({ type: Object, required: false }) readonly timeSlideLocation: any
-  @Prop({ type: Number, required: true }) readonly autopilotRatio!: number
+  @Prop({ type: Number, required: true }) readonly animTabletSeparator!: number
+  @Prop({ type: Number, required: true }) readonly animTrailerSeparator!: number
+  @Prop({ type: Number, required: true }) readonly scrollAnimRatio!: number
   @Prop({ type: Number, required: true }) readonly cursorX!: number
   @Prop({ type: Number, required: true }) readonly cursorY!: number
 
+  /** 3D objects properties (for reference) **/
+  BC!: BabylonController // contains canvas, engine, scene, scene parameters and more
+  GUI!: GUI.AdvancedDynamicTexture
   spheres!: BABYLON.Mesh[] // initialized once mounted
   sphereLayerMaterials: BABYLON.StandardMaterial[] = []
-  BC!: BabylonController
   camera!: BABYLON.ArcRotateCamera
-  canvasUntouched: boolean = true
-  treasureMesh!: BABYLON.AbstractMesh
-  treasureHoverFactor: number = 1
-  treasureTriggerSprite!: BABYLON.Sprite
+  tabletMeshes: BABYLON.AbstractMesh[] = []
+  tabletAnimationGroups: BABYLON.AbstractMesh[] = []
 
-  autopilotMin: number = 0
-  autopilotMax: number = 0.95
-  centerviewPadding: number = 0.075
-  hotspotThreshold: number = 65 // in % of time forward slide
+  /** settings properties **/
+  autopilotStart: number = this.animTrailerSeparator * 0.98 // fraction of total scrollAnimRatio
+  autopilotEnd: number = 0.98 // fraction of total scrollAnimRatio
+  centerviewPadding: number = 0.1 // ratio of viewport height and width
+  hotspotThreshold: number = 65 // in % of horizontal traveling
+  horizontalTravelingOrigin: number = 3.75 // in radians
+  horizontalTravelingTarget: number = 6.35 // in radians
+  verticalSwayReach: number = Math.PI * 0.05 // in radians
+  horizontalSwayReach: number = Math.PI * 0.05 // in radians
+
+  /**  state properties **/
+  cameraHorizontalAngle: number = this.horizontalTravelingOrigin // in radians
+  readyTabletImport: Boolean = false
 
   mounted() {
     this.initScene()
@@ -78,28 +89,23 @@ export default class ImmersiveScene extends Vue {
       this.$refs.renderCanvas as HTMLCanvasElement,
       this.loadScreen
     )
-    this.BC.handleImmersiveClicks()
+    if (this.BC.settings.debugLayer) this.BC.handleImmersiveClicks()
     this.loadScene()
   }
 
-  loadScene() {
+  async loadScene() {
     const settings = this.BC.settings
 
     this.camera = new BABYLON.ArcRotateCamera(
       'immersiveCamera',
-      -Math.PI / 2,
-      Math.PI / 2,
-      1,
+      0,
+      0,
+      0,
       new BABYLON.Vector3(0, 0, 0),
       this.BC.scene
     )
-    this.camera.fov = settings.fov
     this.camera.inertia = settings.inertia
-    this.camera.attachControl(this.$refs.renderCanvas, true)
-    this.camera.angularSensibilityX /= -settings.sensitivity * 2
-    this.camera.angularSensibilityY /= -settings.sensitivity * 2
-    this.camera.wheelPrecision = 9999
-    this.camera.panningSensibility = 9999
+    this.camera.fov = settings.fov
 
     // create light
     const light = new BABYLON.HemisphericLight(
@@ -109,40 +115,108 @@ export default class ImmersiveScene extends Vue {
     )
     light.intensity = settings.brightness
 
-    // create a sphere
-    this.initSpheres()
+    // load the tablet and the spheres (mesh and textures)
+    await this.initTablet()
+    await this.initSpheres()
+    // execute the asset manager's tasks
+    this.BC.AM.load()
 
-    // create the treasure
-    // this.initTreasure()
-
-    // create hotspots
+    // load the hotspots
     this.initHotSpots()
 
-    this.BC.am.load()
-    // show debug layer if asked
-    if (this.BC.settings.debugLayer) this.BC.scene.debugLayer.show()
-
     // prepare hotspot popping
-    this.initHotspotInserts()
+    // this.associateInsertsToHotspots()
+    this.initGuiInserts()
 
-    // Inject autopilot inbetween frames
-    this.registerAutopilot()
+    // Register frame scaled updates
+    this.BC.scene.registerBeforeRender(() => {
+      this.onEachFrame()
+    })
 
-    // rendering frames
+    // Start rendering frames
+    this.BC.scene.animationTimeScale = 1
     this.BC.engine.runRenderLoop(() => {
-      // this.alphaTimeTransition() // handle visual transition over time slide
-      if (this.camera.radius < 0.1) this.camera.radius = 0.1 // prevent center clipping
-      // if (this.canvasUntouched) camera.alpha += 0.0005 // slow rotating idle
       this.BC.scene.render()
     })
+  }
+
+  async initTablet() {
+    // settings adjustments
+    this.camera.fov = 0.5
+    this.camera.radius = 96
+
+    /** =====================
+     * ==== IMPORT HERE ====
+     * ===================== */
+    // cancel automatic animation on import
+    BABYLON.SceneLoader.OnPluginActivatedObservable.add(
+      function (plugin) {
+        if (plugin.name === 'gltf') {
+          const loader = plugin as LOADERS.GLTFFileLoader
+          loader.animationStartMode = LOADERS.GLTFLoaderAnimationStartMode.NONE
+        }
+      },
+      undefined,
+      undefined,
+      undefined,
+      true
+    )
+    const imported = await BABYLON.SceneLoader.ImportMeshAsync(
+      '',
+      '/',
+      'tablet.glb',
+      this.BC.scene
+    )
+    this.readyTabletImport = true
+
+    // below handling the imported objects
+    imported.meshes.forEach((mesh, i) => {
+      // save them in components properties for later reference
+      this.tabletMeshes.push(mesh)
+      // cleaning up the import junk | might need adjusting
+      mesh.scaling = new BABYLON.Vector3(1, 1, 1)
+      mesh.position = new BABYLON.Vector3(0, 0, 0)
+      // gathering the animated objects of the import for later reference
+      if (mesh.animations.length > 0) {
+        this.BC.scene.animationGroups[i].pause()
+        this.tabletAnimationGroups.push(mesh)
+      }
+    })
+    // apply correspond texture on the right layers
+    for (let i = 1; i <= 3; i++) {
+      const path = require(`@/assets/immersives/${this.site.siteID}/screens/screen_${i}.jpg`)
+      const task = this.BC.AM.addTextureTask(`screentexture_${i}`, path)
+      task.onSuccess = (task) => {
+        const screen = this.BC.scene.getMeshByName(`screen${i}`)
+        if (screen) {
+          const mat = new BABYLON.StandardMaterial(
+            `screen-texture_${i}`,
+            this.BC.scene
+          )
+          const texture = task.texture as BABYLON.Texture
+          texture.vScale = -1 // clean up import junk
+          texture.uScale = -1 // clean up import junk
+
+          mat.diffuseTexture = texture
+          mat.specularColor = new BABYLON.Color3(0, 0, 0)
+          screen.material = mat
+        } else {
+          console.error('no screen found')
+        }
+      }
+    }
+
+    // adjust brightness
+    imported.lights[0].intensity = 20000
+    // reverse x flip
+    imported.meshes[0].scaling = new BABYLON.Vector3(-1, 1, 1)
   }
 
   initSpheres() {
     this.spheres = []
     this.immersive.layers.forEach((layer, i) => {
-      // prepare sphere textures with BABYLON asset manager
-      const path = require(`@/assets/resources3D/immersives/${this.site.siteID}/${layer.uniqueID}.jpg`)
-      const task = this.BC.am.addTextureTask('task', path)
+      const path = require(`@/assets/immersives/${this.site.siteID}/${layer.uniqueID}.jpg`)
+      const task = this.BC.AM.addTextureTask(`spheremaptexture_${i}`, path)
       task.onSuccess = (task) => {
         const sphere = BABYLON.MeshBuilder.CreateSphere(
           `sphereMap_${i}`,
@@ -150,96 +224,24 @@ export default class ImmersiveScene extends Vue {
           this.BC.scene
         )
         const mat = new BABYLON.StandardMaterial(
-          `material_${layer.skyboxMaterial}`,
+          `material_${layer.uniqueID}`,
           this.BC.scene
         )
-        mat.diffuseTexture = task.texture
+
+        const texture = task.texture as BABYLON.Texture
+        texture.vScale = -1 // clean up import junk
+
+        mat.diffuseTexture = texture
         // Invert textured faces for concave mesh
         mat.sideOrientation = BABYLON.Material.ClockWiseSideOrientation
-        // the semicolon is to separate the above line, thus preventing a function call
-        ;(mat.diffuseTexture as BABYLON.Texture).vScale = -1
+
+        // set spheres as transparent at launch, tablet animation will play first, changes will be watched
+        mat.alpha = 0
 
         // assign the material to the mesh
         sphere.material = mat
         this.spheres[i] = sphere
       }
-    })
-    // Initialize layer opacity. Changes will be watched.
-    this.alphaTimeTransition()
-  }
-
-  initTreasure() {
-    this.treasureMesh = new BABYLON.AbstractMesh('treasure', this.BC.scene)
-    const treasurePosition = this.BC.generate3DPosition(
-      this.immersive.treasure.position,
-      this.BC.settings.sphereDiameter / 2
-    )
-    treasurePosition.z *= -1
-    treasurePosition.y *= -1
-    /**
-     * HANDLING THE CUSTOM TRIGGER
-     */
-    const treasureTriggerPath = require('@/assets/resources3d/textures/treasure_trigger.png')
-
-    const sm = new BABYLON.SpriteManager(
-      'treasureSpriteManager',
-      treasureTriggerPath,
-      2,
-      55,
-      this.BC.scene
-    )
-    sm.renderingGroupId = 3
-    sm.isPickable = true
-    this.treasureTriggerSprite = new BABYLON.Sprite(`treasureTriger`, sm)
-    this.treasureTriggerSprite.position = treasurePosition
-    const triggerSize =
-      (this.BC.settings.sphereDiameter / 40) * this.BC.settings.hotspotSize * 2
-    this.treasureTriggerSprite.width = triggerSize
-    this.treasureTriggerSprite.height = triggerSize
-    // this.treasureTriggerSprite.useAlphaForPicking = true
-    this.treasureTriggerSprite.isPickable = true
-    this.treasureTriggerSprite.isVisible = false
-    this.BC.setTreasureHover(this.treasureTriggerSprite)
-    this.BC.treasureClick = () => {
-      this.$emit('found-treasure')
-    }
-
-    /**
-     * HANDLING THE rotating planes
-     */
-    for (let i = 0; i < 4; i++) {
-      const plane = BABYLON.MeshBuilder.CreatePlane(`treasurePlane${1}`, {
-        height: 200,
-        width: 200,
-        sideOrientation: BABYLON.Mesh.DOUBLESIDE,
-      })
-      plane.setParent(this.treasureMesh)
-      plane.renderingGroupId = 2
-      plane.position = treasurePosition
-      plane.rotation = new BABYLON.Vector3(
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-        Math.random() * Math.PI
-      )
-    }
-    const path = require(`@/assets/resources3d/textures/treasure.png`)
-    const task = this.BC.am.addTextureTask('treasureTask', path)
-    const mat = new BABYLON.StandardMaterial('treasureMaterial', this.BC.scene)
-    task.onSuccess = (task) => {
-      mat.diffuseTexture = task.texture
-      mat.diffuseTexture.hasAlpha = true
-      mat.useAlphaFromDiffuseTexture = true
-      this.treasureMesh.getChildMeshes().forEach((plane) => {
-        plane.material = mat
-      })
-    }
-    // set animation
-    this.BC.scene.registerBeforeRender(() => {
-      this.treasureMesh.getChildMeshes().forEach((plane) => {
-        plane.rotation.x += 0.007 * this.BC.treasureHoverFactor
-        plane.rotation.y += 0.007 * this.BC.treasureHoverFactor
-        plane.rotation.z += 0.007 * this.BC.treasureHoverFactor
-      })
     })
   }
 
@@ -253,55 +255,372 @@ export default class ImmersiveScene extends Vue {
 
     // Display the hotspots
     this.immersive.hotspots.forEach((hotspot, i) => {
-      let sprite
-      switch (hotspot.type) {
-        case 'INSERT':
-          sprite = new BABYLON.Sprite(`hotspotSprite-${i}`, this.BC.sm1)
-          sprite.playAnimation(0, 22, true, 80)
-          break
-        // handle initialization for other types of Hotspot
-      }
+      const sprite = new BABYLON.Sprite(
+        `hotspotSprite-${i}`,
+        this.BC.SM
+      ) as InjectedSprite
+      // Current animation has 45 frames
+      sprite.playAnimation(0, 45, true, 0)
+      /** Different kind of hotspots ? **/
+      // switch (hotspot.type) {
+      //   case 'INSERT':
+      //     break
+      //   // handle initialization for other types of Hotspot
+      // }
       sprite.isPickable = true
       sprite.position = this.BC.generate3DPosition(
         hotspot.position,
         settings.sphereDiameter / 2
       )
-      // inject hotspot data into the sprite
+      // Inject hotspot data into the sprite
       sprite.hotspotData = hotspot
-      // Add sprite hover
-      this.BC.setSpriteHover(sprite)
       // Invert the z-axis to fit coordinates
       sprite.position.z *= -1
-      // Adjust sprite scale to sphere radius
-      sprite.width = (settings.sphereDiameter / 40) * settings.hotspotSize
-      sprite.height = (settings.sphereDiameter / 40) * settings.hotspotSize
+      // Initialize as transparent. Tablet animation will play first.
+      // Size will be set on scroll, scaling with sphereDiameter
+      sprite.width = 0
+      sprite.height = 0
     })
   }
 
-  initHotspotInserts() {
-    const parent = this.$refs.canvasHolder as HTMLElement
-    const injectedSprites = this.BC.sm1.sprites as InjectedSprite[]
-    injectedSprites.forEach((sprite) => {
-      // shell
-      const insert = document.createElement('div')
-      insert.classList.add('insert')
-      // asset
-      const asset = new Image()
-      const source = sprite.hotspotData.visualAsset
-        ? sprite.hotspotData.visualAsset
-        : 'https://f.hellowork.com/blogdumoderateur/2013/02/gif-anime.gif'
-      asset.src = source
-      insert.append(asset)
-      // caption
-      const caption = document.createElement('p')
-      caption.classList.add('caption')
-      caption.innerHTML = this.$t(sprite.hotspotData.value) as string
-      insert.append(caption)
-      // append to document
-      parent.append(insert)
-      // attach to the sprite object
-      sprite.hotspotData.insert = insert
+  associateInsertsToHotspots() {
+    const injectedSprites = this.BC.SM.sprites as InjectedSprite[]
+    Array.from(document.querySelectorAll('.insert')).forEach((insert, i) => {
+      injectedSprites[i].hotspotData.insert = insert as HTMLElement
     })
+  }
+
+  getInsertVisualAsset(index): string {
+    if (this.immersive.hotspots[index].visualAsset) {
+      const src = require(`@/assets/immersives/${this.site.siteID}/encarts/${this.immersive.hotspots[index].visualAsset}`)
+      return src
+    } else {
+      return 'https://f.hellowork.com/blogdumoderateur/2013/02/gif-anime.gif'
+    }
+  }
+
+  initGuiInserts() {
+    this.GUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI(
+      'UI',
+      true,
+      this.BC.scene
+    )
+    this.GUI.idealWidth = 300
+
+    const spriteCoreHolder = new BABYLON.AbstractMesh(
+      'spriteCoreHolder',
+      this.BC.scene
+    )
+
+    const injectedSprites = this.BC.SM.sprites as InjectedSprite[]
+    const backupSource = new Image()
+    backupSource.src =
+      'https://f.hellowork.com/blogdumoderateur/2013/02/gif-anime.gif'
+    injectedSprites.forEach((sprite, i) => {
+      // create invisible mesh for each sprite
+      // GUI elements can't be linked to sprites
+      const core = BABYLON.MeshBuilder.CreateSphere(
+        `spriteCore${1}`,
+        { diameter: 1 },
+        this.BC.scene
+      )
+      core.parent = spriteCoreHolder
+      core.position = sprite.position
+
+      // createt the UI insert
+      const insert = new GUI.Rectangle()
+      const insertWidth = 0.15
+      insert.cornerRadius = 5
+      insert.color = 'rgba(1, 1, 1, 0.5)'
+      insert.thickness = 1
+      insert.background = 'rgba(0, 0, 0, 0.55)'
+      this.GUI.addControl(insert)
+      insert.linkWithMesh(core)
+      insert.width = 0.15
+
+      const caption = new GUI.TextBlock()
+      caption.text = this.$t(sprite.hotspotData.value) as string
+      caption.textWrapping = true
+      // styling the text here
+      caption.color = 'white'
+      caption.paddingLeft = caption.paddingRight = '1px'
+      caption.paddingTop = caption.paddingBottom = '1px'
+      insert.addControl(caption)
+
+      insert.height = insertWidth * (caption.text.length / 140)
+
+      const captionStringHeight = insert.height as unknown as string
+      const captionNumberOffset = -(captionStringHeight.substring(
+        0,
+        captionStringHeight.length - 1
+      ) as unknown as number)
+      insert.linkOffsetY = captionNumberOffset - 5
+
+      // visual asset
+      let source
+      if (this.immersive.hotspots[i].visualAsset) {
+        source = new Image()
+        source.src = require(`@/assets/immersives/${this.site.siteID}/encarts/${this.immersive.hotspots[i].visualAsset}`)
+      } else {
+        source = backupSource
+      }
+      const imageRatio = source.width / source.height
+
+      const image = new GUI.Image(`visualAsset-${i}`, source.src)
+      this.GUI.addControl(image)
+      image.width = insertWidth
+      image.stretch = GUI.Image.STRETCH_UNIFORM
+      image.linkWithMesh(core)
+      image.alpha = 1
+
+      const windowRatio = window.innerWidth / window.innerHeight
+      const imageStringWidth = image.width as unknown as string
+      const imageNumberWidth = imageStringWidth.substring(
+        0,
+        imageStringWidth.length - 1
+      ) as unknown as number
+
+      const imageNumberHeight = (imageNumberWidth / imageRatio) * windowRatio
+      const imageNumberOffset = captionNumberOffset * 2 - imageNumberHeight + 5
+
+      image.linkOffsetY = imageNumberOffset
+    })
+  }
+
+  onEachFrame() {
+    /**
+     * MOUSE SWAYING
+     */
+    // cursor positions already range from -1 to 1 for viewport limits
+    const { cursorX, cursorY } = this
+
+    // only during the babylon section
+    if (this.scrollAnimRatio > 0.01 && this.scrollAnimRatio < 9.9) {
+      if (this.scrollAnimRatio > this.animTabletSeparator) {
+        // inside the immersive (second half) the horizontal traveling must be taken in account
+        this.camera.alpha =
+          this.cameraHorizontalAngle - this.horizontalSwayReach * cursorX
+        this.camera.beta = Math.PI / 2 - this.verticalSwayReach * cursorY
+      } else {
+        this.camera.alpha = -Math.PI / 2 - this.horizontalSwayReach * cursorX
+        this.camera.beta = Math.PI / 2 - this.verticalSwayReach * cursorY
+      }
+    } else {
+      this.camera.alpha = -Math.PI / 2
+      this.camera.beta = Math.PI / 2
+    }
+
+    /**
+     * HANDLING HOTSPOT IN VIEWFIELD
+     */
+    const sprites = this.BC.SM.sprites as InjectedSprite[]
+    // has the timeslide reached the past layer ?
+    if (this.timeSlideLocation.value < this.hotspotThreshold) {
+      this.onlySpritesInFront(sprites).forEach((sprite) => {
+        // is the hotspot in center view ?
+        if (this.isInCenterView(sprite.position)) {
+          // is the insert opened yet ?
+          if (!sprite.hotspotData.opened) {
+            this.openHotspot(sprite)
+            sprite.hotspotData.opened = true // toggle
+          } else {
+            // refresh the insert's position on given frame
+            this.updateInsertPosition(sprite)
+          }
+        } else if (sprite.hotspotData.opened) {
+          this.closeHotspot(sprite)
+          sprite.hotspotData.opened = false // toggle
+        }
+      })
+    } else {
+      // close all inserts when leaving the past layer
+      sprites.forEach((sprite) => {
+        if (sprite.hotspotData.opened) {
+          this.closeHotspot(sprite)
+          sprite.hotspotData.opened = false // toggle
+        }
+      })
+    }
+    /**
+     * Import corrections
+     */
+    this.tabletAnimationGroups.forEach((mesh) => {
+      mesh.scaling.x = Math.abs(mesh.scaling.x)
+      mesh.scaling.y = 1
+      mesh.scaling.z = 1
+    })
+  }
+
+  @Watch('scrollAnimRatio')
+  autopilotUpdate() {
+    const ratio = this.scrollAnimRatio
+
+    /** =======================
+     * === TABLET ANIMATION ===
+     * ===================== **/
+    // Tablet animation progress ratio
+    let tabletAnimRatio = 0
+    if (ratio >= this.animTabletSeparator) {
+      tabletAnimRatio = 1
+    } else {
+      const range = this.animTabletSeparator
+      tabletAnimRatio = ratio / range
+    }
+    // Tablet fade out towards animation's end
+    let tabletFadeRatio = 0
+    const fadeStartRatio = 0.9
+    // beyond ratio limits
+    if (tabletAnimRatio >= 1) {
+      tabletFadeRatio = 1
+    } else if (tabletAnimRatio <= fadeStartRatio) {
+      tabletFadeRatio = 0
+      // Screens need to be visible now
+      this.tabletMeshes.forEach((mesh) => {
+        if (mesh.name.includes('screen')) {
+          mesh.visibility = 1
+        }
+      })
+    } else {
+      const range = 1 - fadeStartRatio
+      tabletFadeRatio = (tabletAnimRatio - fadeStartRatio) / range
+      // Screens needs to be hidden now
+      this.tabletMeshes.forEach((mesh) => {
+        if (mesh.name.includes('screen')) {
+          mesh.visibility = 0
+        }
+      })
+    }
+    // set tablet fade out
+    this.tabletMeshes.forEach((mesh) => {
+      if (!mesh.name.includes('screen')) {
+        mesh.visibility = 1 - tabletFadeRatio
+      }
+    })
+
+    // set the current frame following current scroll ratio
+    this.BC.scene.animationGroups.forEach((animation) => {
+      animation.play()
+      animation.goToFrame(tabletAnimRatio * animation.to)
+      animation.pause()
+    })
+
+    // TODO BELOW FOR MOBILE
+    // const tabletHolder = this.BC.scene.getNodeByName(
+    //   'Tablette'
+    // ) as BABYLON.TransformNode
+    // tabletHolder.position.x = 0
+
+    /**
+     *  handle threshold between tablet and autopilot
+     */
+    if (ratio > this.animTabletSeparator) {
+      // adjust settingss
+      this.camera.fov = this.BC.settings.fov
+      this.camera.radius = 1
+      // set spheres timeslide state
+      this.alphaTimeTransition()
+    } else {
+      // adjust settingss
+      this.camera.fov = 0.5
+      this.camera.radius = 96
+      // set spheres timeslide state
+      // hide remaning sphere
+      this.alphaTimeTransition()
+      this.spheres.forEach((sphere) => {
+        sphere.material!.alpha = 0
+      })
+    }
+
+    /** ==========================
+     * === AUTOPILOT ANIMATION ===
+     * ======================== **/
+    let autopilotInnerRatio
+    // beyond ratio limits
+    if (ratio <= this.autopilotStart) {
+      autopilotInnerRatio = 0
+    } else if (ratio >= this.autopilotEnd) {
+      autopilotInnerRatio = 1
+    } else {
+      const range = this.autopilotEnd - this.autopilotStart
+      autopilotInnerRatio = (ratio - this.autopilotStart) / range
+    }
+    // computing the horizontal traveling angle, which is then gonna be used in onEachFrame()
+    const origin = this.horizontalTravelingOrigin
+    const target = this.horizontalTravelingTarget
+    this.cameraHorizontalAngle =
+      origin + (target - origin) * autopilotInnerRatio
+  }
+
+  onlySpritesInFront(sprites: InjectedSprite[]): InjectedSprite[] {
+    return sprites.filter((sprite) => {
+      const cameraToSpriteAngle = this.BC.angleBetweenTwoVectors(
+        this.camera.position,
+        sprite.position
+      )
+      return cameraToSpriteAngle > 90
+    })
+  }
+
+  isInCenterView(worldPosition: BABYLON.Vector3): Boolean {
+    const screenPosition = this.BC.worldToScreenCoordinates(worldPosition)
+    if (
+      screenPosition.x > window.innerWidth * this.centerviewPadding &&
+      screenPosition.x < window.innerWidth * (1 - this.centerviewPadding) &&
+      screenPosition.y > window.innerHeight * this.centerviewPadding &&
+      screenPosition.y < window.innerHeight * (1 - this.centerviewPadding)
+    ) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  openHotspot(sprite: InjectedSprite) {
+    const insert = sprite.hotspotData.insert
+    if (insert) {
+      gsap
+        .timeline()
+        .to(
+          insert,
+          { scale: 1, opacity: 1, display: 'flex', ease: 'back' },
+          0.1
+        )
+      sprite.stopAnimation()
+    } else {
+      // console.error('this hotspot has no insert')
+    }
+  }
+
+  closeHotspot(sprite: InjectedSprite) {
+    // sprite.isVisible = false
+    const insert = sprite.hotspotData.insert
+    if (insert) {
+      gsap
+        .timeline()
+        .to(insert, { scale: 0.75, opacity: 0 }, 0.1)
+        .to(insert, { display: 'none' }, 0.01)
+      sprite.playAnimation(0, 45, true, 0)
+    } else {
+      // console.error('this hotspot has no insert')
+    }
+  }
+
+  updateInsertPosition(sprite: InjectedSprite) {
+    const insert = sprite.hotspotData.insert
+    if (insert) {
+      const rec = insert.getBoundingClientRect()
+      const coord2D = this.BC.worldToScreenCoordinates(sprite.position)
+      if (this.BC.settings.debugLayer) {
+        // if inspector panels are enabled, positions must be adjusted
+        insert.style.top = `${coord2D.y - rec.height - 20}px`
+        insert.style.left = `${coord2D.x - rec.width / 2 + 300}px`
+      } else {
+        insert.style.top = `${coord2D.y - rec.height - 20}px`
+        insert.style.left = `${coord2D.x - rec.width / 2}px`
+      }
+    } else {
+      // console.error('this hotspot has no insert')
+    }
   }
 
   @Watch('timeSlideLocation')
@@ -336,13 +655,14 @@ export default class ImmersiveScene extends Vue {
         }
       })
 
-      // hide "Text" hotspots on corresponding layers
-      this.BC.sm1.sprites.forEach((sprite) => {
-        // Cast is necessary since we injected the sprites with the hotspot
+      // hide hotspots on corresponding layer
+      this.BC.SM.sprites.forEach((sprite) => {
+        // Cast is necessary since we injected each sprite with the hotspot's information
         const injectedSprite = sprite as InjectedSprite
         const size =
           (this.BC.settings.sphereDiameter / 40) * this.BC.settings.hotspotSize
         /** below for autopilot and manual threshold **/
+
         if (this.timeSlideLocation.value < this.hotspotThreshold) {
           injectedSprite.width = size
           injectedSprite.height = size
@@ -350,182 +670,8 @@ export default class ImmersiveScene extends Vue {
           injectedSprite.width = 0
           injectedSprite.height = 0
         }
-        /**  below for more than 2 layers **/
-        // if (injectedSprite.hotspotData.index === this.timeSlideLocation.index) {
-        //   injectedSprite.width =
-        //     (this.BC.settings.sphereDiameter / 40) *
-        //     this.BC.settings.hotspotSize
-        //   injectedSprite.height =
-        //     (this.BC.settings.sphereDiameter / 40) *
-        //     this.BC.settings.hotspotSize
-        // } else {
-        //   injectedSprite.width = 0
-        //   injectedSprite.height = 0
-        // }
       })
-
-      // hide "CloseUp" hotspots on corresponding layers
-      this.BC.sm2.sprites.forEach((sprite) => {
-        // Cast is necessary since we injected the sprites with the hotspot
-        const injectedSprite = sprite as InjectedSprite
-        if (injectedSprite.hotspotData.index === this.timeSlideLocation.index) {
-          injectedSprite.width =
-            (this.BC.settings.sphereDiameter / 40) *
-            this.BC.settings.hotspotSize
-          injectedSprite.height =
-            (this.BC.settings.sphereDiameter / 40) *
-            this.BC.settings.hotspotSize
-        } else {
-          injectedSprite.width = 0
-          injectedSprite.height = 0
-        }
-      })
-
-      // enable treasure only for appropriate layer
-      if (this.timeSlideLocation.index !== this.immersive.treasure.layer) {
-        // visible glow effect
-        if (this.treasureMesh) this.treasureMesh.setEnabled(false)
-        // picking trigger
-        if (this.treasureTriggerSprite) {
-          this.treasureTriggerSprite.isPickable = false
-        }
-      } else {
-        // visible glow effect
-        if (this.treasureMesh) this.treasureMesh.setEnabled(true)
-        // picking trigger
-        if (this.treasureTriggerSprite) {
-          this.treasureTriggerSprite.isPickable = true
-        }
-      }
     }
-  }
-
-  registerAutopilot() {
-    this.BC.scene.registerBeforeRender(() => {
-      /**
-       * CAMERA TRAVELING AND MOUSE SWAYING
-       */
-      // cursor positions already range from -1 to 1 for viewport limits
-      const { cursorX, cursorY } = this
-      const ratio = this.autopilotRatio
-      let innerRatio
-      // beyond ratio limits
-      if (ratio <= this.autopilotMin) {
-        innerRatio = 0
-      } else if (ratio >= this.autopilotMax) {
-        innerRatio = 1
-      } else {
-        const range = this.autopilotMax - this.autopilotMin
-        innerRatio = (ratio - this.autopilotMin) / range
-      }
-      const originAngle = 3.75
-      const targetAngle = 6.35
-      const alphaSwayReach = Math.PI * 0.05
-      const betaSwayReach = Math.PI * 0.05
-      const cameraAngle = originAngle + (targetAngle - originAngle) * innerRatio
-      this.camera.alpha = cameraAngle - alphaSwayReach * cursorX
-      this.camera.beta = Math.PI / 2 - betaSwayReach * cursorY
-      /**
-       * HOTSPOT ENTERING VIEWFIELD
-       */
-      const sprites = this.BC.sm1.sprites as InjectedSprite[]
-      // has the timeslide reached the past layer ?
-      if (this.timeSlideLocation.value < this.hotspotThreshold) {
-        this.onlySpritesInFront(sprites).forEach((sprite) => {
-          // is the hotspot in center view ?
-          if (this.isInCenterView(sprite.position)) {
-            // is the insert opened yet ?
-            if (!sprite.hotspotData.opened) {
-              this.openHotspot(sprite)
-              sprite.hotspotData.opened = true // toggle
-            } else {
-              // refresh the insert's position on given frame
-              this.updateInsertPosition(sprite)
-            }
-          } else if (sprite.hotspotData.opened) {
-            this.closeHotspot(sprite)
-            sprite.hotspotData.opened = false // toggle
-          }
-        })
-      } else {
-        // close all inserts when leaving the past layer
-        sprites.forEach((sprite) => {
-          if (sprite.hotspotData.opened) {
-            this.closeHotspot(sprite)
-            sprite.hotspotData.opened = false // toggle
-          }
-        })
-      }
-    })
-  }
-
-  onlySpritesInFront(sprites: InjectedSprite[]): InjectedSprite[] {
-    return sprites.filter((sprite) => {
-      const cameraToSpriteAngle = this.BC.angleBetweenTwoVectors(
-        this.camera.position,
-        sprite.position
-      )
-      return cameraToSpriteAngle > 90
-    })
-  }
-
-  isInCenterView(worldPosition: BABYLON.Vector3): Boolean {
-    const screenPosition = this.BC.worldToScreenCoordinates(worldPosition)
-    if (
-      screenPosition.x > window.innerWidth * this.centerviewPadding &&
-      screenPosition.x < window.innerWidth * (1 - this.centerviewPadding) &&
-      screenPosition.y > window.innerHeight * this.centerviewPadding &&
-      screenPosition.y < window.innerHeight * (1 - this.centerviewPadding)
-    ) {
-      return true
-    } else {
-      return false
-    }
-  }
-
-  openHotspot(sprite: InjectedSprite) {
-    // sprite.isVisible = true
-    const insert = sprite.hotspotData.insert
-    if (insert) {
-      gsap
-        .timeline()
-        .to(
-          insert,
-          { scale: 1, opacity: 1, display: 'flex', ease: 'back' },
-          0.1
-        )
-    } else {
-      console.error('this hotspot has no insert')
-    }
-  }
-
-  closeHotspot(sprite: InjectedSprite) {
-    // sprite.isVisible = false
-    const insert = sprite.hotspotData.insert
-    if (insert) {
-      gsap
-        .timeline()
-        .to(insert, { scale: 0.75, opacity: 0 }, 0.1)
-        .to(insert, { display: 'none' }, 0.01)
-    } else {
-      console.error('this hotspot has no insert')
-    }
-  }
-
-  updateInsertPosition(sprite: InjectedSprite) {
-    const insert = sprite.hotspotData.insert
-    if (insert) {
-      const rec = insert.getBoundingClientRect()
-      const coord2D = this.BC.worldToScreenCoordinates(sprite.position)
-      insert.style.top = `${coord2D.y - rec.height - 20}px`
-      insert.style.left = `${coord2D.x - rec.width / 2}px`
-    } else {
-      console.error('this hotspot has no insert')
-    }
-  }
-
-  canvasClick() {
-    this.canvasUntouched = false
   }
 }
 </script>
@@ -553,6 +699,10 @@ export default class ImmersiveScene extends Vue {
   /* position: absolute !important; */
   z-index: 999;
   height: 100%;
+  /* overflow-y: scroll; */
+}
+#inspector-host #actionTabs .tabs {
+  /* overflow-y: scroll; */
 }
 #scene-explorer-host .title,
 #inspector-host .title,
@@ -579,6 +729,7 @@ export default class ImmersiveScene extends Vue {
   transform-origin: bottom;
   display: none;
   transform: scale(0.75);
+  box-shadow: 15px -13px 20px 5px rgba(0, 0, 0, 0.39);
   /* transition: all 0.1 s ease ; */
 }
 .insert::after {

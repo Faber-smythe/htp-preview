@@ -7,6 +7,7 @@ import scrollBehavior from './router.scrollBehavior.js'
 const _1649a80e = () => interopDefault(import('..\\pages\\index.vue' /* webpackChunkName: "pages/index" */))
 const _853a130a = () => interopDefault(import('..\\pages\\_site\\margin.vue' /* webpackChunkName: "pages/_site/margin" */))
 const _2744654f = () => interopDefault(import('..\\pages\\_site\\scene.vue' /* webpackChunkName: "pages/_site/scene" */))
+const _3337caac = () => interopDefault(import('..\\pages\\_site\\scrolltest.vue' /* webpackChunkName: "pages/_site/scrolltest" */))
 const _cd9a7832 = () => interopDefault(import('..\\pages\\_site\\sequence-canvas.vue' /* webpackChunkName: "pages/_site/sequence-canvas" */))
 const _19ff62f8 = () => interopDefault(import('..\\pages\\_site\\sequence-css.vue' /* webpackChunkName: "pages/_site/sequence-css" */))
 const _dfe23ad6 = () => interopDefault(import('..\\pages\\_site\\index.vue' /* webpackChunkName: "pages/_site/index" */))
@@ -91,6 +92,10 @@ export const routerOptions = {
     component: _2744654f,
     name: "site-scene___de___de"
   }, {
+    path: "/de/de/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___de___de"
+  }, {
     path: "/de/de/:site/sequence-canvas",
     component: _cd9a7832,
     name: "site-sequence-canvas___de___de"
@@ -106,6 +111,10 @@ export const routerOptions = {
     path: "/de/en/:site/scene",
     component: _2744654f,
     name: "site-scene___en___de"
+  }, {
+    path: "/de/en/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___en___de"
   }, {
     path: "/de/en/:site/sequence-canvas",
     component: _cd9a7832,
@@ -123,6 +132,10 @@ export const routerOptions = {
     component: _2744654f,
     name: "site-scene___fr___de"
   }, {
+    path: "/de/fr/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___fr___de"
+  }, {
     path: "/de/fr/:site/sequence-canvas",
     component: _cd9a7832,
     name: "site-sequence-canvas___fr___de"
@@ -138,6 +151,10 @@ export const routerOptions = {
     path: "/en/de/:site/scene",
     component: _2744654f,
     name: "site-scene___de___en"
+  }, {
+    path: "/en/de/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___de___en"
   }, {
     path: "/en/de/:site/sequence-canvas",
     component: _cd9a7832,
@@ -155,6 +172,10 @@ export const routerOptions = {
     component: _2744654f,
     name: "site-scene___en___en"
   }, {
+    path: "/en/en/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___en___en"
+  }, {
     path: "/en/en/:site/sequence-canvas",
     component: _cd9a7832,
     name: "site-sequence-canvas___en___en"
@@ -170,6 +191,10 @@ export const routerOptions = {
     path: "/en/fr/:site/scene",
     component: _2744654f,
     name: "site-scene___fr___en"
+  }, {
+    path: "/en/fr/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___fr___en"
   }, {
     path: "/en/fr/:site/sequence-canvas",
     component: _cd9a7832,
@@ -187,6 +212,10 @@ export const routerOptions = {
     component: _2744654f,
     name: "site-scene___de___fr"
   }, {
+    path: "/fr/de/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___de___fr"
+  }, {
     path: "/fr/de/:site/sequence-canvas",
     component: _cd9a7832,
     name: "site-sequence-canvas___de___fr"
@@ -203,6 +232,10 @@ export const routerOptions = {
     component: _2744654f,
     name: "site-scene___en___fr"
   }, {
+    path: "/fr/en/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___en___fr"
+  }, {
     path: "/fr/en/:site/sequence-canvas",
     component: _cd9a7832,
     name: "site-sequence-canvas___en___fr"
@@ -218,6 +251,10 @@ export const routerOptions = {
     path: "/fr/fr/:site/scene",
     component: _2744654f,
     name: "site-scene___fr___fr"
+  }, {
+    path: "/fr/fr/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___fr___fr"
   }, {
     path: "/fr/fr/:site/sequence-canvas",
     component: _cd9a7832,
@@ -303,6 +340,14 @@ export const routerOptions = {
     component: _2744654f,
     name: "site-scene___de"
   }, {
+    path: "/de/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___de"
+  }, {
+    path: "/de/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___de"
+  }, {
     path: "/de/:site/sequence-canvas",
     component: _cd9a7832,
     name: "site-sequence-canvas___de"
@@ -335,6 +380,14 @@ export const routerOptions = {
     component: _2744654f,
     name: "site-scene___en"
   }, {
+    path: "/en/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___en"
+  }, {
+    path: "/en/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___en"
+  }, {
     path: "/en/:site/sequence-canvas",
     component: _cd9a7832,
     name: "site-sequence-canvas___en"
@@ -366,6 +419,14 @@ export const routerOptions = {
     path: "/fr/:site/scene",
     component: _2744654f,
     name: "site-scene___fr"
+  }, {
+    path: "/fr/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___fr"
+  }, {
+    path: "/fr/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest___fr"
   }, {
     path: "/fr/:site/sequence-canvas",
     component: _cd9a7832,
@@ -398,6 +459,10 @@ export const routerOptions = {
     path: "/:site/scene",
     component: _2744654f,
     name: "site-scene"
+  }, {
+    path: "/:site/scrolltest",
+    component: _3337caac,
+    name: "site-scrolltest"
   }, {
     path: "/:site/sequence-canvas",
     component: _cd9a7832,
