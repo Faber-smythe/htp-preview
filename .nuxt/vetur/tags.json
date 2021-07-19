@@ -8,15 +8,6 @@
   "NavigationBar": {
     "description": "Auto imported from components/NavigationBar.vue"
   },
-  "HomeScene": {
-    "description": "Auto imported from components/home/Scene.vue"
-  },
-  "HomeScrolltests": {
-    "description": "Auto imported from components/home/Scrolltests.vue"
-  },
-  "HomeSequence": {
-    "description": "Auto imported from components/home/Sequence.vue"
-  },
   "SiteHeaderSection": {
     "description": "Auto imported from components/site/HeaderSection.vue"
   },

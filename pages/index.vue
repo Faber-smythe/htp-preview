@@ -1,6 +1,6 @@
 <template>
   <section id="benchHolder">
-    <Sequence :ratio="ratio" />
+    <!-- <Sequence :ratio="ratio" /> -->
     <!-- <Scene :ratio="ratio" /> -->
   </section>
 </template>
@@ -10,15 +10,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import 'babylonjs-loaders'
 // import components
-import Sequence from '@/components/home/Sequence.vue'
-import Scene from '@/components/home/Scene.vue'
+// import Sequence from '@/components/home/Sequence.vue'
+// import Scene from '@/components/home/Scene.vue'
 // miscellaneous
 
 @Component({
-  components: {
-    Sequence,
-    Scene,
-  },
+  components: {},
 })
 export default class Index extends Vue {
   ratio: number = 0

@@ -210,24 +210,32 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
     Array.from(document.querySelectorAll('.screenText')).forEach((elem) => {
       // this.swayedScreenTexts.push(elem as HTMLElement)
     })
+    // console.log(document.querySelector('#header-section h1'))
+    // console.log(this.swayedTitles)
   }
 
   @Watch('cursorX')
   @Watch('cursorY')
   text3DSway() {
     this.swayedTitles.forEach((elem) => {
-      const transform = `translateX(${-5 * this.cursorX}px) translateY(${
-        -5 * this.cursorY
-      }px) rotateX(${-0.8 * this.cursorY}deg) rotateY(${0.8 * this.cursorX}deg)`
-      elem.style.transform = transform
+      if (elem) {
+        const transform = `translateX(${-5 * this.cursorX}px) translateY(${
+          -5 * this.cursorY
+        }px) rotateX(${-0.8 * this.cursorY}deg) rotateY(${
+          0.8 * this.cursorX
+        }deg)`
+        elem.style.transform = transform
+      }
     })
     this.swayedScreenTexts.forEach((elem) => {
-      const transform = `translateX(${-5 * this.cursorX}px) translateY(${
-        -5 * this.cursorY
-      }px) rotateX(${-0.8 * this.cursorY}deg) rotateY(${
-        -0.8 * this.cursorX
-      }deg)`
-      elem.style.transform = transform
+      if (elem) {
+        const transform = `translateX(${-5 * this.cursorX}px) translateY(${
+          -5 * this.cursorY
+        }px) rotateX(${-0.8 * this.cursorY}deg) rotateY(${
+          -0.8 * this.cursorX
+        }deg)`
+        elem.style.transform = transform
+      }
     })
   }
 
