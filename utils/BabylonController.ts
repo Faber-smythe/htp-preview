@@ -1,5 +1,5 @@
 import * as BABYLON from 'babylonjs'
-import 'babylonjs-loaders'
+import * as GUI from 'babylonjs-gui'
 import { Position } from '@/types/ImmersiveContent'
 import BabylonCustomLoader from '@/utils/BabylonCustomLoader'
 
@@ -12,6 +12,7 @@ export default class BabylonController {
   canvas!: HTMLCanvasElement
   engine!: BABYLON.Engine
   scene!: BABYLON.Scene
+  GUI!: GUI.AdvancedDynamicTexture
   SM!: BABYLON.SpriteManager
   AM!: BABYLON.AssetsManager
 
@@ -37,13 +38,20 @@ export default class BabylonController {
     // set the canvas background to transparent
     this.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0)
 
-    // Initialize sprite managers
+    // Initialize Babylon sprite manager
     this.SM = new BABYLON.SpriteManager('sm', spritePath, 32, 128, this.scene)
     this.SM.renderingGroupId = 1
     this.SM.isPickable = true
 
-    // Initialize asset manager
+    // Initialize Babylon asset manager
     this.AM = new BABYLON.AssetsManager(this.scene)
+
+    // Initialize Babylon GUI
+    this.GUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI(
+      'UI',
+      true,
+      this.scene
+    )
 
     // Toggle debuglayer
     if (this.settings.debugLayer) {
@@ -93,14 +101,9 @@ export default class BabylonController {
 
     const dotVec = BABYLON.Vector3.Dot(normalized2, normalized1)
 
-    /** arccos of dot vector **/
+    /** arcCos of dot vector **/
     const angleRadians = Math.acos(dotVec) // radians
-    const angleDeegres = this.radiansToDegrees(angleRadians) // deegres
-
-    /** To make angle from 0 to 360 (otherwise 45° == -45° and 120° == -120°) **/
-    // if (normalizedVec.x < 0) {
-    //   angleDeegres = 360 - angleDeegres
-    // }
+    const angleDeegres = this.radiansToDegrees(angleRadians) // deegre
 
     return angleDeegres
   }

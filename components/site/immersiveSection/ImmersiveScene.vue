@@ -51,8 +51,7 @@ export default class ImmersiveScene extends Vue {
   @Prop({ type: Number, required: true }) readonly cursorY!: number
 
   /** 3D objects properties (for reference) **/
-  BC!: BabylonController // contains canvas, engine, scene, scene parameters and more
-  GUI!: GUI.AdvancedDynamicTexture
+  BC!: BabylonController // contains canvas, engine, scene, GUI and more
   spheres!: BABYLON.Mesh[] // initialized once mounted
   sphereLayerMaterials: BABYLON.StandardMaterial[] = []
   camera!: BABYLON.ArcRotateCamera
@@ -300,22 +299,15 @@ export default class ImmersiveScene extends Vue {
   }
 
   initGuiInserts() {
-    this.GUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI(
-      'UI',
-      true,
-      this.BC.scene
-    )
-    this.GUI.idealWidth = 300
-
     const spriteCoreHolder = new BABYLON.AbstractMesh(
       'spriteCoreHolder',
       this.BC.scene
     )
 
     const injectedSprites = this.BC.SM.sprites as InjectedSprite[]
-    const backupSource = new Image()
-    backupSource.src =
+    const backupSource =
       'https://f.hellowork.com/blogdumoderateur/2013/02/gif-anime.gif'
+
     injectedSprites.forEach((sprite, i) => {
       // create invisible mesh for each sprite
       // GUI elements can't be linked to sprites
@@ -329,61 +321,76 @@ export default class ImmersiveScene extends Vue {
 
       // createt the UI insert
       const insert = new GUI.Rectangle()
-      const insertWidth = 0.15
-      insert.cornerRadius = 5
+
+      // insert.cornerRadius = 5
       insert.color = 'rgba(1, 1, 1, 0.5)'
       insert.thickness = 1
       insert.background = 'rgba(0, 0, 0, 0.55)'
-      this.GUI.addControl(insert)
+      const insertWidth = 0.15
+      this.BC.GUI.addControl(insert)
       insert.linkWithMesh(core)
-      insert.width = 0.15
+      insert.width = insertWidth
+
+      insert.shadowOffsetX = 15
+      insert.shadowOffsetY = -15
+      insert.shadowBlur = 12
+      insert.shadowColor = 'rgba(0, 0, 0, 0.7)'
 
       const caption = new GUI.TextBlock()
       caption.text = this.$t(sprite.hotspotData.value) as string
       caption.textWrapping = true
       // styling the text here
       caption.color = 'white'
-      caption.paddingLeft = caption.paddingRight = '1px'
-      caption.paddingTop = caption.paddingBottom = '1px'
+      caption.paddingLeft = caption.paddingRight = '5px'
+      caption.paddingTop = caption.paddingBottom = '3px'
+      caption.fontSizeInPixels = window.innerWidth * 0.012
+
       insert.addControl(caption)
 
       insert.height = insertWidth * (caption.text.length / 140)
 
       const captionStringHeight = insert.height as unknown as string
-      const captionNumberOffset = -(captionStringHeight.substring(
-        0,
-        captionStringHeight.length - 1
-      ) as unknown as number)
-      insert.linkOffsetY = captionNumberOffset - 5
+      const captionOffset =
+        ((captionStringHeight.substring(
+          0,
+          captionStringHeight.length - 1
+        ) as unknown as number) /
+          2 /
+          100) *
+        window.innerHeight *
+        1.3
+      insert.linkOffsetY = -captionOffset - 40
 
       // visual asset
       let source
       if (this.immersive.hotspots[i].visualAsset) {
         source = new Image()
-        source.src = require(`@/assets/immersives/${this.site.siteID}/encarts/${this.immersive.hotspots[i].visualAsset}`)
+        source = require(`@/assets/immersives/${this.site.siteID}/encarts/${this.immersive.hotspots[i].visualAsset}`)
       } else {
         source = backupSource
       }
-      const imageRatio = source.width / source.height
 
-      const image = new GUI.Image(`visualAsset-${i}`, source.src)
-      this.GUI.addControl(image)
+      const image = new GUI.Image(`visualAsset-${i}`, source)
+      this.BC.GUI.addControl(image)
       image.width = insertWidth
       image.stretch = GUI.Image.STRETCH_UNIFORM
       image.linkWithMesh(core)
-      image.alpha = 1
 
-      const windowRatio = window.innerWidth / window.innerHeight
-      const imageStringWidth = image.width as unknown as string
-      const imageNumberWidth = imageStringWidth.substring(
-        0,
-        imageStringWidth.length - 1
-      ) as unknown as number
+      image.shadowOffsetX = 15
+      image.shadowOffsetY = -15
+      image.shadowBlur = 15
+      image.shadowColor = 'rgba(0, 0, 0, 0.5)'
 
-      const imageNumberHeight = (imageNumberWidth / imageRatio) * windowRatio
-      const imageNumberOffset = captionNumberOffset * 2 - imageNumberHeight + 5
+      image.onImageLoadedObservable.add(() => {
+        const originalHeight = image.domImage.naturalHeight
+        const originalWidth = image.domImage.naturalWidth
 
-      image.linkOffsetY = imageNumberOffset
+        const imageRatio = originalWidth / originalHeight
+        const imagePixelHeight = image.widthInPixels / imageRatio
+        console.log(imagePixelHeight)
+
+        image.linkOffsetY = -captionOffset * 2 - imagePixelHeight / 2 - 40
+      })
     })
   }
 

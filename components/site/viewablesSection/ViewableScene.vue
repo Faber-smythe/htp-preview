@@ -8,10 +8,12 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 // import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 // import '@babylonjs/loaders/glTF'
 import * as BABYLON from 'babylonjs'
-import 'babylonjs-loaders'
+import * as LOADERS from 'babylonjs-loaders'
+import * as GUI from 'babylonjs-gui'
 // import types
 import Site from '@/types/Site'
 import { ObjectAsset } from '@/types/Viewable'
+import ModelCore from '@/types/ModelCore'
 // import miscellaneous
 import BabylonController from '@/utils/BabylonController'
 
@@ -22,7 +24,9 @@ export default class ViewableScene extends Vue {
   @Prop({ required: true }) readonly loadScreen!: HTMLElement
 
   BC!: BabylonController
+  camera!: BABYLON.ArcRotateCamera
   meshes!: BABYLON.AbstractMesh[]
+  cores: ModelCore[] = []
   animatedMeshes: BABYLON.AbstractMesh[] = []
   canvasUntouched: boolean = true
 
@@ -54,7 +58,7 @@ export default class ViewableScene extends Vue {
     const settings = this.BC.settings
 
     // create the camera
-    const camera = new BABYLON.ArcRotateCamera(
+    this.camera = new BABYLON.ArcRotateCamera(
       'immersiveCamera',
       -Math.PI / 2,
       Math.PI / 3,
@@ -62,14 +66,14 @@ export default class ViewableScene extends Vue {
       new BABYLON.Vector3(0, 0, 0),
       this.BC.scene
     )
-    camera.fov = settings.fov
-    camera.inertia = 0.7
-    camera.attachControl(this.$refs.renderCanvas, true)
-    camera.angularSensibilityX /= settings.sensitivity * 2
-    camera.angularSensibilityY /= settings.sensitivity * 2
-    camera.wheelPrecision = 9999
-    camera.panningSensibility = 9999
-    camera.minZ = 0.2
+    this.camera.fov = settings.fov
+    this.camera.inertia = 0.7
+    this.camera.attachControl(this.$refs.renderCanvas, true)
+    this.camera.angularSensibilityX /= settings.sensitivity * 2
+    this.camera.angularSensibilityY /= settings.sensitivity * 2
+    this.camera.wheelPrecision = 9999
+    this.camera.panningSensibility = 9999
+    this.camera.minZ = 0.2
 
     // create light
     this.BC.scene.createDefaultLight()
@@ -86,30 +90,48 @@ export default class ViewableScene extends Vue {
     // is there a light parameter ?
     light.intensity = this.object.lightIntensity ?? 2
     // is there a zoom parameter ?
-    camera.radius = this.object.initialZoom ?? camera.radius
+    this.camera.radius = this.object.initialZoom ?? this.camera.radius
     // is there a camera clamping parameter ?
     if (this.object.cameraClamping && this.object.cameraClamping !== 'free') {
       switch (this.object.cameraClamping) {
         case 'quarter':
-          camera.upperBetaLimit = Math.PI / 2
-          camera.lowerBetaLimit = 0
+          this.camera.upperBetaLimit = Math.PI / 2
+          this.camera.lowerBetaLimit = 0
           break
         case 'model':
-          camera.upperBetaLimit = Math.PI * (3 / 8)
-          camera.lowerBetaLimit = 0
+          this.camera.upperBetaLimit = Math.PI * (3 / 8)
+          this.camera.lowerBetaLimit = 0
           break
       }
     }
 
+    // Initialize the 3D labels
+    this.initLabels()
+
     // rendering frames
     this.BC.engine.runRenderLoop(() => {
-      if (camera.radius < 0.1) camera.radius = 0.1 // prevent center clipping
-      if (this.canvasUntouched) camera.alpha += 0.001 // slow rotating idle
+      if (this.camera.radius < 0.1) this.camera.radius = 0.1 // prevent center clipping
+      if (this.canvasUntouched) this.camera.alpha += 0.001 // slow rotating idle
       this.BC.scene.render()
     })
   }
 
   async loadObject(): Promise<BABYLON.AbstractMesh[]> {
+    // cancel automatic animation on import
+    BABYLON.SceneLoader.OnPluginActivatedObservable.add(
+      function (plugin) {
+        if (plugin.name === 'gltf') {
+          const loader = plugin as LOADERS.GLTFFileLoader
+          loader.animationStartMode = LOADERS.GLTFLoaderAnimationStartMode.NONE
+        }
+      },
+      undefined,
+      undefined,
+      undefined,
+      true
+    )
+
+    // import the actual object
     const imported = await BABYLON.SceneLoader.ImportMeshAsync(
       '',
       `/visual-assets/${this.site.siteID}/`,
@@ -117,13 +139,30 @@ export default class ViewableScene extends Vue {
       this.BC.scene
     )
     const animatedMeshes: BABYLON.AbstractMesh[] = []
+
+    imported.transformNodes.forEach((node) => {
+      node.scaling = new BABYLON.Vector3(1, 1, 1)
+    })
     imported.meshes.forEach((mesh) => {
       mesh.scaling = new BABYLON.Vector3(1, 1, 1)
       if (mesh.animations.length > 0) {
         animatedMeshes.push(mesh)
       }
-      this.BC.scene.stopAllAnimations()
+
+      // cancel the horizontal inversion
+      if (mesh.name === '__root__') {
+        mesh.scaling.x = -1
+      }
+
+      // populate the cores Array (targets for the labels)
+      if (mesh.name.includes('core')) {
+        this.cores.push(mesh)
+      }
     })
+
+    // cores might not arrive in the right order, they need sorting
+    this.cores = this.cores.sort((a, b) => (a.name < b.name ? -1 : 1))
+
     this.meshes = imported.meshes as BABYLON.AbstractMesh[]
     return animatedMeshes
   }
@@ -138,14 +177,80 @@ export default class ViewableScene extends Vue {
     }
   }
 
+  initLabels() {
+    // Does the 3D object have any labels ?
+    if (this.object.labels.length > 0) {
+      const labels = this.object.labels
+      if (this.cores.length !== labels.length) {
+        console.error("3D cores and model labels don't match")
+      } else {
+        labels.forEach((label, i) => {
+          const labelHolder = new GUI.Rectangle(
+            `${i}-[rectangle]-${this.$t(label) as string}`
+          )
+
+          labelHolder.cornerRadius = 5
+          labelHolder.color = 'black'
+          labelHolder.thickness = 1
+          labelHolder.background = 'white'
+          const guiLabelWidth = 0.15
+          this.BC.GUI.addControl(labelHolder)
+          labelHolder.linkWithMesh(this.cores[i])
+          labelHolder.width = guiLabelWidth
+          labelHolder.heightInPixels = 48
+          labelHolder.linkOffsetY = -120
+
+          labelHolder.shadowOffsetY = -6
+          labelHolder.shadowBlur = 6
+          labelHolder.shadowColor = 'rgba(0, 0, 0, 0.7)'
+
+          const guiLabel = new GUI.TextBlock(
+            `${i}-[text]-${this.$t(label) as string}`
+          )
+          guiLabel.text = this.$t(label) as string
+          guiLabel.textWrapping = true
+          // styling the text here
+          guiLabel.color = 'black'
+          guiLabel.fontSizeInPixels = window.innerWidth * 0.013
+          labelHolder.addControl(guiLabel)
+
+          const line = new GUI.Line(`${i}-[line]-${this.$t(label) as string}`)
+          line.lineWidth = 3
+          line.color = 'white'
+          line.y2 = 24
+          this.BC.GUI.addControl(line)
+          line.linkWithMesh(this.cores[i])
+          line.connectedControl = labelHolder
+
+          this.cores[i].label = labelHolder
+        })
+      }
+    }
+
+    this.BC.scene.registerBeforeRender(() => {
+      // Handle Z-INDEX for overlapping labels
+      const cameraPos = this.camera.position
+      // sortByDistance
+      const orderedCores = this.cores.sort((a, b) => {
+        // compute distance to camera
+        const aToCamera = cameraPos.subtract(a.position)
+        const distanceA = aToCamera.length()
+        const bToCamera = cameraPos.subtract(b.position)
+        const distanceB = bToCamera.length()
+        return Math.abs(distanceB) - Math.abs(distanceA)
+      })
+      // set according Z-index
+      orderedCores.forEach((core, i) => {
+        core.label!.zIndex = i
+        core.label!.linkWithMesh(core)
+      })
+    })
+  }
+
   canvasClick() {
     this.canvasUntouched = false
   }
 }
 </script>
 
-<style scoped>
-.renderCanvas {
-  box-shadow: inset 0px 0px 15px 5px #000000;
-}
-</style>
+<style scoped></style>

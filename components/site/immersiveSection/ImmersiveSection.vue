@@ -207,11 +207,9 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
     this.swayedTitles.push(
       document.querySelector('#trailerLine') as HTMLElement
     )
-    Array.from(document.querySelectorAll('.screenText')).forEach((elem) => {
-      // this.swayedScreenTexts.push(elem as HTMLElement)
-    })
-    // console.log(document.querySelector('#header-section h1'))
-    // console.log(this.swayedTitles)
+    // Array.from(document.querySelectorAll('.screenText')).forEach((elem) => {
+    // this.swayedScreenTexts.push(elem as HTMLElement)
+    // })
   }
 
   @Watch('cursorX')
@@ -301,7 +299,7 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
         // Clear our timeout throughout the scroll
         window.clearTimeout(this.onScrollingStop)
 
-        const velocity = Math.abs(this.wheelVelocity)
+        // const velocity = Math.abs(this.wheelVelocity)
         // Set a timeout to run after scrolling ends
         this.onScrollingStop = setTimeout(() => {
           this.snapScrolling(scrollbar, e.deltaY > 0)

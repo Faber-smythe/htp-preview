@@ -9,11 +9,11 @@
         :immersive="immersive"
         :site="site"
       />
-      <!-- <ViewablesSection
+      <ViewablesSection
         v-if="foundValidSite"
         :viewables="viewables"
         :site="site"
-      /> -->
+      />
       <FooterSection v-if="foundValidSite" :site="site" />
 
       <!-- below is for  -->

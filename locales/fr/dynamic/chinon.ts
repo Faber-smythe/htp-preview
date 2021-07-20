@@ -41,13 +41,23 @@ export default {
    * VIEWABLES - chinon_viewables_[information]_[option]
    */
   // first viewable will always be a model
-  chinon_viewables_model_title:
+  chinon_model_title:
     "Découvrez l'expérience complète de la forteresse royale de Chinon !",
-  chinon_viewables_model_arguments: [
+  chinon_model_arguments: [
     'premier argument',
     'second argument',
     'troisième argument',
   ],
+  chinon_modelLabel_recognitionRoom:
+    'Vestiges de la salle de la Reconnaissance',
+  chinon_modelLabel_treasureTower: 'Tour du Trésor',
+  chinon_modelLabel_clockTower: "Tour de l'Horloge",
+  chinon_modelLabel_entrance: 'Accueil, billeterie, magasin',
+  chinon_modelLabel_houndsTower: 'Tour des chiens',
+  chinon_modelLabel_argentonTower: "tour d'Argenton",
+  chinon_modelLabel_coudrayTower: 'Tour du Coudray',
+  chinon_modelLabel_boissyTower: 'Tour de Boissy',
+  // second viewable
   chinon_viewables_bombarde_description: [
     'Une sacrée jolie bombarde, dis donc.',
     'This Object has no title, but just a description.',

@@ -40,21 +40,32 @@
       {
         "image": "",
         "object": {
-          "file": "maquette.glb",
-          "initialZoom": 2.5,
+          "file": "maquette_cores.glb",
+          "labels": [
+            "chinon_modelLabel_recognitionRoom",
+            "chinon_modelLabel_treasureTower",
+            "chinon_modelLabel_clockTower",
+            "chinon_modelLabel_entrance",
+            "chinon_modelLabel_houndsTower",
+            "chinon_modelLabel_argentonTower",
+            "chinon_modelLabel_coudrayTower",
+            "chinon_modelLabel_boissyTower"
+          ],
+          "initialZoom": 200,
           "cameraClamping": "model",
           "lightIntensity": 1
         },
         "size": "large",
         "order": "textFirst",
-        "titleKey": "chinon_viewables_model_title",
-        "textKey": "chinon_viewables_model_arguments" 
+        "titleKey": "chinon_model_title",
+        "textKey": "chinon_model_arguments"
       },
       {
         "image": "",
         "object": {
           "file": "bombarde.glb",
-          "initialZoom": 10,
+          "labels": [],
+          "initialZoom": 850,
           "cameraClamping": "quarter",
           "lightIntensity": 2
         },

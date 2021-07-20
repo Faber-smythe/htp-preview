@@ -9,6 +9,7 @@
       />
       <!-- Custom Loadscreen is handled in @utils/BabylonCustomLoader.ts -->
       <LoadingScreen @found-load-screen="(e) => setLoadScreen(e)" />
+      <div class="borderFade"></div>
     </div>
     <div class="block-description" :style="blockHalvesStyle">
       <h2 v-if="block.titleKey !== ''">{{ $t(block.titleKey) }}</h2>
@@ -63,7 +64,6 @@ export default class ViewableBlock extends Vue {
   get blockHalvesStyle() {
     let style = ''
     if (this.block.size === 'small') {
-      style += 'position: relative; min-height: 40vh;'
       style += 'width: 46%;'
       style += 'margin: 1%;'
     } else if (this.block.size === 'large') {
@@ -90,16 +90,26 @@ export default class ViewableBlock extends Vue {
 
 .canvas-holder {
   position: relative;
-  height: 45vh;
+  height: 100%;
   max-width: 80vw;
+  min-height: 60vh;
   /* background: rgba(255, 255, 255, 0.1); */
   border-radius: 15px;
   overflow: hidden;
 }
 
+.borderFade {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  box-shadow: rgb(0 0 0) 0px 0px 15px 15px inset;
+  pointer-events: none;
+}
+
 .block-description {
   color: white;
   max-width: 70vw;
+  min-height: 35vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
