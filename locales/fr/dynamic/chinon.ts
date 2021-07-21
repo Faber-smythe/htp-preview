@@ -54,7 +54,7 @@ export default {
   chinon_modelLabel_clockTower: "Tour de l'Horloge",
   chinon_modelLabel_entrance: 'Accueil, billeterie, magasin',
   chinon_modelLabel_houndsTower: 'Tour des chiens',
-  chinon_modelLabel_argentonTower: "tour d'Argenton",
+  chinon_modelLabel_argentonTower: "Tour d'Argenton",
   chinon_modelLabel_coudrayTower: 'Tour du Coudray',
   chinon_modelLabel_boissyTower: 'Tour de Boissy',
   // second viewable

@@ -100,9 +100,10 @@ export default class ViewableBlock extends Vue {
 
 .borderFade {
   position: absolute;
+  transform: scale(1.05);
   height: 100%;
   width: 100%;
-  box-shadow: rgb(0 0 0) 0px 0px 15px 15px inset;
+  box-shadow: rgb(0 0 0) 0px 0px 17px 17px inset;
   pointer-events: none;
 }
 

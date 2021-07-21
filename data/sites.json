@@ -42,14 +42,14 @@
         "object": {
           "file": "maquette_cores.glb",
           "labels": [
-            "chinon_modelLabel_recognitionRoom",
-            "chinon_modelLabel_treasureTower",
-            "chinon_modelLabel_clockTower",
-            "chinon_modelLabel_entrance",
-            "chinon_modelLabel_houndsTower",
-            "chinon_modelLabel_argentonTower",
-            "chinon_modelLabel_coudrayTower",
-            "chinon_modelLabel_boissyTower"
+            { "meshId": "core_1", "value": "chinon_modelLabel_recognitionRoom" },
+            { "meshId": "core_2", "value": "chinon_modelLabel_treasureTower" },
+            { "meshId": "core_3", "value": "chinon_modelLabel_clockTower" },
+            { "meshId": "core_4", "value": "chinon_modelLabel_entrance" },
+            { "meshId": "core_5", "value": "chinon_modelLabel_houndsTower" },
+            { "meshId": "core_6", "value": "chinon_modelLabel_argentonTower" },
+            { "meshId": "core_7", "value": "chinon_modelLabel_coudrayTower" },
+            { "meshId": "core_8", "value": "chinon_modelLabel_boissyTower" }
           ],
           "initialZoom": 200,
           "cameraClamping": "model",

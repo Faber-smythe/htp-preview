@@ -42,15 +42,14 @@ export default {
     'zweite argument',
     'dritte argument',
   ],
-  chinon_modelLabel_recognitionRoom:
-    'Vestiges de la salle de la Reconnaissance',
-  chinon_modelLabel_treasureTower: 'Tour du Trésor',
-  chinon_modelLabel_clockTower: "Tour de l'Horloge",
-  chinon_modelLabel_entrance: 'Accueil, billeterie, magasin',
-  chinon_modelLabel_houndsTower: 'Tour des chiens',
-  chinon_modelLabel_argentonTower: "Tour d'Argenton",
-  chinon_modelLabel_coudrayTower: 'Tour du Coudray',
-  chinon_modelLabel_boissyTower: 'Tour de Boissy',
+  chinon_modelLabel_recognitionRoom: 'Reste der Erkennungshalle',
+  chinon_modelLabel_treasureTower: 'Schatzturm',
+  chinon_modelLabel_clockTower: 'Uhrenturm',
+  chinon_modelLabel_entrance: 'Empfang, Ticketing, Shop',
+  chinon_modelLabel_houndsTower: 'Hundeturm',
+  chinon_modelLabel_argentonTower: 'Argenton Turm',
+  chinon_modelLabel_coudrayTower: 'Coudray Turm',
+  chinon_modelLabel_boissyTower: 'Boissy Turm',
   // second viewable
   chinon_viewables_bombarde_description: [
     'Une sacrée jolie bombarde, dis donc.',

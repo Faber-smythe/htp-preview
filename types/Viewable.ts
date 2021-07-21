@@ -3,7 +3,10 @@ export interface ObjectAsset {
   initialZoom?: number
   cameraClamping?: 'quarter' | 'model' | 'free'
   lightIntensity?: number
-  labels: string[]
+  labels: {
+    meshId: string
+    value: string
+  }[]
 }
 
 export default interface Viewable {

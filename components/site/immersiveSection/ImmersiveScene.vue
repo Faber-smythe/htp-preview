@@ -387,7 +387,6 @@ export default class ImmersiveScene extends Vue {
 
         const imageRatio = originalWidth / originalHeight
         const imagePixelHeight = image.widthInPixels / imageRatio
-        console.log(imagePixelHeight)
 
         image.linkOffsetY = -captionOffset * 2 - imagePixelHeight / 2 - 40
       })

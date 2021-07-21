@@ -26,8 +26,8 @@ export default class ViewableScene extends Vue {
   BC!: BabylonController
   camera!: BABYLON.ArcRotateCamera
   meshes!: BABYLON.AbstractMesh[]
-  cores: ModelCore[] = []
-  animatedMeshes: BABYLON.AbstractMesh[] = []
+  cores: any = {}
+  animations: BABYLON.AnimationGroup[] = []
   canvasUntouched: boolean = true
 
   mounted() {
@@ -80,10 +80,20 @@ export default class ViewableScene extends Vue {
     const light = this.BC.scene.lights[0]
 
     // Import the 3D object
-    this.animatedMeshes = await this.loadObject()
+    this.animations = await this.loadObject()
     this.hideLoadscreen()
-    if (this.animatedMeshes.length > 0) {
-      // TODO there is an animation to trigger here
+    if (this.animations.length > 0) {
+      // Play animated in a loop
+      this.animations.forEach((anim) => {
+        anim.play()
+        anim.loopAnimation = true
+        anim.onAnimationGroupLoopObservable.add(() => {
+          anim.pause()
+          setTimeout(() => {
+            anim.play()
+          }, 2000)
+        })
+      })
     }
 
     /** Adjusting to the 3D options **/
@@ -116,7 +126,7 @@ export default class ViewableScene extends Vue {
     })
   }
 
-  async loadObject(): Promise<BABYLON.AbstractMesh[]> {
+  async loadObject(): Promise<BABYLON.AnimationGroup[]> {
     // cancel automatic animation on import
     BABYLON.SceneLoader.OnPluginActivatedObservable.add(
       function (plugin) {
@@ -138,16 +148,13 @@ export default class ViewableScene extends Vue {
       this.object.file,
       this.BC.scene
     )
-    const animatedMeshes: BABYLON.AbstractMesh[] = []
 
     imported.transformNodes.forEach((node) => {
       node.scaling = new BABYLON.Vector3(1, 1, 1)
     })
+
     imported.meshes.forEach((mesh) => {
       mesh.scaling = new BABYLON.Vector3(1, 1, 1)
-      if (mesh.animations.length > 0) {
-        animatedMeshes.push(mesh)
-      }
 
       // cancel the horizontal inversion
       if (mesh.name === '__root__') {
@@ -156,15 +163,15 @@ export default class ViewableScene extends Vue {
 
       // populate the cores Array (targets for the labels)
       if (mesh.name.includes('core')) {
-        this.cores.push(mesh)
+        this.cores[`${mesh.name}`] = mesh as ModelCore
       }
     })
 
     // cores might not arrive in the right order, they need sorting
-    this.cores = this.cores.sort((a, b) => (a.name < b.name ? -1 : 1))
+    // this.cores = this.cores.sort((a, b) => (a.name < b.name ? -1 : 1))
 
     this.meshes = imported.meshes as BABYLON.AbstractMesh[]
-    return animatedMeshes
+    return imported.animationGroups
   }
 
   hideLoadscreen() {
@@ -181,71 +188,71 @@ export default class ViewableScene extends Vue {
     // Does the 3D object have any labels ?
     if (this.object.labels.length > 0) {
       const labels = this.object.labels
-      if (this.cores.length !== labels.length) {
-        console.error("3D cores and model labels don't match")
-      } else {
-        labels.forEach((label, i) => {
-          const labelHolder = new GUI.Rectangle(
-            `${i}-[rectangle]-${this.$t(label) as string}`
-          )
-
-          labelHolder.cornerRadius = 5
-          labelHolder.color = 'black'
-          labelHolder.thickness = 1
-          labelHolder.background = 'white'
-          const guiLabelWidth = 0.15
-          this.BC.GUI.addControl(labelHolder)
-          labelHolder.linkWithMesh(this.cores[i])
-          labelHolder.width = guiLabelWidth
-          labelHolder.heightInPixels = 48
-          labelHolder.linkOffsetY = -120
-
-          labelHolder.shadowOffsetY = -6
-          labelHolder.shadowBlur = 6
-          labelHolder.shadowColor = 'rgba(0, 0, 0, 0.7)'
-
-          const guiLabel = new GUI.TextBlock(
-            `${i}-[text]-${this.$t(label) as string}`
-          )
-          guiLabel.text = this.$t(label) as string
-          guiLabel.textWrapping = true
-          // styling the text here
-          guiLabel.color = 'black'
-          guiLabel.fontSizeInPixels = window.innerWidth * 0.013
-          labelHolder.addControl(guiLabel)
-
-          const line = new GUI.Line(`${i}-[line]-${this.$t(label) as string}`)
-          line.lineWidth = 3
-          line.color = 'white'
-          line.y2 = 24
-          this.BC.GUI.addControl(line)
-          line.linkWithMesh(this.cores[i])
-          line.connectedControl = labelHolder
-
-          this.cores[i].label = labelHolder
-        })
+      if (Object.keys(this.cores).length !== labels.length) {
+        console.info(
+          `Amount of 3D targets (${
+            Object.keys(this.cores).length
+          }) and model labels (${labels.length}) doesn't match`
+        )
       }
+      labels.forEach((label, i) => {
+        const labelHolder = new GUI.Rectangle(
+          `${this.$t(label.value) as string}-[rectangle]`
+        )
+
+        labelHolder.color = 'black'
+        labelHolder.thickness = 0
+        labelHolder.background = 'white'
+        const guiLabelWidth = 0.15
+        this.BC.GUI.addControl(labelHolder)
+        labelHolder.linkWithMesh(this.cores[`${label.meshId}`])
+        labelHolder.width = guiLabelWidth
+        labelHolder.heightInPixels = 48
+        labelHolder.linkOffsetY = -120
+
+        const guiLabel = new GUI.TextBlock(
+          `${this.$t(label.value) as string}-[text]`
+        )
+        guiLabel.text = this.$t(label.value) as string
+        guiLabel.textWrapping = true
+        // styling the text here
+        guiLabel.color = 'black'
+        guiLabel.fontSizeInPixels = window.innerWidth * 0.013
+        labelHolder.addControl(guiLabel)
+
+        const line = new GUI.Line(`${this.$t(label.value) as string}-[line]`)
+        line.lineWidth = 3
+        line.color = 'white'
+        line.y2 = 24
+        this.BC.GUI.addControl(line)
+        line.linkWithMesh(this.cores[`${label.meshId}`])
+        line.connectedControl = labelHolder
+
+        this.cores[`${label.meshId}`].label = labelHolder
+      })
     }
 
     this.BC.scene.registerBeforeRender(() => {
-      // Handle Z-INDEX for overlapping labels
-      const cameraPos = this.camera.position
-      // sortByDistance
-      const orderedCores = this.cores.sort((a, b) => {
-        // compute distance to camera
-        const aToCamera = cameraPos.subtract(a.position)
-        const distanceA = aToCamera.length()
-        const bToCamera = cameraPos.subtract(b.position)
-        const distanceB = bToCamera.length()
-        return Math.abs(distanceB) - Math.abs(distanceA)
-      })
-      // set according Z-index
-      orderedCores.forEach((core, i) => {
-        core.label!.zIndex = i
-        core.label!.linkWithMesh(core)
-      })
+      // // Handle Z-INDEX for overlapping labels
+      // const cameraPos = this.camera.position
+      // // sortByDistance
+      // const orderedCores = this.cores.sort((a, b) => {
+      //   // compute distance to camera
+      //   const aToCamera = cameraPos.subtract(a.position)
+      //   const distanceA = aToCamera.length()
+      //   const bToCamera = cameraPos.subtract(b.position)
+      //   const distanceB = bToCamera.length()
+      //   return Math.abs(distanceB) - Math.abs(distanceA)
+      // })
+      // // set according Z-index
+      // orderedCores.forEach((core, i) => {
+      //   core.label!.zIndex = i
+      //   core.label!.linkWithMesh(core)
+      // })
     })
   }
+
+  playAnimated() {}
 
   canvasClick() {
     this.canvasUntouched = false
