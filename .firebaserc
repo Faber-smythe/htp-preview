@@ -3,11 +3,7 @@
     "default": "histopad-teaser-6f0ef"
   },
   "targets": {
-<<<<<<< HEAD
-    "histopad-teaser-6f0ef": {
-=======
     "histopad-preview": {
->>>>>>> 4f7a0aa49dc2ee02b8a8e69066973e1a92ce2207
       "hosting": {
         "preprod": [
           "histopad-teaser-6f0ef"
