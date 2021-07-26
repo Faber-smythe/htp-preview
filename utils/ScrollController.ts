@@ -279,7 +279,6 @@ export default class ScrollController {
 
   static initFooterScroller() {
     ScrollController.enableSmoothScroll()
-
     setTimeout(() => {
       // handle dark fading up
       const newTimeline = gsap.timeline({
@@ -289,8 +288,6 @@ export default class ScrollController {
           end: `center center`,
           toggleActions: 'play none reverse none',
           scrub: true,
-          // markers: true,
-          // pin: '#header-section h1',
         },
       })
       newTimeline.from('#footer-section .fade-black-top', {

@@ -47,8 +47,7 @@ export default class FooterSection extends Vue {
 
   mounted() {
     this.$nextTick(function () {
-      // Code that will run only after the
-      // entire view has been rendered
+      // Code that will run only after the entire view has been rendered
       SC.initFooterScroller()
     })
   }

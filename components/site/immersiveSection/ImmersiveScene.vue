@@ -12,34 +12,26 @@
      `"
   >
     <canvas ref="renderCanvas" class="renderCanvas"></canvas>
-    <div
-      v-for="(hotspot, i) in immersive.hotspots"
-      :key="`hotspot-insert_${i}`"
-      class="insert"
-    >
-      <img :src="getInsertVisualAsset(i)" :alt="$t(hotspot.alt)" />
-      <p class="caption">{{ $t(hotspot.value) }}</p>
-    </div>
   </div>
 </template>
 
 <script lang="ts">
 // import libs
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 
-import { gsap } from 'gsap'
 import * as BABYLON from 'babylonjs'
 import * as LOADERS from 'babylonjs-loaders'
 import * as GUI from 'babylonjs-gui'
 // import types
 import Site from '@/types/Site'
-import ImmersiveContent from '@/types/ImmersiveContent'
-import InjectedSprite from '@/types/InjectedSprite'
+import ImmersiveContent, { Hotspot } from '@/types/ImmersiveContent'
+import InjectedSprite, { HotspotData } from '@/types/InjectedSprite'
 // import miscellaneous
 import BabylonController from '@/utils/BabylonController'
+import { UtilMixins } from '@/utils/mixins'
 
 @Component
-export default class ImmersiveScene extends Vue {
+export default class ImmersiveScene extends Mixins(UtilMixins) {
   @Prop({ type: Object, required: true }) readonly site!: Site
   @Prop({ required: true }) readonly loadScreen!: HTMLElement
   @Prop({ type: Object, required: false }) readonly immersive!: ImmersiveContent
@@ -59,14 +51,20 @@ export default class ImmersiveScene extends Vue {
   tabletAnimationGroups: BABYLON.AbstractMesh[] = []
 
   /** settings properties **/
-  autopilotStart: number = this.animTrailerSeparator * 0.98 // fraction of total scrollAnimRatio
+  autopilotStart: number = this.animTrailerSeparator * 0.98 // fraction of total scrollAnimRatio ( if < 1 start traveling beforehand)
   autopilotEnd: number = 0.98 // fraction of total scrollAnimRatio
+
   centerviewPadding: number = 0.1 // ratio of viewport height and width
   hotspotThreshold: number = 65 // in % of horizontal traveling
-  horizontalTravelingOrigin: number = 3.75 // in radians
-  horizontalTravelingTarget: number = 6.35 // in radians
+
+  horizontalTravelingOrigin: number = 3.75 // camera angle in radians
+  horizontalTravelingTarget: number = 6.35 // camera angle in radians
+
   verticalSwayReach: number = Math.PI * 0.05 // in radians
   horizontalSwayReach: number = Math.PI * 0.05 // in radians
+
+  fontSize3D: number = 20 // font size for GUI insert (will be mobile adjusted)
+  insertWidth3D: number = 250 // width for GUI insert (will be mobile adjusted)
 
   /**  state properties **/
   cameraHorizontalAngle: number = this.horizontalTravelingOrigin // in radians
@@ -88,8 +86,26 @@ export default class ImmersiveScene extends Vue {
       this.$refs.renderCanvas as HTMLCanvasElement,
       this.loadScreen
     )
-    if (this.BC.settings.debugLayer) this.BC.handleImmersiveClicks()
+    this.responsiveAdjusting()
     this.loadScene()
+  }
+
+  responsiveAdjusting() {
+    // 3D insert width
+    if (this.isMobile) {
+      this.insertWidth3D = 400
+    }
+    // 3D font size
+    if (this.isMobile) {
+      this.fontSize3D = 26
+    }
+    if (this.isSmartPhone) {
+      this.fontSize3D = 32
+    }
+    // 3D hotspot size
+    if (this.isSmartPhone && this.isLandscape) {
+      this.BC.settings.hotspotSize = 2.5
+    }
   }
 
   async loadScene() {
@@ -99,13 +115,17 @@ export default class ImmersiveScene extends Vue {
       'immersiveCamera',
       0,
       0,
-      0,
+      1,
       new BABYLON.Vector3(0, 0, 0),
       this.BC.scene
     )
     this.camera.inertia = settings.inertia
     this.camera.fov = settings.fov
-
+    // enable in BC for easier debug
+    if (settings.freeCam) {
+      this.camera.wheelPrecision = 0.05
+      this.camera.panningSensibility = 10
+    }
     // create light
     const light = new BABYLON.HemisphericLight(
       'immersiveLight',
@@ -122,10 +142,6 @@ export default class ImmersiveScene extends Vue {
 
     // load the hotspots
     this.initHotSpots()
-
-    // prepare hotspot popping
-    // this.associateInsertsToHotspots()
-    this.initGuiInserts()
 
     // Register frame scaled updates
     this.BC.scene.registerBeforeRender(() => {
@@ -271,8 +287,13 @@ export default class ImmersiveScene extends Vue {
         hotspot.position,
         settings.sphereDiameter / 2
       )
-      // Inject hotspot data into the sprite
-      sprite.hotspotData = hotspot
+
+      // action manager will be needed for sprite hover and in/out fading
+      sprite.actionManager = new BABYLON.ActionManager(this.BC.scene)
+
+      // inject the sprite with the hotspot information & the GUI element to display
+      this.setGuiInsert(sprite, hotspot)
+
       // Invert the z-axis to fit coordinates
       sprite.position.z *= -1
       // Initialize as transparent. Tablet animation will play first.
@@ -282,115 +303,117 @@ export default class ImmersiveScene extends Vue {
     })
   }
 
-  associateInsertsToHotspots() {
-    const injectedSprites = this.BC.SM.sprites as InjectedSprite[]
-    Array.from(document.querySelectorAll('.insert')).forEach((insert, i) => {
-      injectedSprites[i].hotspotData.insert = insert as HTMLElement
-    })
-  }
+  setGuiInsert(sprite: InjectedSprite, hotspot: Hotspot) {
+    // the data will be built below, and injected at the end
+    const guiInsert: HotspotData = { opened: false }
 
-  getInsertVisualAsset(index): string {
-    if (this.immersive.hotspots[index].visualAsset) {
-      const src = require(`@/assets/immersives/${this.site.siteID}/encarts/${this.immersive.hotspots[index].visualAsset}`)
-      return src
-    } else {
-      return 'https://f.hellowork.com/blogdumoderateur/2013/02/gif-anime.gif'
-    }
-  }
-
-  initGuiInserts() {
-    const spriteCoreHolder = new BABYLON.AbstractMesh(
-      'spriteCoreHolder',
+    // create an invisible mesh for linking, since GUI can't be linked to a sprite
+    const core = BABYLON.MeshBuilder.CreateSphere(
+      `spriteCore${1}`,
+      { diameter: 1 },
       this.BC.scene
     )
+    core.position = sprite.position
 
-    const injectedSprites = this.BC.SM.sprites as InjectedSprite[]
-    const backupSource =
-      'https://f.hellowork.com/blogdumoderateur/2013/02/gif-anime.gif'
+    const insertName = `${hotspot.value}`
+      .replace(this.site.linkLabel, '')
+      .replace(this.immersive.name, '')
+      .replace('imm', '')
+      .replace('hotspot', '')
+      .replace('_', '')
+    /**
+     * create the GUI element
+     **/
+    const rectangle = new GUI.Rectangle(`${insertName}`)
+    const insertWidth = this.insertWidth3D
+    // styling the rectangle
+    rectangle.color = 'rgba(1, 1, 1, 0.5)'
+    rectangle.thickness = 0
+    rectangle.background = 'rgba(0, 0, 0, 0.55)'
+    rectangle.widthInPixels = insertWidth
+    // append to GUI
+    rectangle.isPointerBlocker = true
+    rectangle.isHitTestVisible = true
+    this.BC.GUI.addControl(rectangle)
+    rectangle.linkWithMesh(core)
+    guiInsert.guiCaption = rectangle
+    // initialize as invisible
+    guiInsert.guiCaption.isVisible = false
 
-    injectedSprites.forEach((sprite, i) => {
-      // create invisible mesh for each sprite
-      // GUI elements can't be linked to sprites
-      const core = BABYLON.MeshBuilder.CreateSphere(
-        `spriteCore${1}`,
-        { diameter: 1 },
-        this.BC.scene
-      )
-      core.parent = spriteCoreHolder
-      core.position = sprite.position
+    /**
+     * create the text content
+     **/
+    const caption = new GUI.TextBlock()
+    caption.text = this.$t(hotspot.value) as string
+    caption.textWrapping = true
+    // styling the text
+    caption.color = 'white'
+    caption.paddingLeft = caption.paddingRight = '5px'
+    caption.paddingTop = caption.paddingBottom = '3px'
+    caption.fontSizeInPixels = this.fontSize3D
+    // append to the rectangle
+    rectangle.addControl(caption)
 
-      // createt the UI insert
-      const insert = new GUI.Rectangle()
+    // rectangle's height needs to be adjusted to the text length to prevent overflow
+    rectangle.heightInPixels = insertWidth * (caption.text.length / 210)
+    // vertical offset depends on the rectangle's height
 
-      // insert.cornerRadius = 5
-      insert.color = 'rgba(1, 1, 1, 0.5)'
-      insert.thickness = 1
-      insert.background = 'rgba(0, 0, 0, 0.55)'
-      const insertWidth = 0.15
-      this.BC.GUI.addControl(insert)
-      insert.linkWithMesh(core)
-      insert.width = insertWidth
+    const captionOffset = rectangle.heightInPixels / 2
+    rectangle.linkOffsetY = -captionOffset - 40
 
-      insert.shadowOffsetX = 15
-      insert.shadowOffsetY = -15
-      insert.shadowBlur = 12
-      insert.shadowColor = 'rgba(0, 0, 0, 0.7)'
+    /**
+     * create the visual asset if the hotspot has any
+     **/
+    if (hotspot.visualAsset) {
+      // initialize the GUI element
+      const source = require(`@/assets/immersives/${this.site.siteID}/encarts/${hotspot.visualAsset}`)
+      const image = new GUI.Image(`${hotspot.visualAsset}`, source)
 
-      const caption = new GUI.TextBlock()
-      caption.text = this.$t(sprite.hotspotData.value) as string
-      caption.textWrapping = true
-      // styling the text here
-      caption.color = 'white'
-      caption.paddingLeft = caption.paddingRight = '5px'
-      caption.paddingTop = caption.paddingBottom = '3px'
-      caption.fontSizeInPixels = window.innerWidth * 0.012
+      // styling the image
+      image.widthInPixels = insertWidth
+      image.stretch = GUI.Image.STRETCH_UNIFORM // preserve aspect-ratio
 
-      insert.addControl(caption)
-
-      insert.height = insertWidth * (caption.text.length / 140)
-
-      const captionStringHeight = insert.height as unknown as string
-      const captionOffset =
-        ((captionStringHeight.substring(
-          0,
-          captionStringHeight.length - 1
-        ) as unknown as number) /
-          2 /
-          100) *
-        window.innerHeight *
-        1.3
-      insert.linkOffsetY = -captionOffset - 40
-
-      // visual asset
-      let source
-      if (this.immersive.hotspots[i].visualAsset) {
-        source = new Image()
-        source = require(`@/assets/immersives/${this.site.siteID}/encarts/${this.immersive.hotspots[i].visualAsset}`)
-      } else {
-        source = backupSource
-      }
-
-      const image = new GUI.Image(`visualAsset-${i}`, source)
-      this.BC.GUI.addControl(image)
-      image.width = insertWidth
-      image.stretch = GUI.Image.STRETCH_UNIFORM
-      image.linkWithMesh(core)
-
-      image.shadowOffsetX = 15
-      image.shadowOffsetY = -15
-      image.shadowBlur = 15
-      image.shadowColor = 'rgba(0, 0, 0, 0.5)'
-
+      // vertical offset depends on the image's height, need to listen to loading
       image.onImageLoadedObservable.add(() => {
         const originalHeight = image.domImage.naturalHeight
         const originalWidth = image.domImage.naturalWidth
-
         const imageRatio = originalWidth / originalHeight
+
+        image.heightInPixels = image.widthInPixels / imageRatio
         const imagePixelHeight = image.widthInPixels / imageRatio
 
         image.linkOffsetY = -captionOffset * 2 - imagePixelHeight / 2 - 40
       })
-    })
+
+      // append to GUI
+      image.isPointerBlocker = true
+      image.isHitTestVisible = true
+      this.BC.GUI.addControl(image)
+      image.linkWithMesh(core)
+      guiInsert.guiVisual = image
+      // initialize as invisible
+      guiInsert.guiVisual.isVisible = false
+    }
+
+    /**
+     * INJECT THE GUI INSERT INTO THE HOTSPOT SPRITE
+     */
+    guiInsert.content = hotspot
+    sprite.hotspotData = guiInsert
+  }
+
+  closeHotspot(sprite: InjectedSprite) {
+    sprite.hotspotData.opened = false
+    sprite.hotspotData.guiCaption!.isVisible = false
+    if (sprite.hotspotData.guiVisual)
+      sprite.hotspotData.guiVisual.isVisible = false
+  }
+
+  openHotspot(sprite: InjectedSprite) {
+    sprite.hotspotData.opened = true
+    sprite.hotspotData.guiCaption!.isVisible = true
+    if (sprite.hotspotData.guiVisual)
+      sprite.hotspotData.guiVisual.isVisible = true
   }
 
   onEachFrame() {
@@ -428,14 +451,9 @@ export default class ImmersiveScene extends Vue {
           // is the insert opened yet ?
           if (!sprite.hotspotData.opened) {
             this.openHotspot(sprite)
-            sprite.hotspotData.opened = true // toggle
-          } else {
-            // refresh the insert's position on given frame
-            this.updateInsertPosition(sprite)
           }
         } else if (sprite.hotspotData.opened) {
           this.closeHotspot(sprite)
-          sprite.hotspotData.opened = false // toggle
         }
       })
     } else {
@@ -443,7 +461,6 @@ export default class ImmersiveScene extends Vue {
       sprites.forEach((sprite) => {
         if (sprite.hotspotData.opened) {
           this.closeHotspot(sprite)
-          sprite.hotspotData.opened = false // toggle
         }
       })
     }
@@ -581,54 +598,6 @@ export default class ImmersiveScene extends Vue {
     }
   }
 
-  openHotspot(sprite: InjectedSprite) {
-    const insert = sprite.hotspotData.insert
-    if (insert) {
-      gsap
-        .timeline()
-        .to(
-          insert,
-          { scale: 1, opacity: 1, display: 'flex', ease: 'back' },
-          0.1
-        )
-      sprite.stopAnimation()
-    } else {
-      // console.error('this hotspot has no insert')
-    }
-  }
-
-  closeHotspot(sprite: InjectedSprite) {
-    // sprite.isVisible = false
-    const insert = sprite.hotspotData.insert
-    if (insert) {
-      gsap
-        .timeline()
-        .to(insert, { scale: 0.75, opacity: 0 }, 0.1)
-        .to(insert, { display: 'none' }, 0.01)
-      sprite.playAnimation(0, 45, true, 0)
-    } else {
-      // console.error('this hotspot has no insert')
-    }
-  }
-
-  updateInsertPosition(sprite: InjectedSprite) {
-    const insert = sprite.hotspotData.insert
-    if (insert) {
-      const rec = insert.getBoundingClientRect()
-      const coord2D = this.BC.worldToScreenCoordinates(sprite.position)
-      if (this.BC.settings.debugLayer) {
-        // if inspector panels are enabled, positions must be adjusted
-        insert.style.top = `${coord2D.y - rec.height - 20}px`
-        insert.style.left = `${coord2D.x - rec.width / 2 + 300}px`
-      } else {
-        insert.style.top = `${coord2D.y - rec.height - 20}px`
-        insert.style.left = `${coord2D.x - rec.width / 2}px`
-      }
-    } else {
-      // console.error('this hotspot has no insert')
-    }
-  }
-
   @Watch('timeSlideLocation')
   alphaTimeTransition() {
     if (!this.spheres[0]) {
@@ -669,12 +638,14 @@ export default class ImmersiveScene extends Vue {
           (this.BC.settings.sphereDiameter / 40) * this.BC.settings.hotspotSize
         /** below for autopilot and manual threshold **/
 
+        injectedSprite.width = size
+        injectedSprite.height = size
         if (this.timeSlideLocation.value < this.hotspotThreshold) {
-          injectedSprite.width = size
-          injectedSprite.height = size
+          injectedSprite.isVisible = true
         } else {
-          injectedSprite.width = 0
-          injectedSprite.height = 0
+          injectedSprite.isVisible = false
+          // injectedSprite.width = 0
+          // injectedSprite.height = 0
         }
       })
     }

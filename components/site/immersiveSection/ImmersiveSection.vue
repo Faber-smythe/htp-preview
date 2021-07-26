@@ -26,24 +26,26 @@
       <LoadingScreen @found-load-screen="(e) => setLoadScreen(e)" />
     </div>
     <h2 id="trailerLine">
-      <span id="diveInto">dive into</span>&nbsp;
-      <span id="thePast">the past</span>
+      <span id="diveInto">{{ $t('Trailerline_1') }}</span
+      >&nbsp;
+      <span id="thePast">{{ $t('Trailerline_2') }}</span>
     </h2>
-    <p id="screenText_1" class="screenText">
-      Curabitur sodales vehicula vehicula. Duis quis ipsum aliquam ipsum viverra
-      imperdiet et vitae tellus. Quisque efficitur quam ultricies laoreet
-      tristique. Integer quis ex dolor.
-    </p>
-    <p id="screenText_2" class="screenText">
-      Duis quam ipsum, cursus at ligula tristique, suscipit volutpat dolor.
-      Aenean hendrerit molestie euismod. Nullam at faucibus metus, vitae
-      placerat risus.
-    </p>
-    <p id="screenText_3" class="screenText">
-      Aliquam erat volutpat. Maecenas tempor, justo sed pharetra mattis, ligula
-      risus sagittis elit, ac sodales lorem lorem eget orci. Aliquam id
-      sollicitudin tortor.
-    </p>
+
+    <div
+      v-for="(desc, i) in site.screenDescriptions"
+      :id="`screenText_${i + 1}`"
+      :key="`screenText_${i + 1}`"
+      class="screenText"
+    >
+      <h2>{{ $t(desc.title) }}</h2>
+      <p
+        v-for="(paragraph, j) in $t(desc.text)"
+        :key="`screen-${i + 1}_paragraph-${j + 1}`"
+      >
+        {{ paragraph }}
+      </p>
+    </div>
+
     <div id="frame"></div>
   </section>
 </template>
@@ -112,9 +114,8 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   cursorY: number = 0
   wheelVelocity: number = 0
 
-  get sliderTooltipsLabels() {
-    return this.immersive.layers.map((layer) => this.$t(layer.periodLabel))
-  }
+  sliderTooltipsLabels =
+    this.immersive && this.immersive.layers.map((layer) => layer.periodLabel)
 
   get immersiveTitle() {
     return (
@@ -365,7 +366,8 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
 
 <style scoped>
 #immersive-section {
-  min-height: 100vh;
+  /* min-height: 100%; */
+  height: 100vh;
   min-width: 100%;
   max-width: none !important;
   max-height: none !important;
@@ -383,7 +385,7 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 100%;
   width: 100vw;
 }
 .stageError {
@@ -406,12 +408,19 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   height: 80vh;
   width: 30vw;
   display: none;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 1.8rem;
-  line-height: 3rem;
+  font-size: 1.15rem;
   margin-top: 350px;
-  transform-style: preserve-3d;
+}
+.screenText h2 {
+  font-size: 1.5rem;
+  margin: 10px 0px;
+}
+.screenText h2,
+.screenText p {
+  width: 100%;
 }
 #screenText_1,
 #screenText_2 {
@@ -431,7 +440,7 @@ export default class ImmersiveSection extends Mixins(UtilMixins) {
   height: 100vh;
   text-transform: uppercase;
   text-align: center;
-  font-size: 8vw;
+  font-size: 6vw;
   color: white;
   display: none;
   opacity: 0;

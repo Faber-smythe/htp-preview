@@ -1,48 +1,47 @@
 [
   {
-    "name": "Donjon de Loches",
-    "siteID": "france.loches.donjon",
-    "linkLabel": "loches",
-    "enabled": false,
-    "lngLat": [0.9943971, 47.1249142],
-    "viewables": [
-      {
-        "image": "imagetest.png",
-        "size": "large",
-        "order": "textFirst",
-        "title": "This text should be stored in locales for i18n translation.",
-        "text": [
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam scelerisque, ipsum a fringilla auctor, neque enim maximus risus, non vestibulum magna nulla vel ante. Cras enim mi, bibendum sed lacus vel, cursus blandit dolor.",
-          "Curabitur hendrerit, odio id egestas mattis, augue enim tincidunt erat, id ultrices enim est quis dolor. Phasellus fringilla quam massa, sed sodales mi malesuada non. Integer dui nisi, posuere a lorem quis, rutrum efficitur nunc.",
-          "Maecenas felis lectus, dignissim sed rutrum iaculis, aliquet at purus."
-        ]
-      }
-    ],
-    "immersive": {
-      "siteID": "france.loches.donjon",
-      "sceneID": "CourChateau",
-      "file": "courchateau.json"
-    }
-  },
-  {
     "name": "Forteresse royale de Chinon",
     "siteID": "france.chinon.forteresse",
     "linkLabel": "chinon",
     "ticketLink": "",
     "enabled": true,
     "lngLat": [0.2334263, 47.1681036],
+    "screenDescriptions": [
+      {
+        "title": "chinon_tablet_screen1_title",
+        "text": "chinon_tablet_screen1_text"
+      },
+      {
+        "title": "chinon_tablet_screen2_title",
+        "text": "chinon_tablet_screen2_text"
+      },
+      {
+        "title": "chinon_tablet_screen3_title",
+        "text": "chinon_tablet_screen3_text"
+      }
+    ],
+    "availableImmersives": [
+      {
+        "name": "cuisines",
+        "sceneID": "france.chinon.forteresse.cuisines",
+        "file": "cuisines.json"
+      }
+    ],
     "immersive": {
-      "siteID": "france.chinon.forteresse",
-      "sceneID": "Cuisine",
-      "file": "cuisine.json"
+      "name": "cuisines",
+      "sceneID": "france.chinon.forteresse.cuisines",
+      "file": "cuisines.json"
     },
     "viewables": [
       {
         "image": "",
         "object": {
-          "file": "maquette_cores.glb",
+          "file": "maquette.glb",
           "labels": [
-            { "meshId": "core_1", "value": "chinon_modelLabel_recognitionRoom" },
+            {
+              "meshId": "core_1",
+              "value": "chinon_modelLabel_recognitionRoom"
+            },
             { "meshId": "core_2", "value": "chinon_modelLabel_treasureTower" },
             { "meshId": "core_3", "value": "chinon_modelLabel_clockTower" },
             { "meshId": "core_4", "value": "chinon_modelLabel_entrance" },

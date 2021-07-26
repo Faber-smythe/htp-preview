@@ -15,6 +15,9 @@ export default {
 
   Trailerline: 'Tauchen Sie ein in die Vergangenheit',
 
+  Trailerline_1: 'Eine Reise',
+  Trailerline_2: 'durch die Zeit',
+
   /**
    * FOOTER
    */

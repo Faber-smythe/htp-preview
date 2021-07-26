@@ -20,7 +20,7 @@ export default class BabylonController {
     sphereDiameter: 4096, //! MUST FIT THE TEXTURE AND COORDINATES DIMENSIONS !\\
     debugLayer: false, // Enable for Babylon scene explorer and inspector
     freeCam: false, // Enable for easier navigation
-    fov: 1,
+    fov: 1, // field of view
     hotspotSize: 1.5,
     brightness: 5,
     sensitivity: 1.7,
@@ -59,24 +59,35 @@ export default class BabylonController {
     }
   }
 
-  handleImmersiveClicks(meshCallback?: Function, spriteCallback?: Function) {
+  handleImmersivePicking(
+    meshCallback?: Function,
+    spriteCallback?: Function,
+    outsideCallback?: Function
+  ) {
     // Handle clicking events
     this.scene.onPointerDown = (event, pickResult) => {
-      if (pickResult) {
-        console.log('picked something :', event)
-        if (pickResult.pickedMesh) {
-          if (meshCallback) {
-            meshCallback()
-          } else {
-            console.log('picked a mesh :', pickResult.pickedMesh.name)
-          }
-        } else if (pickResult.pickedSprite) {
-          if (spriteCallback) {
-            spriteCallback()
-          } else {
-            console.log('picked a sprite :', pickResult.pickedSprite.name)
-          }
+      /** CHECK FOR MESHES **/
+      if (pickResult && pickResult.pickedMesh) {
+        if (meshCallback) {
+          meshCallback()
+        } else {
+          console.log('picked a mesh :', pickResult.pickedMesh.name)
         }
+      }
+      /** CHECK FOR SPRITES **/
+      const search = this.scene.pickSprite(
+        this.scene.pointerX,
+        this.scene.pointerY
+      )
+      if (search && search.hit && search.pickedSprite) {
+        if (spriteCallback) {
+          spriteCallback(search.pickedSprite)
+        } else {
+          console.log('picked a sprite :', search.pickedSprite.name)
+        }
+      }
+      if (!(search && search.hit) || (pickResult && pickResult.pickedMesh)) {
+        if (outsideCallback) outsideCallback()
       }
     }
   }

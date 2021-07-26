@@ -6,6 +6,14 @@
 export default {}
 </script>
 <style>
+html,
+body,
+#__nuxt,
+#__layout,
+main {
+  position: relative;
+  height: 100%;
+}
 html {
   overflow: hidden;
 }
@@ -37,100 +45,5 @@ main {
 
 #pageUp:hover {
   color: rgba(255, 255, 255, 1) !important;
-}
-
-.title-font {
-  font-family: Poppins, Helvetica, Arial, sans-serif;
-}
-
-.header-intro {
-  color: black;
-  text-align: center;
-}
-
-h1,
-h2 {
-  font-size: 2rem;
-}
-
-.header-section {
-  text-align: center;
-  padding-top: 4rem;
-}
-
-.header-section h1 {
-  color: white;
-}
-
-.home-section .container {
-  max-width: 75rem !important;
-}
-
-.header-intro h3 {
-  font-size: 1.5rem;
-}
-
-.header-intro h4 {
-  font-size: 1rem;
-}
-
-.home-section {
-  padding: 3rem;
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-
-#augmented-visits-menu .navbar-dropdown {
-  border-radius: 6px;
-}
-
-a:hover,
-.carousel a:hover {
-  color: gray;
-}
-
-.carousel .carousel-indicator .indicator-item .indicator-style {
-  display: block;
-  border: 1px solid white !important;
-  background: rgba(0, 0, 0, 0) !important;
-  outline: none;
-  -webkit-transition: 150ms ease-out;
-  transition: 150ms ease-out;
-}
-
-.carousel .carousel-indicator .indicator-item.is-active .indicator-style {
-  background: white !important;
-  border: 1px solid white;
-}
-
-.main-logo {
-  max-width: 30%;
-  height: auto;
-}
-
-@media screen and (max-width: 767px) {
-  .header-intro h1 {
-    font-size: 2rem;
-  }
-
-  .header-intro h2 {
-    font-size: 1.1rem;
-  }
-
-  .main-logo {
-    max-width: 60%;
-    height: auto;
-  }
 }
 </style>

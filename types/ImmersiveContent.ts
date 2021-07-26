@@ -13,7 +13,6 @@ export interface Hotspot {
   type: string
   index: number
   position: Position
-  insert?: HTMLElement
   visualAsset?: string
   alt: string
   value: string
@@ -23,5 +22,6 @@ export interface Hotspot {
 export default interface ImmersiveContent {
   name: string
   layers: Layer[]
+  history: string
   hotspots: Hotspot[]
 }

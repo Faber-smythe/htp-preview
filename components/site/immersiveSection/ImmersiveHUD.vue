@@ -1,7 +1,10 @@
 <template>
   <div id="HUD_holder">
+    <!-- 
+      TITLE
+      (HUD_top is holding the black fading effect)
+    -->
     <div id="HUD_top">
-      <!-- Scene title -->
       <div class="head">
         <h2 class="title-font header-title HUD_element">
           <span style="max-width: 80%">{{ title }}</span>
@@ -9,9 +12,11 @@
       </div>
     </div>
 
-    <!-- time slider -->
+    <!-- 
+      TIME SLIDER
+      (HUD_bottom is holding the black fading effect)
+    -->
     <div id="HUD_bottom">
-      <!-- Time slider -->
       <!-- Slider labels left and right-->
       <span
         class="slider-tooltip left-slider-tooltip noselect HUD_element"
@@ -45,7 +50,6 @@
           style="margin-left: 15px; margin-right: 15px"
         ></div>
       </div>
-      <!-- Audio settings -->
     </div>
   </div>
 </template>
@@ -56,7 +60,6 @@ import { Component, Mixins, Prop, Vue } from 'vue-property-decorator'
 import VTooltip from 'v-tooltip'
 // import types
 import Site from '@/types/Site'
-import ImmersiveContent from '@/types/ImmersiveContent'
 // miscellaneous
 import { UtilMixins } from '@/utils/mixins'
 
@@ -65,15 +68,17 @@ Vue.use(VTooltip)
 @Component
 export default class ImmersiveHUD extends Mixins(UtilMixins) {
   @Prop({ type: Object, required: true }) readonly site!: Site
-  @Prop({ type: Object, required: true }) readonly immersive!: ImmersiveContent
   @Prop({ type: String, required: true }) readonly title!: string
   @Prop({ type: Boolean, required: true }) readonly loading!: boolean
   @Prop({ type: Number, required: true }) readonly timeSlidePercent!: number
   @Prop({ type: Array, required: true })
   readonly sliderTooltipsLabels!: string[]
 
-  soundToggle = false
-  sites: Site[] = []
+  /**
+   * The below events are sent up to the ImmersiveSection,
+   * processed into a timeSlideLocation prop,
+   * then sent down to the ImmersiveScene for alphaTimeTransition() (fading between spheremaps)
+   */
 
   onSliderTooltipClick(index) {
     const slideValue = (100 / (this.sliderTooltipsLabels.length - 1)) * index
@@ -83,7 +88,6 @@ export default class ImmersiveHUD extends Mixins(UtilMixins) {
   onTimeSliding(e) {
     const slideValue = e.target.value
     this.$emit('time-slide', slideValue)
-    // console.log(slideValue)
   }
 }
 </script>
@@ -119,7 +123,6 @@ export default class ImmersiveHUD extends Mixins(UtilMixins) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  cursor: pointer;
 }
 #HUD_top .head .icon {
   margin-top: 1vh;
@@ -146,193 +149,8 @@ export default class ImmersiveHUD extends Mixins(UtilMixins) {
   background: linear-gradient(transparent, #111);
   margin-bottom: -2px;
 }
-#tutorial {
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  color: rgb(0, 255, 0);
-  transition: all 0.6s ease;
-  opacity: 0;
-  /* pointer-events: all; */
-}
-#tutorial .tutorial-block {
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-style: italic;
-  /* border: 1px solid red; */
-}
-#tutorial .tutorial-block p {
-  margin: 15px;
-  width: 20vh;
-  text-align: center;
-  font-size: 0.9rem;
-}
-#tutorial .tutorial-arrow {
-  max-width: 25vh;
-  max-height: 25vh;
-  transform-origin: center;
-}
-#historyPanel {
-  position: absolute;
-  z-index: 2;
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  pointer-events: all;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  transition: all 0.6s ease;
-  top: -100%;
-}
-#historyPanel #historyHolder {
-  width: 90%;
-  height: 70vh;
-  overflow-y: scroll;
-}
-#historyPanel p {
-  text-indent: 2rem;
-  margin: 20px;
-  text-align: justify;
-}
-#treasurePanel {
-  position: fixed;
-  z-index: 5;
-  background: rgba(0, 0, 0, 1);
-  color: white;
-  height: 100vh;
-  width: 50vw;
-  left: -53%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 20px;
-  transition: all 0.4s ease;
-}
-#treasurePanel h2 {
-  font-size: 2rem;
-  margin: 20px;
-}
-#treasurePanel h3 {
-  font-size: 1.5rem;
-  margin: 10px;
-  text-indent: 3rem;
-}
-#treasurePanel p {
-  margin: 10px;
-  font-size: 1.1rem;
-}
-#treasurePanel img {
-  width: 12vw;
-  align-self: center;
-}
-#treasureArrow {
-  position: absolute;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 10px;
-  background: rgba(0, 0, 0, 1);
-  font-size: 2rem;
-  right: -1.25rem;
-  border: 1px solid transparent;
-  border-right-color: white;
-  border-top-color: white;
-  transform-origin: center;
-  transform: rotate(225deg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.4s ease;
-}
-#treasureArrow .icon {
-  transform-origin: center;
-  transform: rotate(-45deg);
-  transition: all 0.4s ease;
-}
-#treasureArrow:hover {
-  filter: invert(1);
-}
-#histopad_logo,
-#soundSetting_button {
-  position: absolute;
-  align-self: flex-end;
-  cursor: pointer;
-}
-#soundSetting_button,
-#soundSetting_button * {
-  background: transparent;
-  color: white;
-}
-.tooltip.popover .popover-inner {
-  background: #f9f9f9;
-  color: black;
-  padding: 24px;
-  border-radius: 5px;
-  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.1);
-}
-.tooltip.popover .popover-arrow {
-  border-color: #f9f9f9;
-}
-.slider-container {
-  display: flex;
-  height: auto;
-  width: 6rem;
-  background: black;
-  border-radius: 3px;
-  padding: 1em;
-}
 
-input[type='range'].sound-slider {
-  -webkit-appearance: none;
-  width: 1rem;
-  height: 8rem;
-  border-radius: 5px;
-  background: #ccc;
-  outline: none;
-  writing-mode: bt-lr; /* IE */
-  margin-top: 0.6rem;
-  margin-bottom: 0.6rem;
-  -webkit-appearance: slider-vertical; /* WebKit */
-}
-
-.btn-volume-up {
-  position: fixed;
-  top: 0em;
-  left: 1.7em;
-}
-
-.btn-volume-down {
-  position: fixed;
-  bottom: 0em;
-  left: 1.7em;
-}
-.btn-volume-down,
-.btn-volume-up {
-  background: transparent;
-}
-
-input[type='range'].custom-slider::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 3.4px;
-  cursor: pointer;
-  background: white;
-  border-radius: 1.3px;
-  margin: 5px;
-}
-
-input[type='range'].custom-slider:focus::-webkit-slider-runnable-track {
-  background: white;
-}
-
+/** Custom slider */
 .time-slider {
   margin-left: auto;
   margin-right: auto;
@@ -344,8 +162,6 @@ input[type='range'].custom-slider:focus::-webkit-slider-runnable-track {
   margin-left: auto;
   margin-right: auto;
 }
-
-/** Slider tooltips */
 .slider-tooltip {
   font-size: 1em;
   cursor: pointer;
@@ -476,5 +292,50 @@ input[type='range'].custom-slider::-ms-fill-upper {
 }
 input[type='range'].custom-slider:focus::-ms-fill-upper {
   background: rgba(185, 185, 185, 0);
+}
+@media only screen and (max-width: 767px) {
+  #HUD_top .header-title {
+    padding-top: 5px;
+    font-size: 1rem;
+  }
+  /** 
+  TIME SLIDER 
+  */
+  .slider-tooltip {
+    font-size: 0.8em;
+    cursor: pointer;
+  }
+
+  .left-slider-tooltip {
+    position: absolute;
+    bottom: 0.4em;
+    left: auto;
+    right: 71vw;
+    text-align: center;
+    width: 5rem;
+  }
+
+  .right-slider-tooltip {
+    position: absolute;
+    bottom: 0.4em;
+    right: auto;
+    left: 71vw;
+    text-align: center;
+    width: 5rem;
+  }
+  .time-slider {
+    margin-left: auto;
+    margin-right: auto;
+    width: 40vw;
+  }
+
+  .time-slider-background {
+    width: 40vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .background-slider {
+    margin-top: -15px;
+  }
 }
 </style>

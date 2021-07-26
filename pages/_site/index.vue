@@ -1,7 +1,12 @@
 <template>
   <main class="container-fluid">
+    <!-- 
+      NAVIGATION 
+    -->
     <NavigationBar :ticket-link="site.ticketLink" />
-
+    <!-- 
+      SECTIONS 
+    -->
     <div id="section-holder" class="container-fluid">
       <HeaderSection v-if="foundValidSite" :site="site" />
       <ImmersiveSection
@@ -9,26 +14,31 @@
         :immersive="immersive"
         :site="site"
       />
-      <ViewablesSection
+      <!-- <ViewablesSection
         v-if="foundValidSite"
         :viewables="viewables"
         :site="site"
-      />
+      /> -->
       <FooterSection v-if="foundValidSite" :site="site" />
-
-      <!-- below is for  -->
-      <h1 v-if="!foundValidSite" id="no-site">
-        We haven't found any site called "{{ $route.params.site }}".<br />
-        Check for typos in the url !
-      </h1>
-      <img id="inactiveArrow" ref="inactiveArrow" src="/img/white_arrow.png" />
-      <div id="inactiveMouseHolder" ref="inactiveMouseHolder">
-        <div id="inactiveMouse" ref="inactiveMouse">
-          <span></span>
-        </div>
+    </div>
+    <!-- 
+      GLOBAL OVERLAYS -- not side found
+    -->
+    <h1 v-if="!foundValidSite" id="no-site">
+      We haven't found any valid site called "{{ $route.params.site }}".<br />
+      Check for typos in the url !
+    </h1>
+    <!-- 
+      GLOBAL OVERLAYS -- scroll clue when idle
+    -->
+    <div id="inactiveMouseHolder" ref="inactiveMouseHolder">
+      <div id="inactiveMouse" ref="inactiveMouse">
+        <span></span>
       </div>
     </div>
-
+    <!-- 
+      GLOBAL OVERLAYS -- "back to the top button"
+    -->
     <b-button
       id="pageUp"
       icon-left="arrow-circle-up"
@@ -83,13 +93,13 @@ export default class SitePage extends Mixins(UtilMixins) {
   get site(): Site | null {
     const label = this.$route.params.site
     const sites = sitesFile as Site[]
-    const site = sites.find((s) => s.linkLabel === label)! as Site
+    const site = sites.find((s) => s.linkLabel === label && s.enabled) as Site
     return site ?? null
   }
 
   get immersive(): ImmersiveContent | null {
     if (this.site && this.site.immersive) {
-      return require(`@/data/sites/${this.site.immersive.siteID}/${this.site.immersive.file}`) as ImmersiveContent
+      return require(`@/data/sites/${this.site.siteID}/${this.site.immersive.file}`) as ImmersiveContent
     } else {
       return null
     }
@@ -107,13 +117,14 @@ export default class SitePage extends Mixins(UtilMixins) {
     this.scrollbar = SC.enableSmoothScroll()
 
     this.$nextTick(() => {
-      // Code that will run only after the
-      // entire view has been rendered
+      // Code that will run only after the entire view has been rendered
+
+      this.startIdleWatcher()
+
       // handle pageUp event
       document.getElementById('pageUp')!.addEventListener('click', () => {
         this.scrollbar.scrollTo(0, 0, 1500)
       })
-      this.startIdleWatcher()
     })
   }
 
@@ -190,16 +201,6 @@ export default class SitePage extends Mixins(UtilMixins) {
   border-top: 4px solid transparent;
   padding: 4px;
 }
-#inactiveArrow {
-  position: fixed;
-  z-index: 999;
-  top: 75vh;
-  right: 15px;
-  height: 20vh;
-  display: none;
-  opacity: 0;
-  transform: translateY(0px);
-}
 #inactiveMouseHolder {
   position: fixed;
   z-index: 9999;
@@ -258,11 +259,8 @@ export default class SitePage extends Mixins(UtilMixins) {
   background: transparent;
   transition: all 0.3s ease;
 }
-section {
-  /* border: 1px solid red; */
-}
 #section-holder {
-  height: 100vh;
+  height: 100%;
   width: 100vw;
   position: relative;
   overflow-x: hidden;
@@ -299,35 +297,5 @@ section {
   font-size: 3rem;
   background: rgb(40, 40, 40);
   color: #fff;
-}
-
-@media screen and (max-width: 767px) {
-  .img-shadow {
-    box-shadow: inset 0px 0px 70px 30px rgba(0, 0, 0, 0.7);
-  }
-  .cover h3 {
-    font-size: 0.7rem;
-  }
-
-  .cover h1 {
-    font-size: 1rem;
-    margin-bottom: 0.2rem;
-  }
-
-  .play-btn {
-    width: 2rem;
-  }
-}
-
-@media screen and (min-width: 321px) and (max-width: 767px) {
-  .background-sceau {
-    background-size: auto 20%;
-  }
-}
-
-@media screen and (max-width: 320px) {
-  .background-sceau {
-    background-size: auto 10%;
-  }
 }
 </style>

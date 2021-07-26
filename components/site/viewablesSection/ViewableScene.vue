@@ -91,7 +91,7 @@ export default class ViewableScene extends Vue {
           anim.pause()
           setTimeout(() => {
             anim.play()
-          }, 2000)
+          }, 500)
         })
       })
     }
@@ -166,9 +166,6 @@ export default class ViewableScene extends Vue {
         this.cores[`${mesh.name}`] = mesh as ModelCore
       }
     })
-
-    // cores might not arrive in the right order, they need sorting
-    // this.cores = this.cores.sort((a, b) => (a.name < b.name ? -1 : 1))
 
     this.meshes = imported.meshes as BABYLON.AbstractMesh[]
     return imported.animationGroups
@@ -251,8 +248,6 @@ export default class ViewableScene extends Vue {
       // })
     })
   }
-
-  playAnimated() {}
 
   canvasClick() {
     this.canvasUntouched = false

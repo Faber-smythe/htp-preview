@@ -6,9 +6,14 @@ export interface Review {
 }
 
 export interface Immersive {
-  siteID: string
+  name: string
   sceneID: string
   file: string
+}
+
+export interface ScreenDescription {
+  title: string
+  texts: string
 }
 
 export default interface Site {
@@ -18,7 +23,9 @@ export default interface Site {
   ticketLink: string
   enabled: boolean
   lngLat: number[]
+  screenDescriptions: ScreenDescription[]
   viewables: Viewable[]
+  availableImmersives: Immersive[]
   immersive: Immersive
   reviews: Review[]
 }

@@ -1,6 +1,35 @@
 export default {
   // Mind the <br/> tag where the title should break
   'france.chinon.forteresse': 'Forteresse Royale<br/>de Chinon',
+
+  /**
+   * TABLET - chinon_tablet_[information]_[option]
+   */
+  chinon_tablet_screen1_title:
+    'Embarquez pour un spectaculaire voyage dans le temps.',
+  chinon_tablet_screen1_text: [
+    'La visite augmentée de la Forteresse avec l’HistoPad, guide de visite innovant sur tablette.',
+    '4 siècles d’histoire reconstitués en 3D',
+    'De 1172 à 1453, un voyage immersif au cœur du Moyen-âge.',
+    '8 salles reconstituées.',
+    '11 portes du temps.',
+  ],
+  chinon_tablet_screen2_title: 'Contenu scientifiquement validé',
+  chinon_tablet_screen2_text: [
+    'La Grande Salle du Palais d’Henri II Plantagenêt, aujourd’hui disparu, lors du somptueux banquet de Noël de 1172',
+    'La prison des Templiers en 1308, lors de la  visite des émissaires du pape aux templiers emprisonnés',
+    "Jeanne d’Arc face à Charles VII ou encore la préparation des plats dans la cuisine au XVème siècle. Scènes historiques, décors, mobiliers et costumes ont été recréés dans les moindre détails, en collaboration avec un Comité Scientifique composé d'experts de la Forteresse.",
+  ],
+  chinon_tablet_screen3_title: 'Pour apprendre en s’amusant. Pour tous.',
+  chinon_tablet_screen3_text: [
+    'Participez à une incroyable chasse au trésor.',
+    '8 objets historiques précieux à retrouver dans les reconstitutions à 360°.',
+    'Obtenez votre diplôme de chasseur d’histoire... Et votre selfie historique !',
+    'Inclus dans le tarif d’entrée.',
+    'En 9 langues.',
+    'Une version pour les personnes à mobilité réduite.',
+  ],
+
   /**
    * IMMERSIVE - chinon_iim_[name]_[information]_[option]
    */

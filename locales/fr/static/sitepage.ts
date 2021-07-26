@@ -13,7 +13,8 @@ export default {
    * IMMERSIVE
    */
 
-  Trailerline: 'Plongez dans le passé',
+  Trailerline_1: 'Voyagez dans',
+  Trailerline_2: 'le temps',
 
   /**
    * FOOTER
