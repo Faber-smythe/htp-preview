@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "histopad-teaser-6f0ef"
+  },
+  "targets": {
+    "histopad-teaser-6f0ef": {
+      "hosting": {
+        "preprod": [
+          "histopad-teaser-6f0ef"
+        ]
+      }
+    }
   }
 }

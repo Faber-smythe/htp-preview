@@ -230,7 +230,10 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
   initSpheres() {
     this.spheres = []
     this.immersive.layers.forEach((layer, i) => {
-      const path = require(`@/assets/immersives/${this.site.siteID}/${layer.uniqueID}.jpg`)
+      const path12k = require(`@/assets/immersives/${this.site.siteID}/${layer.uniqueID}.jpg`)
+      const path4k = require(`@/assets/immersives/${this.site.siteID}/${layer.uniqueID}_mobile.jpg`)
+      const path = this.isMobile ? path4k : path12k
+
       const task = this.BC.AM.addTextureTask(`spheremaptexture_${i}`, path)
       task.onSuccess = (task) => {
         const sphere = BABYLON.MeshBuilder.CreateSphere(

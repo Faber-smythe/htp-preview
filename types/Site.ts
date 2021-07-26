@@ -13,7 +13,7 @@ export interface Immersive {
 
 export interface ScreenDescription {
   title: string
-  texts: string
+  text: string
 }
 
 export default interface Site {
