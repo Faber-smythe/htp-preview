@@ -17,7 +17,7 @@ export default {
 export const languages = Object.keys(i18nContent)
 
 // MAPPING THE AVAILABLE ROUTES BELOW
-const sites = (siteFiles as Site[]).filter((site) => site.enabled)
+const sites = (siteFiles as unknown as Site[]).filter((site) => site.enabled)
 
 export const routes: string[] = sites.flatMap((site) => {
   return languages.map((language) => `/${language}/${site.linkLabel}`)

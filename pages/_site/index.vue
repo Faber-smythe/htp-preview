@@ -92,7 +92,7 @@ export default class SitePage extends Mixins(UtilMixins) {
 
   get site(): Site | null {
     const label = this.$route.params.site
-    const sites = sitesFile as Site[]
+    const sites = sitesFile as unknown as Site[]
     const site = sites.find((s) => s.linkLabel === label && s.enabled) as Site
     return site ?? null
   }
