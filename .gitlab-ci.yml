@@ -1,4 +1,4 @@
-image: current-alpine3.11
+image: node:latest
 
 pages:
   cache:
@@ -7,10 +7,8 @@ pages:
 
   script:
     - npm i firebase-tools -g
-    - cd website
-    - npm install
     - npm run build
-    - cd ..
+    - npm run generate
     - firebase deploy --token $FIREBASE_TOKEN
   only:
-    - "1.2"
+    - 1.2
