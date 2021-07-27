@@ -11,4 +11,4 @@ pages:
     - npm run generate
     - firebase deploy --token $FIREBASE_TOKEN
   only:
-    - 1.2
+    - '1.2'
