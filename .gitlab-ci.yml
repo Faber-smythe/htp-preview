@@ -6,7 +6,9 @@ pages:
       - node_modules/
 
   script:
+    - npm i
     - npm i firebase-tools -g
+    - firebase target:apply hosting preprod histopad-teaser-6f0ef
     - npm run build
     - npm run generate
     - firebase deploy --token $FIREBASE_TOKEN
