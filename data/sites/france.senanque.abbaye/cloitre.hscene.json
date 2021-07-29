@@ -1,0 +1,892 @@
+﻿{
+    "name": "Cloitre",
+    "template": "CubeMapVisite",
+    "layers": [
+        {
+            "uniqueID": "cloitre.scenelayer.new_layer0",
+            "localizedTimestampTitle": "1230",
+            "cartelDescription": {
+                "title": "${CubemapTitle_Imm_Cloitre}",
+                "subtitle": "",
+                "description": "${CubemapDesc_Imm_Cloitre}"
+            },
+            "skyboxMaterial": "cloitre_imm",
+            "ambianceSound": {
+                "fileName": "Amb_imm_cloitre",
+                "volume": 1.0
+            },
+            "triggerType": "Timeline",
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "uniqueID": "cloitre.scenelayer.new_layer1",
+            "localizedTimestampTitle": "${Today}",
+            "cartelDescription": {
+                "title": "${CubemapTitle_VA_Cloitre}",
+                "subtitle": "",
+                "description": ""
+            },
+            "skyboxMaterial": "cloitre_va",
+            "ambianceSound": {
+                "fileName": "Amb_VA_cloitre",
+                "volume": 1.0
+            },
+            "triggerType": "Timeline",
+            "filtersOut": [],
+            "filtersIn": []
+        }
+    ],
+    "requiredAssetBundles": [],
+    "assetBundles": [
+        {
+            "url": "cloitre",
+            "version": 0,
+            "filtersOut": [],
+            "filtersIn": []
+        }
+    ],
+    "camera": {
+        "type": "Pan&Tilt",
+        "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "rotation": {
+            "x": 0.0,
+            "y": 90.0,
+            "z": 0.0
+        },
+        "sensitivity": 2.0,
+        "zoomMin": 20.0,
+        "zoomMax": 55.0,
+        "topClampValue": 0.0,
+        "bottomClampValue": 0.0,
+        "leftClampValue": 0.0,
+        "rightClampValue": 0.0,
+        "xAxisLocked": false,
+        "yAxisLocked": false,
+        "zAxisLocked": false,
+        "autoRotate": false,
+        "autoRotationSpeed": 0.0,
+        "autoRotationTriggerTime": 0.0
+    },
+    "hotspots": [
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitrelecture",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_Lecture}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -5977.091796875,
+                "y": 40.908592224121097
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitreaccesdortoir",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_AccesDortoir}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 5037.689453125,
+                "y": -44.87713623046875
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitreparloir",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_Parloir}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 6116.5466541216554,
+                "y": -28.87713623046875
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitrerefectoire",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_Refectoire}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 3963.375244140625,
+                "y": -34.747314453125
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitreaileconvers",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_AileConvers}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -36.625518798828128,
+                "y": -84.747314453125
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitretonsure",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_Tonsure}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 5183.375,
+                "y": 245.252685546875
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitregaleriecollatio2",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_GalerieCollatio2}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -3236.62548828125,
+                "y": -34.747314453125
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitrecanalisations",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_Canalisations}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 1193.37451171875,
+                "y": 1245.252685546875
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitregaleriecollatio",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_GalerieCollatio}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -4176.62548828125,
+                "y": 15.252685546875
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotimmcloitrelavabo",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_Imm_Cloitre_Lavabo}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 2699.574951171875,
+                "y": 53.7305908203125
+            }
+        },
+        {
+            "uniqueID": "cloitre.closeuphotspot.armarium",
+            "type": "CloseUpHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Image",
+                    "value": "Armarium",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "HotspotGroup",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -5400.15380859375,
+                "y": -41.17498016357422
+            }
+        },
+        {
+            "uniqueID": "cloitre.model3dhotspot.basket3dobject",
+            "type": "Model3DHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Prefab",
+                    "value": "Basket3DObject",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer0"
+            ],
+            "spriteFileName": "HotspotGroup",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 3573.37158203125,
+                "y": 695.252685546875
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotvacloitreabbayeactuelle",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_VA_Cloitre_AbbayeActuelle}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer1"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -86.62734985351563,
+                "y": -1584.748291015625
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotvacloitrelavabodisparu",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_VA_Cloitre_LavaboDisparu}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer1"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 2713.372802734375,
+                "y": 345.25177001953127
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotvacloitrebassin",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_VA_Cloitre_Bassin}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer1"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 4843.37353515625,
+                "y": 1135.251708984375
+            }
+        },
+        {
+            "uniqueID": "cloitre.texthotspot.hotspotvacloitregalerie",
+            "type": "TextHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Text",
+                    "value": "${Hotspot_VA_Cloitre_Galerie}",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer1"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -3236.627197265625,
+                "y": -34.74822998046875
+            }
+        },
+        {
+            "uniqueID": "cloitre.closeuphotspot.videocloitremarche",
+            "type": "CloseUpHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Video",
+                    "value": "VideoCloitreMarche",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer1"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -16.627349853515626,
+                "y": -14.74853515625
+            }
+        },
+        {
+            "uniqueID": "cloitre.closeuphotspot.videocloitrebeche",
+            "type": "CloseUpHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Video",
+                    "value": "VideoCloitreBeche",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer1"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": 4413.37353515625,
+                "y": 475.25146484375
+            }
+        },
+        {
+            "uniqueID": "cloitre.closeuphotspot.videocloitrelecture",
+            "type": "CloseUpHotspot",
+            "zoomLevelDisplayMin": 20.0,
+            "zoomLevelDisplayMax": 60.0,
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Video",
+                    "value": "VideoCloitreLecture",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "index": 0,
+            "requiredAssetBundle": "",
+            "displayIndexes": [],
+            "layers": [
+                "cloitre.scenelayer.new_layer1"
+            ],
+            "spriteFileName": "",
+            "visitedSpriteFileName": "",
+            "color": "",
+            "navigationType": "",
+            "filtersOut": [],
+            "filtersIn": [],
+            "position": {
+                "x": -5006.626953125,
+                "y": 185.25146484375
+            }
+        }
+    ],
+    "widgets": [
+        {
+            "type": "MediaSlider",
+            "uniqueID": "",
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "content": [],
+            "contentList": [
+                {
+                    "type": "Audio",
+                    "value": "AudioDesc_VA_Cloitre",
+                    "filtersOut": [],
+                    "filtersIn": []
+                },
+                {
+                    "type": "Localized",
+                    "value": "true",
+                    "filtersOut": [],
+                    "filtersIn": []
+                }
+            ],
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "type": "CameraZoom",
+            "uniqueID": "",
+            "position": {
+                "x": -100.0,
+                "y": 660.0
+            },
+            "content": [],
+            "contentList": [],
+            "filtersOut": [],
+            "filtersIn": []
+        },
+        {
+            "type": "CameraPinchToZoom",
+            "uniqueID": "",
+            "position": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "content": [],
+            "contentList": [],
+            "filtersOut": [],
+            "filtersIn": []
+        }
+    ],
+    "closeUps": [
+        {
+            "fileName": "Armarium",
+            "type": "2D Texture",
+            "cartelDescription": {
+                "title": "${CloseUpTitle_Armarium}",
+                "subtitle": "",
+                "description": ""
+            },
+            "ratioMode": "Envelope Parent",
+            "zoomAvailable": true,
+            "hotspots": [
+                {
+                    "uniqueID": "cloitre.texthotspot.hotspotcloseuparmariumcodex",
+                    "type": "TextHotspot",
+                    "zoomLevelDisplayMin": 1.0,
+                    "zoomLevelDisplayMax": 4.0,
+                    "content": [],
+                    "contentList": [
+                        {
+                            "type": "Text",
+                            "value": "${HotspotCloseUp_Armarium_Codex}",
+                            "filtersOut": [],
+                            "filtersIn": []
+                        }
+                    ],
+                    "index": 0,
+                    "requiredAssetBundle": "",
+                    "displayIndexes": [],
+                    "layers": [],
+                    "spriteFileName": "",
+                    "visitedSpriteFileName": "",
+                    "color": "",
+                    "navigationType": "",
+                    "filtersOut": [],
+                    "filtersIn": [],
+                    "position": {
+                        "x": -5.802154541015625,
+                        "y": 141.8240966796875
+                    }
+                },
+                {
+                    "uniqueID": "cloitre.texthotspot.hotspotcloseuparmariumemplacement",
+                    "type": "TextHotspot",
+                    "zoomLevelDisplayMin": 1.0,
+                    "zoomLevelDisplayMax": 4.0,
+                    "content": [],
+                    "contentList": [
+                        {
+                            "type": "Text",
+                            "value": "${HotspotCloseUp_Armarium_Emplacement}",
+                            "filtersOut": [],
+                            "filtersIn": []
+                        }
+                    ],
+                    "index": 0,
+                    "requiredAssetBundle": "",
+                    "displayIndexes": [],
+                    "layers": [],
+                    "spriteFileName": "",
+                    "visitedSpriteFileName": "",
+                    "color": "",
+                    "navigationType": "",
+                    "filtersOut": [],
+                    "filtersIn": [],
+                    "position": {
+                        "x": 257.95989990234377,
+                        "y": 530.3389282226563
+                    }
+                },
+                {
+                    "uniqueID": "cloitre.texthotspot.hotspotcloseuparmariumarmarium",
+                    "type": "TextHotspot",
+                    "zoomLevelDisplayMin": 1.0,
+                    "zoomLevelDisplayMax": 4.0,
+                    "content": [],
+                    "contentList": [
+                        {
+                            "type": "Text",
+                            "value": "${HotspotCloseUp_Armarium_Armarium}",
+                            "filtersOut": [],
+                            "filtersIn": []
+                        }
+                    ],
+                    "index": 0,
+                    "requiredAssetBundle": "",
+                    "displayIndexes": [],
+                    "layers": [],
+                    "spriteFileName": "",
+                    "visitedSpriteFileName": "",
+                    "color": "",
+                    "navigationType": "",
+                    "filtersOut": [],
+                    "filtersIn": [],
+                    "position": {
+                        "x": 935.18798828125,
+                        "y": 163.210205078125
+                    }
+                }
+            ],
+            "widgets": [],
+            "sound": "",
+            "volume": 0.0,
+            "contentList": []
+        },
+        {
+            "fileName": "VideoCloitreBeche",
+            "type": "Video",
+            "cartelDescription": {
+                "title": "",
+                "subtitle": "",
+                "description": ""
+            },
+            "ratioMode": "Envelope Parent",
+            "zoomAvailable": false,
+            "hotspots": [],
+            "widgets": [],
+            "sound": "",
+            "volume": 0.0,
+            "contentList": []
+        },
+        {
+            "fileName": "VideoCloitreMarche",
+            "type": "Video",
+            "cartelDescription": {
+                "title": "",
+                "subtitle": "",
+                "description": ""
+            },
+            "ratioMode": "Envelope Parent",
+            "zoomAvailable": false,
+            "hotspots": [],
+            "widgets": [],
+            "sound": "",
+            "volume": 0.0,
+            "contentList": []
+        },
+        {
+            "fileName": "VideoCloitreLecture",
+            "type": "Video",
+            "cartelDescription": {
+                "title": "",
+                "subtitle": "",
+                "description": ""
+            },
+            "ratioMode": "Envelope Parent",
+            "zoomAvailable": false,
+            "hotspots": [],
+            "widgets": [],
+            "sound": "",
+            "volume": 0.0,
+            "contentList": []
+        }
+    ],
+    "ignoreGeolocEvent": false,
+    "contentList": [],
+    "defaultSceneNavigation": {
+        "sceneName": "",
+        "sceneTemplate": "",
+        "sceneType": "",
+        "loadingScreen": false
+    },
+    "inactivitySkipTimer": 0.0,
+    "contextConditions": [
+        {
+            "key": "HorizontalSkyboxBlender",
+            "value": "${Today}",
+            "triggerType": "",
+            "triggerInfo": ""
+        }
+	],
+    "ambianceSound": "",
+    "ambianceVolume": 0.0,
+    "cartelDescriptions": [],
+    "cubemapMaterial": "cloitre"
+}

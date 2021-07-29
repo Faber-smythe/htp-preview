@@ -9,6 +9,7 @@ export interface Immersive {
   name: string
   sceneID: string
   file: string
+  version: string
 }
 
 export interface ScreenDescription {
@@ -18,8 +19,8 @@ export interface ScreenDescription {
 
 export default interface Site {
   name: string
-  siteID: string
-  linkLabel: string
+  site: string
+  slug: string
   ticketLink: string
   enabled: boolean
   lngLat: number[]

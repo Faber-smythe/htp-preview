@@ -2,6 +2,8 @@ export interface Layer {
   uniqueID: string
   periodTitle: string
   periodLabel: string
+  periodCartel: string
+  skyboxMaterial: string
 }
 
 export interface Position {
@@ -11,17 +13,16 @@ export interface Position {
 
 export interface Hotspot {
   type: string
-  index: number
+  layers: string[]
   position: Position
-  visualAsset?: string
+  visualAsset: string
   alt: string
   value: string
   opened: boolean
 }
 
-export default interface ImmersiveContent {
+export default interface WebImmersive {
   name: string
   layers: Layer[]
-  history: string
   hotspots: Hotspot[]
 }

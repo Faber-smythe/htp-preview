@@ -1,34 +1,37 @@
 ﻿{
-  "name": "cuisines",
+  "name": "cuisine",
   "layers": [
     {
-      "uniqueID": "cuisines_XVe",
+      "uniqueID": "cuisine.scenelayer.new_layer0",
       "periodTitle": "chinon_imm_cuisine_title_15th",
-      "periodLabel": "chinon_imm_cuisine_label_15thcentury"
+      "periodLabel": "chinon_imm_cuisine_label_15thcentury",
+      "periodCartel": "chinon_iim_cuisine_history",
+      "skyboxMaterial": "cuisine_XVe"
     },
     {
-      "uniqueID": "cuisines_aujourdhui",
+      "uniqueID": "cuisine.scenelayer.new_layer1",
       "periodTitle": "chinon_imm_cuisine_title_today",
-      "periodLabel": "chinon_imm_cuisine_label_today"
+      "periodLabel": "chinon_imm_cuisine_label_today",
+      "periodCartel": "chinon_iim_cuisine_history",
+      "skyboxMaterial": "cuisine_aujourdhui"
     }
   ],
-  "history": "chinon_iim_cuisines_history",
   "hotspots": [
     {
-      "type": "INSERT",
-      "layerIndex": 0,
+      "type": "TextHotspot",
+      "layers": ["cuisine_XVe"],
       "position": {
         "x": -1666.6273193359375,
         "y": 635.2508544921875
       },
-      "visualAsset": null,
+      "visualAsset": "",
       "value": "chinon_imm_cuisine_hotspot_panierpoissons",
       "alt": "chinon_imm_cuisine_hotspot_panierpoissons_alt",
       "opened": false
     },
     {
-      "type": "INSERT",
-      "layerIndex": 0,
+      "type": "TextHotspot",
+      "layers": ["cuisine_XVe"],
       "position": {
         "x": -636.6273193359375,
         "y": 955.2508544921875
@@ -39,8 +42,8 @@
       "opened": false
     },
     {
-      "type": "INSERT",
-      "layerIndex": 0,
+      "type": "TextHotspot",
+      "layers": ["cuisine_XVe"],
       "position": {
         "x": -36.627349853515628,
         "y": 155.2508544921875
@@ -51,37 +54,37 @@
       "opened": false
     },
     {
-      "type": "INSERT",
-      "layerIndex": 0,
+      "type": "TextHotspot",
+      "layers": ["cuisine_XVe"],
       "position": {
         "x": 1283.3726806640625,
         "y": 345.2508544921875
       },
-      "visualAsset": null,
+      "visualAsset": "",
       "value": "chinon_imm_cuisine_hotspot_tonneauxverjus",
       "alt": "chinon_imm_cuisine_hotspot_tonneauxverjus_alt",
       "opened": false
     },
     {
-      "type": "INSERT",
-      "layerIndex": 0,
+      "type": "TextHotspot",
+      "layers": ["cuisine_XVe"],
       "position": {
         "x": 2163.37255859375,
         "y": 975.2508544921875
       },
-      "visualAsset": null,
+      "visualAsset": "",
       "value": "chinon_imm_cuisine_hotspot_ecrevisses",
       "alt": "chinon_imm_cuisine_hotspot_ecrevisses_alt",
       "opened": false
     },
     {
-      "type": "INSERT",
-      "layerIndex": 0,
+      "type": "TextHotspot",
+      "layers": ["cuisine_XVe"],
       "position": {
         "x": 5963.37353515625,
         "y": 385.2508544921875
       },
-      "visualAsset": null,
+      "visualAsset": "",
       "value": "chinon_imm_cuisine_hotspot_grill",
       "alt": "chinon_imm_cuisine_hotspot_grill_alt",
       "opened": false

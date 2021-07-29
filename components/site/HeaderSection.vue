@@ -18,13 +18,11 @@ import SC from '@/utils/ScrollController'
 export default class SitePage extends Vue {
   @Prop({ type: Object, required: true }) readonly site!: Site
 
-  headerBg: string = require(`@/assets/img/sites/${
-    this.site!.linkLabel
-  }/header.jpg`)
+  headerBg: string = require(`@/assets/img/sites/${this.site!.slug}/header.jpg`)
 
   mounted() {
     const title = this.$refs.title as HTMLElement
-    title.innerHTML = String(this.$t(this.site.siteID))
+    title.innerHTML = String(this.$t(this.site.site))
     const headerImg = this.$refs.headerBackground as HTMLElement
     title.innerHTML = this.wrapInSpan(title.innerHTML)
 

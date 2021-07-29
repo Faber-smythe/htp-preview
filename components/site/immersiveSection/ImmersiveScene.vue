@@ -24,7 +24,7 @@ import * as LOADERS from 'babylonjs-loaders'
 import * as GUI from 'babylonjs-gui'
 // import types
 import Site from '@/types/Site'
-import ImmersiveContent, { Hotspot } from '@/types/ImmersiveContent'
+import WebImmersive, { Hotspot } from '@/types/WebImmersive'
 import InjectedSprite, { HotspotData } from '@/types/InjectedSprite'
 // import miscellaneous
 import BabylonController from '@/utils/BabylonController'
@@ -34,7 +34,7 @@ import { UtilMixins } from '@/utils/mixins'
 export default class ImmersiveScene extends Mixins(UtilMixins) {
   @Prop({ type: Object, required: true }) readonly site!: Site
   @Prop({ required: true }) readonly loadScreen!: HTMLElement
-  @Prop({ type: Object, required: false }) readonly immersive!: ImmersiveContent
+  @Prop({ type: Object, required: false }) readonly immersive!: WebImmersive
   @Prop({ type: Object, required: false }) readonly timeSlideLocation: any
   @Prop({ type: Number, required: true }) readonly animTabletSeparator!: number
   @Prop({ type: Number, required: true }) readonly animTrailerSeparator!: number
@@ -65,6 +65,7 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
 
   fontSize3D: number = 20 // font size for GUI insert (will be mobile adjusted)
   insertWidth3D: number = 250 // width for GUI insert (will be mobile adjusted)
+  insertMinHeight3D: number = 54 // minimum height for GUI insert (will be mobile adjusted)
 
   /**  state properties **/
   cameraHorizontalAngle: number = this.horizontalTravelingOrigin // in radians
@@ -94,6 +95,13 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
     // 3D insert width
     if (this.isMobile) {
       this.insertWidth3D = 400
+    }
+    // 3D insert minimum height
+    if (this.isMobile) {
+      this.insertMinHeight3D = 70
+    }
+    if (this.isSmartPhone) {
+      this.insertMinHeight3D = 70
     }
     // 3D font size
     if (this.isMobile) {
@@ -199,7 +207,7 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
     })
     // apply correspond texture on the right layers
     for (let i = 1; i <= 3; i++) {
-      const path = require(`@/assets/immersives/${this.site.siteID}/screens/screen_${i}.jpg`)
+      const path = require(`@/assets/immersives/${this.site.site}/screens/screen_${i}.jpg`)
       const task = this.BC.AM.addTextureTask(`screentexture_${i}`, path)
       task.onSuccess = (task) => {
         const screen = this.BC.scene.getMeshByName(`screen${i}`)
@@ -230,8 +238,8 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
   initSpheres() {
     this.spheres = []
     this.immersive.layers.forEach((layer, i) => {
-      const path12k = require(`@/assets/immersives/${this.site.siteID}/${layer.uniqueID}.jpg`)
-      const path4k = require(`@/assets/immersives/${this.site.siteID}/${layer.uniqueID}_mobile.jpg`)
+      const path12k = require(`@/assets/immersives/${this.site.site}/${layer.skyboxMaterial}.jpg`)
+      const path4k = require(`@/assets/immersives/${this.site.site}/${layer.skyboxMaterial}_mobile.jpg`)
       const path = this.isMobile ? path4k : path12k
 
       const task = this.BC.AM.addTextureTask(`spheremaptexture_${i}`, path)
@@ -242,7 +250,7 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
           this.BC.scene
         )
         const mat = new BABYLON.StandardMaterial(
-          `material_${layer.uniqueID}`,
+          `material_${layer.skyboxMaterial}`,
           this.BC.scene
         )
 
@@ -268,7 +276,7 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
 
     // filter data for only useful hotspots
     this.immersive.hotspots = this.immersive.hotspots.filter(
-      (hotspot) => hotspot.type === 'INSERT'
+      (hotspot) => hotspot.type === 'TextHotspot'
     )
 
     // Display the hotspots
@@ -281,7 +289,7 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
       sprite.playAnimation(0, 45, true, 0)
       /** Different kind of hotspots ? **/
       // switch (hotspot.type) {
-      //   case 'INSERT':
+      //   case 'TextHotspot':
       //     break
       //   // handle initialization for other types of Hotspot
       // }
@@ -318,16 +326,10 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
     )
     core.position = sprite.position
 
-    const insertName = `${hotspot.value}`
-      .replace(this.site.linkLabel, '')
-      .replace(this.immersive.name, '')
-      .replace('imm', '')
-      .replace('hotspot', '')
-      .replace('_', '')
     /**
      * create the GUI element
      **/
-    const rectangle = new GUI.Rectangle(`${insertName}`)
+    const rectangle = new GUI.Rectangle(`${hotspot.value}`)
     const insertWidth = this.insertWidth3D
     // styling the rectangle
     rectangle.color = 'rgba(1, 1, 1, 0.5)'
@@ -359,6 +361,11 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
 
     // rectangle's height needs to be adjusted to the text length to prevent overflow
     rectangle.heightInPixels = insertWidth * (caption.text.length / 210)
+    if ((this.$t(hotspot.value) as string).includes('ectoire des moines de')) {
+      console.log(rectangle.heightInPixels)
+    }
+    if (rectangle.heightInPixels < this.insertMinHeight3D)
+      rectangle.heightInPixels = this.insertMinHeight3D // minimum height
     // vertical offset depends on the rectangle's height
 
     const captionOffset = rectangle.heightInPixels / 2
@@ -369,7 +376,7 @@ export default class ImmersiveScene extends Mixins(UtilMixins) {
      **/
     if (hotspot.visualAsset) {
       // initialize the GUI element
-      const source = require(`@/assets/immersives/${this.site.siteID}/encarts/${hotspot.visualAsset}`)
+      const source = require(`@/assets/immersives/${this.site.site}/encarts/${hotspot.visualAsset}`)
       const image = new GUI.Image(`${hotspot.visualAsset}`, source)
 
       // styling the image

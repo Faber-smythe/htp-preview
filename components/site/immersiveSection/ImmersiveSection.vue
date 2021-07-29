@@ -59,7 +59,7 @@ import ImmersiveScene from '@/components/site/immersiveSection/ImmersiveScene.vu
 import LoadingScreen from '@/components/LoadingScreen.vue'
 // Import types
 import Site from '@/types/Site'
-import ImmersiveContent from '@/types/ImmersiveContent'
+import WebImmersive from '@/types/WebImmersive'
 import Scrollbar from 'smooth-scrollbar'
 // Miscellaneous
 import { UtilMixins } from '@/utils/mixins'
@@ -74,7 +74,7 @@ import SC from '@/utils/ScrollController'
   },
 })
 export default class ImmersiveSection extends Mixins(UtilMixins) {
-  @Prop({ type: Object, required: true }) readonly immersive!: ImmersiveContent
+  @Prop({ type: Object, required: true }) readonly immersive!: WebImmersive
   @Prop({ type: Object, required: true }) readonly site!: Site
 
   /** REFERENCE PROPERTIES **/

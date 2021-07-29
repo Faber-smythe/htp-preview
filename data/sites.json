@@ -1,8 +1,93 @@
 [
   {
+    "site": "france.senanque.abbaye",
+    "name": "Abbaye Notre-Dame de Sénanque",
+    "slug": "senanque",
+    "ticketLink": "",
+    "enabled": true,
+    "lngLat": [5.1869445, 43.9282177],
+    "screenDescriptions": [
+      {
+        "title": "chinon_tablet_screen1_title",
+        "text": "chinon_tablet_screen1_text"
+      },
+      {
+        "title": "chinon_tablet_screen2_title",
+        "text": "chinon_tablet_screen2_text"
+      },
+      {
+        "title": "chinon_tablet_screen3_title",
+        "text": "chinon_tablet_screen3_text"
+      }
+    ],
+    "availableImmersives": [
+      {
+        "name": "cloitre",
+        "sceneID": "france.senanque.abbaye.cloitre",
+        "file": "cloitre.hscene",
+        "version": "1.9"
+      }
+    ],
+    "immersive": {
+      "name": "cloitre",
+      "sceneID": "france.senanque.abbaye.cloitre",
+      "file": "cloitre.hscene",
+      "version": "1.9"
+    },
+    "viewables": [
+      {
+        "image": "",
+        "object": {
+          "file": "maquette.glb",
+          "labels": [
+            {
+              "meshId": "core_1",
+              "value": "chinon_modelLabel_recognitionRoom"
+            },
+            { "meshId": "core_2", "value": "chinon_modelLabel_treasureTower" },
+            { "meshId": "core_3", "value": "chinon_modelLabel_clockTower" },
+            { "meshId": "core_4", "value": "chinon_modelLabel_entrance" },
+            { "meshId": "core_5", "value": "chinon_modelLabel_houndsTower" },
+            { "meshId": "core_6", "value": "chinon_modelLabel_argentonTower" },
+            { "meshId": "core_7", "value": "chinon_modelLabel_coudrayTower" },
+            { "meshId": "core_8", "value": "chinon_modelLabel_boissyTower" }
+          ],
+          "initialZoom": 200,
+          "cameraClamping": "model",
+          "lightIntensity": 1
+        },
+        "size": "large",
+        "order": "textFirst",
+        "titleKey": "chinon_model_title",
+        "textKey": "chinon_model_arguments"
+      },
+      {
+        "image": "",
+        "object": {
+          "file": "bombarde.glb",
+          "labels": [],
+          "initialZoom": 850,
+          "cameraClamping": "quarter",
+          "lightIntensity": 2
+        },
+        "size": "small",
+        "order": "objectFirst",
+        "titleKey": "",
+        "textKey": "chinon_viewables_bombarde_description"
+      }
+    ],
+    "reviews": [
+      { "grade": 1, "textKey": "chinon_footer_review_1" },
+      { "grade": 2, "textKey": "chinon_footer_review_2" },
+      { "grade": 3, "textKey": "chinon_footer_review_3" },
+      { "grade": 4, "textKey": "chinon_footer_review_4" },
+      { "grade": 5, "textKey": "chinon_footer_review_5" }
+    ]
+  },
+  {
+    "site": "france.chinon.forteresse",
     "name": "Forteresse royale de Chinon",
-    "siteID": "france.chinon.forteresse",
-    "linkLabel": "chinon",
+    "slug": "chinon",
     "ticketLink": "",
     "enabled": true,
     "lngLat": [0.2334263, 47.1681036],
@@ -22,15 +107,17 @@
     ],
     "availableImmersives": [
       {
-        "name": "cuisines",
-        "sceneID": "france.chinon.forteresse.cuisines",
-        "file": "cuisines.json"
+        "name": "cuisine",
+        "sceneID": "france.chinon.forteresse.cuisine",
+        "file": "cuisine",
+        "version": "1.9"
       }
     ],
     "immersive": {
-      "name": "cuisines",
-      "sceneID": "france.chinon.forteresse.cuisines",
-      "file": "cuisines.json"
+      "name": "cuisine",
+      "sceneID": "france.chinon.forteresse.cuisine",
+      "file": "cuisine",
+      "version": "1.9"
     },
     "viewables": [
       {

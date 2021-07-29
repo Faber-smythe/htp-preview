@@ -3,7 +3,7 @@
     <!-- 
       NAVIGATION 
     -->
-    <NavigationBar :ticket-link="site.ticketLink" />
+    <NavigationBar :site="site" />
     <!-- 
       SECTIONS 
     -->
@@ -31,7 +31,11 @@
     <!-- 
       GLOBAL OVERLAYS -- scroll clue when idle
     -->
-    <div id="inactiveMouseHolder" ref="inactiveMouseHolder">
+    <div
+      v-if="foundValidSite"
+      id="inactiveMouseHolder"
+      ref="inactiveMouseHolder"
+    >
       <div id="inactiveMouse" ref="inactiveMouse">
         <span></span>
       </div>
@@ -40,6 +44,7 @@
       GLOBAL OVERLAYS -- "back to the top button"
     -->
     <b-button
+      v-if="foundValidSite"
       id="pageUp"
       icon-left="arrow-circle-up"
       :title="$t('BackToTheTop')"
@@ -60,11 +65,13 @@ import ImmersiveSection from '@/components/site/immersiveSection/ImmersiveSectio
 import ViewablesSection from '@/components/site/viewablesSection/ViewablesSection.vue'
 // import types
 import Site from '@/types/Site'
-import ImmersiveContent from '@/types/ImmersiveContent'
+import WebImmersive from '@/types/WebImmersive'
+import Viewable from '@/types/Viewable'
+import Hscene19 from '@/types/Hscene.1.9'
 // miscellaneous
 import { UtilMixins } from '@/utils/mixins'
 import sitesFile from '@/data/sites.json'
-import Viewable from '@/types/Viewable'
+import HsceneImmersive from '@/utils/HsceneImmersive'
 import SC from '@/utils/ScrollController'
 
 @Component({
@@ -93,13 +100,27 @@ export default class SitePage extends Mixins(UtilMixins) {
   get site(): Site | null {
     const label = this.$route.params.site
     const sites = sitesFile as unknown as Site[]
-    const site = sites.find((s) => s.linkLabel === label && s.enabled) as Site
+    const site = sites.find((s) => s.slug === label && s.enabled) as Site
     return site ?? null
   }
 
-  get immersive(): ImmersiveContent | null {
+  get immersive(): WebImmersive | null {
     if (this.site && this.site.immersive) {
-      return require(`@/data/sites/${this.site.siteID}/${this.site.immersive.file}`) as ImmersiveContent
+      if (!this.site.immersive.file.includes('hscene')) {
+        return require(`@/data/sites/${this.site.site}/${this.site.immersive.file}.json`) as WebImmersive
+      } else {
+        // Fallback to .hscene file (from HPDK)
+        let hScene
+        switch (this.site.immersive.version) {
+          // append cases for newly supported versions
+          case '1.9':
+            hScene =
+              require(`@/data/sites/${this.site.site}/${this.site.immersive.file}.json`) as Hscene19
+            return new HsceneImmersive(hScene)
+          default:
+            return null
+        }
+      }
     } else {
       return null
     }
@@ -114,18 +135,20 @@ export default class SitePage extends Mixins(UtilMixins) {
   }
 
   mounted() {
-    this.scrollbar = SC.enableSmoothScroll()
+    if (this.foundValidSite) {
+      this.scrollbar = SC.enableSmoothScroll()
 
-    this.$nextTick(() => {
-      // Code that will run only after the entire view has been rendered
+      this.$nextTick(() => {
+        // Code that will run only after the entire view has been rendered
 
-      this.startIdleWatcher()
+        this.startIdleWatcher()
 
-      // handle pageUp event
-      document.getElementById('pageUp')!.addEventListener('click', () => {
-        this.scrollbar.scrollTo(0, 0, 1500)
+        // handle pageUp event
+        document.getElementById('pageUp')!.addEventListener('click', () => {
+          this.scrollbar.scrollTo(0, 0, 1500)
+        })
       })
-    })
+    }
   }
 
   startIdleWatcher() {
@@ -286,7 +309,7 @@ export default class SitePage extends Mixins(UtilMixins) {
 
 #no-site {
   position: fixed;
-  z-index: 999;
+  z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -144,7 +144,7 @@ export default class ViewableScene extends Vue {
     // import the actual object
     const imported = await BABYLON.SceneLoader.ImportMeshAsync(
       '',
-      `/visual-assets/${this.site.siteID}/`,
+      `/visual-assets/${this.site.site}/`,
       this.object.file,
       this.BC.scene
     )
@@ -192,7 +192,7 @@ export default class ViewableScene extends Vue {
           }) and model labels (${labels.length}) doesn't match`
         )
       }
-      labels.forEach((label, i) => {
+      labels.forEach((label) => {
         const labelHolder = new GUI.Rectangle(
           `${this.$t(label.value) as string}-[rectangle]`
         )

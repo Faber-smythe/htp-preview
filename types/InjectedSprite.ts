@@ -1,6 +1,6 @@
 import { Sprite } from 'babylonjs/Sprites/sprite'
 import { Rectangle, Image } from 'babylonjs-gui'
-import { Hotspot } from '@/types/ImmersiveContent'
+import { Hotspot } from '@/types/WebImmersive'
 
 export interface HotspotData {
   guiCaption?: Rectangle

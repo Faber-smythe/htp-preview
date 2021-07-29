@@ -1,6 +1,6 @@
 import * as BABYLON from 'babylonjs'
 import * as GUI from 'babylonjs-gui'
-import { Position } from '@/types/ImmersiveContent'
+import { Position } from '@/types/WebImmersive'
 import BabylonCustomLoader from '@/utils/BabylonCustomLoader'
 
 const RAD2DEG = 180 / Math.PI

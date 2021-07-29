@@ -42,7 +42,7 @@ export default class FooterSection extends Vue {
   ticketSrc: string = require('@/assets/img/ticket.png')
 
   footerBg: string = require(`@/assets/img/sites/${
-    this.site!.linkLabel
+    this.site!.slug
   }/footer.jpg`)
 
   mounted() {

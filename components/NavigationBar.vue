@@ -8,10 +8,11 @@
     <template slot="end">
       <!-- TICKET LINK -->
       <a
+        v-if="false"
         id="ticketLinkHeader"
         :href="
-          ticketLink
-            ? ticketLink
+          site && site.ticketLink
+            ? site.ticketLink
             : 'https://i.giphy.com/media/5kq0GCjHA8Rwc/giphy.webp'
         "
         target="_blank"
@@ -79,9 +80,11 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { UtilMixins } from '@/utils/mixins'
 
+import Site from '@/types/Site'
+
 @Component
 export default class NavigationBar extends Mixins(UtilMixins) {
-  @Prop({ type: String, required: true }) readonly ticketLink!: string
+  @Prop({ type: Object, required: false }) readonly site!: Site
   ticketSrc: string = require('@/assets/img/ticket.png')
 
   get navBackground() {
