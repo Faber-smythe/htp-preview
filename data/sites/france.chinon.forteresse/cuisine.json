@@ -19,7 +19,7 @@
   "hotspots": [
     {
       "type": "TextHotspot",
-      "layers": ["cuisine_XVe"],
+      "layers": ["cuisine.scenelayer.new_layer0"],
       "position": {
         "x": -1666.6273193359375,
         "y": 635.2508544921875
@@ -31,7 +31,7 @@
     },
     {
       "type": "TextHotspot",
-      "layers": ["cuisine_XVe"],
+      "layers": ["cuisine.scenelayer.new_layer0"],
       "position": {
         "x": -636.6273193359375,
         "y": 955.2508544921875
@@ -43,7 +43,7 @@
     },
     {
       "type": "TextHotspot",
-      "layers": ["cuisine_XVe"],
+      "layers": ["cuisine.scenelayer.new_layer0"],
       "position": {
         "x": -36.627349853515628,
         "y": 155.2508544921875
@@ -55,7 +55,7 @@
     },
     {
       "type": "TextHotspot",
-      "layers": ["cuisine_XVe"],
+      "layers": ["cuisine.scenelayer.new_layer0"],
       "position": {
         "x": 1283.3726806640625,
         "y": 345.2508544921875
@@ -67,7 +67,7 @@
     },
     {
       "type": "TextHotspot",
-      "layers": ["cuisine_XVe"],
+      "layers": ["cuisine.scenelayer.new_layer0"],
       "position": {
         "x": 2163.37255859375,
         "y": 975.2508544921875
@@ -79,7 +79,7 @@
     },
     {
       "type": "TextHotspot",
-      "layers": ["cuisine_XVe"],
+      "layers": ["cuisine.scenelayer.new_layer0"],
       "position": {
         "x": 5963.37353515625,
         "y": 385.2508544921875
